@@ -7,8 +7,9 @@
     <title>Dashboard - SmartEco Study Buddy</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Fira+Code:wght@400;600&display=swap"
+        rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -39,173 +40,36 @@
             box-shadow: 0 20px 40px rgba(99, 102, 241, 0.3);
         }
 
+        .lesson-card {
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+        .lesson-card:hover {
+            transform: translateY(-3px);
+            border-color: #667eea;
+        }
+
         .pulse {
             animation: pulse 2s infinite;
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
         }
 
-        /* Streak Heatmap */
-        .heatmap-day {
-            width: 12px;
-            height: 12px;
-            border-radius: 2px;
-            transition: all 0.2s;
-        }
-
-        .heatmap-day:hover {
-            transform: scale(1.3);
-            box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
-        }
-
-        .level-0 { background: #1e293b; }
-        .level-1 { background: #312e81; }
-        .level-2 { background: #4f46e5; }
-        .level-3 { background: #6366f1; }
-        .level-4 { background: #818cf8; }
-
-        /* Floating Chat Button */
-        .chat-bubble {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
-            transition: all 0.3s;
-            z-index: 100;
-        }
-
-        .chat-bubble:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 30px rgba(99, 102, 241, 0.6);
-        }
-
-        .chat-bubble.pulse-animation {
-            animation: chatPulse 2s infinite;
-        }
-
-        @keyframes chatPulse {
-            0%, 100% { box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4); }
-            50% { box-shadow: 0 4px 30px rgba(99, 102, 241, 0.8), 0 0 0 10px rgba(99, 102, 241, 0.1); }
-        }
-
-        /* Chat Widget */
-        .chat-widget {
-            position: fixed;
-            bottom: 100px;
-            right: 24px;
-            width: 350px;
-            height: 500px;
-            background: rgba(15, 23, 42, 0.95);
-            border: 1px solid rgba(99, 102, 241, 0.3);
-            border-radius: 20px;
-            display: none;
-            flex-direction: column;
-            z-index: 99;
-            backdrop-filter: blur(20px);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-        }
-
-        .chat-widget.active {
-            display: flex;
-        }
-
-        /* Study Timer */
-        .timer-ring {
-            transform: rotate(-90deg);
-        }
-
-        .timer-circle {
-            transition: stroke-dashoffset 1s linear;
-        }
-
-        /* Leaderboard */
-        .leaderboard-item {
-            transition: all 0.3s;
-        }
-
-        .leaderboard-item:hover {
-            background: rgba(99, 102, 241, 0.1);
-            transform: translateX(5px);
-        }
-
-        /* Recommendation Cards */
-        .recommendation-card {
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
-            border: 1px solid rgba(99, 102, 241, 0.2);
-        }
-
-        /* Notification Toast */
-        .toast {
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            background: rgba(30, 41, 59, 0.95);
-            border: 1px solid rgba(99, 102, 241, 0.3);
-            padding: 16px 24px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transform: translateX(400px);
-            transition: transform 0.3s ease;
-            z-index: 200;
-        }
-
-        .toast.show {
-            transform: translateX(0);
-        }
-
-        /* Confetti Animation */
         .confetti {
             position: fixed;
             pointer-events: none;
             z-index: 1000;
-        }
-
-        /* Scrollbar Styling */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #1e293b;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #4f46e5;
-            border-radius: 4px;
-        }
-
-        /* Tooltip */
-        .tooltip {
-            position: relative;
-        }
-
-        .tooltip:hover::after {
-            content: attr(data-tip);
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 6px 12px;
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            font-size: 12px;
-            border-radius: 6px;
-            white-space: nowrap;
-            z-index: 10;
         }
     </style>
 </head>
@@ -216,676 +80,890 @@
     <nav class="fixed top-0 w-full z-50 glass-panel border-b border-slate-700/50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
                 <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 gradient-bg rounded-lg flex items-center justify-center text-white font-bold text-xl">
+                    <div
+                        class="w-10 h-10 gradient-bg rounded-lg flex items-center justify-center text-white font-bold text-xl">
                         SB
                     </div>
-                    <span class="text-xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">SmartEco</span>
+                    <span
+                        class="text-xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">SmartEco</span>
                 </div>
 
+                <!-- Navigation Links -->
                 <div class="hidden md:flex items-center space-x-6">
-                    <a href="dashboard.html" class="nav-link text-indigo-400 transition">Dashboard</a>
-                    <a href="lessons.html" class="nav-link hover:text-indigo-400 transition">Lessons</a>
-                    <a href="hardware.html" class="nav-link hover:text-indigo-400 transition">Hardware</a>
-                    <a href="badges.html" class="nav-link hover:text-indigo-400 transition">Badges</a>
-                    <a href="profile.html" class="nav-link hover:text-indigo-400 transition">Profile</a>
+                    <a href="dashboard.html" class="nav-link hover:text-indigo-400 transition"
+                        data-page="dashboard">Dashboard</a>
+                    <a href="lessons.html" class="nav-link hover:text-indigo-400 transition"
+                        data-page="lessons">Lessons</a>
+                    <a href="hardware.html" class="nav-link hover:text-indigo-400 transition"
+                        data-page="hardware">Hardware</a>
+                    <a href="badges.html" class="nav-link hover:text-indigo-400 transition"
+                        data-page="badges">Badges</a>
+                    <a href="profile.html" class="nav-link hover:text-indigo-400 transition"
+                        data-page="profile">Profile</a>
 
-                    <div class="flex items-center space-x-3 bg-slate-800/50 px-4 py-2 rounded-full border border-slate-700">
-                        <div class="w-8 h-8 gradient-bg rounded-full flex items-center justify-center text-white font-bold text-sm">
-                            <span id="nav-level">4</span>
+                    <!-- XP Display -->
+                    <div
+                        class="flex items-center space-x-3 bg-slate-800/50 px-4 py-2 rounded-full border border-slate-700">
+                        <div
+                            class="w-8 h-8 gradient-bg rounded-full flex items-center justify-center text-white font-bold text-sm">
+                            <span id="nav-level">1</span>
                         </div>
                         <div class="w-32 h-2 bg-slate-700 rounded-full overflow-hidden">
-                            <div class="h-full gradient-bg" style="width: 50%"></div>
+                            <div id="nav-xp-bar" class="h-full gradient-bg" style="width: 0%"></div>
                         </div>
-                        <span class="text-xs text-slate-400">50/100 XP</span>
+                        <span id="nav-xp-text" class="text-xs text-slate-400">0/100 XP</span>
                     </div>
 
-                    <!-- Notification Bell -->
-                    <button onclick="showNotifications()" class="relative p-2 hover:bg-slate-800 rounded-lg transition">
-                        <span class="text-xl">🔔</span>
-                        <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-                    </button>
-
-                    <a href="profile.html" class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center text-white font-bold cursor-pointer hover:scale-110 transition">
-                        <span>👤</span>
+                    <!-- Profile Avatar -->
+                    <a href="profile.html"
+                        class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center text-white font-bold cursor-pointer hover:scale-110 transition">
+                        <span id="user-avatar">👤</span>
                     </a>
                 </div>
+
+                <!-- Mobile Menu Button -->
+                <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linecap="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Dropdown -->
+        <div id="mobile-menu" class="hidden md:hidden glass-panel border-t border-slate-700/50 p-4">
+            <div class="flex flex-col space-y-3">
+                <a href="dashboard.html"
+                    class="mobile-nav-link px-4 py-2 hover:bg-slate-800 rounded-lg transition">Dashboard</a>
+                <a href="lessons.html"
+                    class="mobile-nav-link px-4 py-2 hover:bg-slate-800 rounded-lg transition">Lessons</a>
+                <a href="hardware.html"
+                    class="mobile-nav-link px-4 py-2 hover:bg-slate-800 rounded-lg transition">Hardware</a>
+                <a href="badges.html"
+                    class="mobile-nav-link px-4 py-2 hover:bg-slate-800 rounded-lg transition">Badges</a>
+                <a href="profile.html"
+                    class="mobile-nav-link px-4 py-2 hover:bg-slate-800 rounded-lg transition">Profile</a>
             </div>
         </div>
     </nav>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="toast">
-        <span class="text-2xl">🎉</span>
-        <div>
-            <h4 class="font-bold text-sm">Daily Streak!</h4>
-            <p class="text-xs text-slate-400">You've studied 7 days in a row!</p>
-        </div>
-    </div>
-
     <!-- Main Dashboard -->
     <div class="pt-20 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
 
-        <!-- Welcome Section with Personalized Greeting -->
-        <div class="mb-8 flex items-center justify-between">
-            <div>
-                <h1 class="text-3xl font-bold mb-2">
-                    <span id="greeting">Good morning</span>, <span class="text-indigo-400">Alex</span>! 👋
-                </h1>
-                <p class="text-slate-400 flex items-center gap-2">
-                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                    Ready to continue your <span class="text-indigo-400 font-semibold">Coding & Maths</span> journey?
-                </p>
-            </div>
-            <div class="flex items-center gap-3">
-                <button onclick="startFocusMode()" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-xl font-semibold transition flex items-center gap-2">
-                    <span>🎯</span> Focus Mode
-                </button>
-            </div>
+        <!-- Welcome Section -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold mb-2">
+                Welcome back, <span id="user-name"
+                    class="gradient-text bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Learner</span>!
+            </h1>
+            <p id="daily-motto" class="text-slate-400">Ready to continue your coding journey?</p>
         </div>
 
-        <!-- TOP STATS ROW -->
+        <!-- STATS CARDS (Row 1) -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            
-            <!-- Level Card with Circular Progress -->
+
+            <!-- Level Card -->
             <div class="stat-card glass-panel p-6 rounded-2xl relative overflow-hidden">
                 <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/20 rounded-full blur-3xl"></div>
-                <div class="relative z-10 flex items-center gap-4">
-                    <div class="relative w-16 h-16">
-                        <svg class="w-full h-full transform -rotate-90">
-                            <circle cx="32" cy="32" r="28" stroke="#1e293b" stroke-width="6" fill="none"/>
-                            <circle cx="32" cy="32" r="28" stroke="url(#gradient)" stroke-width="6" fill="none" 
-                                    stroke-dasharray="175.9" stroke-dashoffset="88" stroke-linecap="round"/>
-                            <defs>
-                                <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                    <stop offset="0%" stop-color="#667eea" />
-                                    <stop offset="100%" stop-color="#764ba2" />
-                                </linearGradient>
-                            </defs>
-                        </svg>
-                        <div class="absolute inset-0 flex items-center justify-center font-bold text-lg">4</div>
-                    </div>
-                    <div>
-                        <p class="text-slate-400 text-sm">Level 4</p>
-                        <p class="text-2xl font-bold text-indigo-400">50<span class="text-sm text-slate-500">/100 XP</span></p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Streak Card with Fire Animation -->
-            <div class="stat-card glass-panel p-6 rounded-2xl relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-32 h-32 bg-orange-500/20 rounded-full blur-3xl"></div>
                 <div class="relative z-10">
-                    <div class="flex items-center justify-between mb-2">
-                        <p class="text-slate-400 text-sm">Current Streak</p>
-                        <span class="text-2xl animate-bounce">🔥</span>
+                    <div class="flex items-center justify-between mb-4">
+                        <p class="text-slate-400 text-sm">Current Level</p>
+                        <div class="text-2xl">📊</div>
                     </div>
                     <div class="flex items-end gap-2">
-                        <span class="text-4xl font-bold text-orange-400">7</span>
-                        <span class="text-slate-400 mb-1">days</span>
+                        <span id="stat-level" class="text-4xl font-bold text-indigo-400">1</span>
+                        <span class="text-slate-400 mb-1">/ 50</span>
                     </div>
-                    <p class="text-xs text-orange-400 mt-2">Best: 14 days 🔥</p>
+                    <div class="mt-4">
+                        <div class="flex justify-between text-xs text-slate-400 mb-1">
+                            <span>XP Progress</span>
+                            <span id="stat-xp-text">0/100</span>
+                        </div>
+                        <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+                            <div id="stat-xp-bar" class="h-full gradient-bg xp-bar-fill" style="width: 0%"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Study Time Today -->
-            <div class="stat-card glass-panel p-6 rounded-2xl relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-32 h-32 bg-green-500/20 rounded-full blur-3xl"></div>
-                <div class="relative z-10">
-                    <div class="flex items-center justify-between mb-2">
-                        <p class="text-slate-400 text-sm">Study Time Today</p>
-                        <span class="text-2xl">⏱️</span>
-                    </div>
-                    <div class="flex items-end gap-2">
-                        <span class="text-4xl font-bold text-green-400">45</span>
-                        <span class="text-slate-400 mb-1">min</span>
-                    </div>
-                    <p class="text-xs text-green-400 mt-2">+15 min from yesterday 🚀</p>
-                </div>
-            </div>
-
-            <!-- Weekly Goal -->
+            <!-- Lessons Card -->
             <div class="stat-card glass-panel p-6 rounded-2xl relative overflow-hidden">
                 <div class="absolute top-0 right-0 w-32 h-32 bg-purple-500/20 rounded-full blur-3xl"></div>
                 <div class="relative z-10">
-                    <div class="flex items-center justify-between mb-2">
-                        <p class="text-slate-400 text-sm">Weekly Goal</p>
-                        <span class="text-2xl">🎯</span>
+                    <div class="flex items-center justify-between mb-4">
+                        <p class="text-slate-400 text-sm">Lessons Completed</p>
+                        <div class="text-2xl">📚</div>
                     </div>
                     <div class="flex items-end gap-2">
-                        <span class="text-4xl font-bold text-purple-400">3</span>
-                        <span class="text-slate-400 mb-1">/5 lessons</span>
+                        <span id="stat-lessons" class="text-4xl font-bold text-purple-400">0</span>
+                        <span class="text-slate-400 mb-1">total</span>
                     </div>
-                    <div class="mt-2 h-2 bg-slate-700 rounded-full overflow-hidden">
-                        <div class="h-full bg-purple-500 rounded-full" style="width: 60%"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- MAIN CONTENT GRID -->
-        <div class="grid lg:grid-cols-3 gap-6 mb-8">
-
-            <!-- LEFT COLUMN: Continue Learning & Streak Heatmap -->
-            <div class="lg:col-span-2 space-y-6">
-                
-                <!-- Continue Learning -->
-                <div class="glass-panel p-6 rounded-2xl">
-                    <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-xl font-bold">📚 Continue Learning</h3>
-                        <a href="lessons.html" class="text-sm text-indigo-400 hover:text-indigo-300">View all →</a>
-                    </div>
-
-                    <div class="space-y-4">
-                        <!-- Current Lesson -->
-                        <a class="bg-slate-800/50 p-5 rounded-xl border border-indigo-500/50 cursor-pointer hover:bg-slate-800 transition" href="/lessonCoding.html">
-                            <div class="flex items-center gap-4">
-                                <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center text-2xl">
-                                    ⚛️
-                                </div>
-                                <div class="flex-1">
-                                    <div class="flex items-center justify-between mb-1">
-                                        <h4 class="font-bold">Computer Science: Introduction To Coding</h4>
-                                        <span class="px-2 py-1 bg-blue-500/20 text-blue-300 rounded text-xs">In Progress</span>
-                                    </div>
-                                    <p class="text-sm text-slate-400 mb-2">Lesson 2 of 5 • 50% complete</p>
-                                    <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
-                                        <div class="h-full bg-gradient-to-r from-blue-500 to-cyan-500" style="width: 50%"></div>
-                                    </div>
-                                </div>
-                                <button class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-sm font-semibold transition">Resume</button>
-                            </div>
-                        </a>
-
-                        <!-- Next Recommended -->
-                        <a class="bg-slate-800/30 p-5 rounded-xl border border-slate-700 cursor-pointer hover:border-indigo-500 transition"  href="/lessonMaths.html">
-                            <div class="flex items-center gap-4">
-                                <div class="w-14 h-14 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center text-2xl opacity-70">
-                                    🧮
-                                </div>
-                                <div class="flex-1">
-                                    <div class="flex items-center gap-2 mb-1">
-                                        <h4 class="font-bold text-slate-300">Mathematics: Fractions</h4>
-                                        <span class="px-2 py-1 bg-slate-700 text-slate-400 rounded text-xs">Recommended</span>
-                                    </div>
-                                    <p class="text-sm text-slate-500">Based on your coding progress</p>
-                                </div>
-                                <button class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm transition">Start</button>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Streak Heatmap -->
-                <div class="glass-panel p-6 rounded-2xl">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-bold">🔥 Study Streak</h3>
-                        <div class="flex items-center gap-4 text-xs text-slate-400">
-                            <span class="flex items-center gap-1"><div class="w-3 h-3 bg-indigo-900 rounded"></div> Less</span>
-                            <span class="flex items-center gap-1"><div class="w-3 h-3 bg-indigo-400 rounded"></div> More</span>
-                        </div>
-                    </div>
-                    <div class="flex gap-1 flex-wrap" id="heatmap">
-                        <!-- Generated by JS -->
-                    </div>
-                    <p class="text-xs text-slate-500 mt-3">Last 30 days • 18 days studied</p>
-                </div>
-
-                <!-- Weekly Activity Chart -->
-                <div class="glass-panel p-6 rounded-2xl">
-                    <h3 class="text-lg font-bold mb-4">📊 Weekly Activity</h3>
-                    <canvas id="activityChart" height="100"></canvas>
-                </div>
-            </div>
-
-            <!-- RIGHT COLUMN: Leaderboard, Timer, Quick Actions -->
-            <div class="space-y-6">
-
-                <!-- Live Study Timer -->
-                <div class="glass-panel p-6 rounded-2xl text-center relative overflow-hidden">
-                    <div class="absolute inset-0 bg-gradient-to-br from-indigo-600/20 to-purple-600/20"></div>
-                    <div class="relative z-10">
-                        <h3 class="text-lg font-bold mb-4">⏱️ Study Timer</h3>
-                        <div class="relative w-32 h-32 mx-auto mb-4">
-                            <svg class="w-full h-full transform -rotate-90">
-                                <circle cx="64" cy="64" r="58" stroke="#1e293b" stroke-width="8" fill="none"/>
-                                <circle id="timer-progress" cx="64" cy="64" r="58" stroke="url(#timerGradient)" stroke-width="8" fill="none" 
-                                        stroke-dasharray="364.4" stroke-dashoffset="0" stroke-linecap="round" class="timer-circle"/>
-                                <defs>
-                                    <linearGradient id="timerGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                        <stop offset="0%" stop-color="#667eea" />
-                                        <stop offset="100%" stop-color="#764ba2" />
-                                    </linearGradient>
-                                </defs>
-                            </svg>
-                            <div class="absolute inset-0 flex flex-col items-center justify-center">
-                                <span id="timer-display" class="text-2xl font-bold font-mono">25:00</span>
-                                <span class="text-xs text-slate-400">minutes</span>
-                            </div>
-                        </div>
-                        <div class="flex gap-2 justify-center">
-                            <button id="timer-toggle" onclick="toggleTimer()" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg font-semibold transition">
-                                Start
-                            </button>
-                            <button onclick="resetTimer()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg transition">
-                                ↺
-                            </button>
-                        </div>
-                        <p class="text-xs text-slate-400 mt-3">Pomodoro Technique • 25 min focus</p>
-                    </div>
-                </div>
-
-                <!-- Mini Leaderboard -->
-                <div class="glass-panel p-6 rounded-2xl">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-bold">🏆 Leaderboard</h3>
-                        <span class="text-xs text-slate-400">This Week</span>
-                    </div>
-                    <div class="space-y-3">
-                        <div class="leaderboard-item flex items-center gap-3 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/30">
-                            <span class="text-xl">🥇</span>
-                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" class="w-10 h-10 rounded-full bg-slate-700">
-                            <div class="flex-1">
-                                <p class="font-bold text-sm">Sarah M.</p>
-                                <p class="text-xs text-slate-400">2,450 XP</p>
-                            </div>
-                        </div>
-                        <div class="leaderboard-item flex items-center gap-3 p-3 rounded-lg bg-slate-800/50 border border-indigo-500/50">
-                            <span class="text-xl">🥈</span>
-                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Alex" class="w-10 h-10 rounded-full bg-slate-700">
-                            <div class="flex-1">
-                                <p class="font-bold text-sm text-indigo-300">You</p>
-                                <p class="text-xs text-slate-400">1,850 XP</p>
-                            </div>
-                        </div>
-                        <div class="leaderboard-item flex items-center gap-3 p-3 rounded-lg bg-slate-800/30">
-                            <span class="text-xl">🥉</span>
-                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=John" class="w-10 h-10 rounded-full bg-slate-700">
-                            <div class="flex-1">
-                                <p class="font-bold text-sm">Mike R.</p>
-                                <p class="text-xs text-slate-400">1,620 XP</p>
-                            </div>
-                        </div>
-                    </div>
-                    <button class="w-full mt-3 py-2 text-sm text-indigo-400 hover:text-indigo-300 transition">View Full Ranking →</button>
-                </div>
-
-                <!-- Quick Actions -->
-                <div class="glass-panel p-6 rounded-2xl">
-                    <h3 class="text-lg font-bold mb-4">⚡ Quick Actions</h3>
-                    <div class="grid grid-cols-2 gap-3">
-                        <button onclick="startQuickMission()" class="p-3 bg-slate-800/50 rounded-xl border border-slate-700 hover:border-indigo-500 transition text-center">
-                            <div class="text-2xl mb-1">🎯</div>
-                            <span class="text-xs">Daily Mission</span>
-                        </button>
-                        <button onclick="window.location.href='hardware.html'" class="p-3 bg-slate-800/50 rounded-xl border border-slate-700 hover:border-indigo-500 transition text-center">
-                            <div class="text-2xl mb-1">🔌</div>
-                            <span class="text-xs">Connect Box</span>
-                        </button>
-                        <button onclick="showChallenges()" class="p-3 bg-slate-800/50 rounded-xl border border-slate-700 hover:border-indigo-500 transition text-center">
-                            <div class="text-2xl mb-1">🏅</div>
-                            <span class="text-xs">Challenges</span>
-                        </button>
-                        <button onclick="inviteFriend()" class="p-3 bg-slate-800/50 rounded-xl border border-slate-700 hover:border-indigo-500 transition text-center">
-                            <div class="text-2xl mb-1">👥</div>
-                            <span class="text-xs">Invite Friend</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Study Box Status -->
-                <div class="glass-panel p-6 rounded-2xl">
-                    <h3 class="text-lg font-bold mb-4">🔌 Study Box</h3>
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center text-2xl">
-                            ✅
-                        </div>
-                        <div>
-                            <p class="font-bold">Connected</p>
-                            <p class="text-xs text-green-400">● Ready to use</p>
-                        </div>
-                    </div>
-                    <div class="space-y-2">
-                        <div class="flex justify-between text-sm">
-                            <span class="text-slate-400">Battery</span>
-                            <span class="text-green-400">85%</span>
+                    <div class="mt-4">
+                        <div class="flex justify-between text-xs text-slate-400 mb-1">
+                            <span>This week</span>
+                            <span id="weekly-goal">0/5</span>
                         </div>
                         <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
-                            <div class="h-full bg-green-500" style="width: 85%"></div>
+                            <div id="weekly-bar" class="h-full bg-purple-500 xp-bar-fill" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Streak Card -->
+            <div class="stat-card glass-panel p-6 rounded-2xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-pink-500/20 rounded-full blur-3xl"></div>
+                <div class="relative z-10">
+                    <div class="flex items-center justify-between mb-4">
+                        <p class="text-slate-400 text-sm">Current Streak</p>
+                        <div class="text-2xl">🔥</div>
+                    </div>
+                    <div class="flex items-end gap-2">
+                        <span id="stat-streak" class="text-4xl font-bold text-pink-400">1</span>
+                        <span class="text-slate-400 mb-1">days</span>
+                    </div>
+                    <div class="mt-4">
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="text-slate-400">Best: <span id="best-streak">7</span> days</span>
+                            <span id="streak-message" class="text-pink-400">Keep it up!</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Time Studied Card -->
+            <div class="stat-card glass-panel p-6 rounded-2xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-green-500/20 rounded-full blur-3xl"></div>
+                <div class="relative z-10">
+                    <div class="flex items-center justify-between mb-4">
+                        <p class="text-slate-400 text-sm">Time Studied</p>
+                        <div class="text-2xl">⏱️</div>
+                    </div>
+                    <div class="flex items-end gap-2">
+                        <span id="stat-time" class="text-4xl font-bold text-green-400">2.5</span>
+                        <span class="text-slate-400 mb-1">hours</span>
+                    </div>
+                    <div class="mt-4">
+                        <div class="flex justify-between text-xs text-slate-400">
+                            <span>Today: <span id="today-time">25m</span></span>
+                            <span>Average: <span id="avg-time">30m</span></span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- AI Recommendations -->
-        <div class="glass-panel p-6 rounded-2xl mb-8">
-            <div class="flex items-center justify-between mb-6">
-                <div>
-                    <h3 class="text-xl font-bold">🤖 AI Recommendations</h3>
-                    <p class="text-sm text-slate-400">Personalized based on your learning pattern</p>
+        <!-- CONTINUE LEARNING & HARDWARE STATUS (Row 2) -->
+        <div class="grid lg:grid-cols-3 gap-6 mb-8">
+
+            <!-- Continue Learning (2/3 width) -->
+            <div class="lg:col-span-2 glass-panel p-6 rounded-2xl">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-bold">Continue Your Journey</h3>
+                    <button onclick="window.location.href='lessons.html'"
+                        class="text-sm text-indigo-400 hover:text-indigo-300 transition">
+                        View all →
+                    </button>
                 </div>
-                <button class="px-4 py-2 bg-indigo-600/20 text-indigo-400 rounded-lg text-sm hover:bg-indigo-600/30 transition">
-                    Refresh
+
+                <a id="current-lesson-card"
+                    class="bg-slate-800/50 p-6 rounded-xl border border-slate-700 hover:border-indigo-500 transition cursor-pointer"
+                    href="/lessonCoding.html">
+                
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 gradient-bg rounded-xl flex items-center justify-center text-3xl">
+                        🤖
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 id="current-lesson-title" class="text-xl font-bold">Introduction to Coding</h4>
+                            <span id="current-lesson-badge"
+                                class="px-3 py-1 bg-indigo-500/20 text-indigo-300 rounded-full text-xs">Beginner</span>
+                        </div>
+                        <p id="current-lesson-desc" class="text-slate-400 text-sm mb-3">Learn the basics with your
+                            robot companion</p>
+
+                        <!-- Progress bar -->
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs text-slate-400" id="current-progress-text">70%</span>
+                            <div class="flex-1 h-2 bg-slate-700 rounded-full overflow-hidden">
+                                <div id="current-progress-bar" class="h-full gradient-bg" style="width: 70%"></div>
+                            </div>
+                            <span class="text-xs text-indigo-400 font-semibold">Resume →</span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+
+
+                
+            </div>
+
+            <a id="current-lesson-card"
+                class="bg-slate-800/50 p-6 rounded-xl border border-slate-700 hover:border-indigo-500 transition cursor-pointer"
+               href="/lessonMaths.html">
+
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 gradient-bg rounded-xl flex items-center justify-center text-3xl">
+                        🧮
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 id="current-lesson-title" class="text-xl font-bold">Introduction to Mathematics</h4>
+                            <span id="current-lesson-badge"
+                                class="px-3 py-1 bg-indigo-500/20 text-indigo-300 rounded-full text-xs">Beginner</span>
+                        </div>
+                        <p id="current-lesson-desc" class="text-slate-400 text-sm mb-3">Master numbers and operations
+                            with interactive puzzles</p>
+
+                        <!-- Progress bar -->
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs text-slate-400" id="current-progress-text">60%</span>
+                            <div class="flex-1 h-2 bg-slate-700 rounded-full overflow-hidden">
+                                <div id="current-progress-bar" class="h-full gradient-bg" style="width: 60%"></div>
+                            </div>
+                            <span class="text-xs text-indigo-400 font-semibold">Resume →</span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+
+
+            <div id="current-lesson-card"
+                class="bg-slate-800/50 p-6 rounded-xl border border-slate-700 hover:border-indigo-500 transition cursor-pointer"
+                onclick="resumeLesson()">
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 gradient-bg rounded-xl flex items-center justify-center text-3xl">
+                        ⚛️
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 id="current-lesson-title" class="text-xl font-bold">Introduction to Physicss</h4>
+                            <span id="current-lesson-badge"
+                                class="px-3 py-1 bg-indigo-500/20 text-indigo-300 rounded-full text-xs">Beginner</span>
+                        </div>
+                        <p id="current-lesson-desc" class="text-slate-400 text-sm mb-3">Explore forces, motion, and
+                            energy through simulations</p>
+
+                        <!-- Progress bar -->
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs text-slate-400" id="current-progress-text">70%</span>
+                            <div class="flex-1 h-2 bg-slate-700 rounded-full overflow-hidden">
+                                <div id="current-progress-bar" class="h-full gradient-bg" style="width: 70%"></div>
+                            </div>
+                            <span class="text-xs text-indigo-400 font-semibold">Resume →</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="current-lesson-card"
+                class="bg-slate-800/50 p-6 rounded-xl border border-slate-700 hover:border-indigo-500 transition cursor-pointer"
+                onclick="resumeLesson()">
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 gradient-bg rounded-xl flex items-center justify-center text-3xl">
+                        🧪
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 id="current-lesson-title" class="text-xl font-bold">Introduction to Chemistry</h4>
+                            <span id="current-lesson-badge"
+                                class="px-3 py-1 bg-indigo-500/20 text-indigo-300 rounded-full text-xs">Beginner</span>
+                        </div>
+                        <p id="current-lesson-desc" class="text-slate-400 text-sm mb-3">Discover atoms, molecules, and
+                            reactions in virtual labs</p>
+
+                        <!-- Progress bar -->
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs text-slate-400" id="current-progress-text">80%</span>
+                            <div class="flex-1 h-2 bg-slate-700 rounded-full overflow-hidden">
+                                <div id="current-progress-bar" class="h-full gradient-bg" style="width: 80%"></div>
+                            </div>
+                            <span class="text-xs text-indigo-400 font-semibold">Resume →</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="current-lesson-card"
+                class="bg-slate-800/50 p-6 rounded-xl border border-slate-700 hover:border-indigo-500 transition cursor-pointer"
+                onclick="resumeLesson()">
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 gradient-bg rounded-xl flex items-center justify-center text-3xl">
+                        📚
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 id="current-lesson-title" class="text-xl font-bold">Introduction to English</h4>
+                            <span id="current-lesson-badge"
+                                class="px-3 py-1 bg-indigo-500/20 text-indigo-300 rounded-full text-xs">Beginner</span>
+                        </div>
+                        <p id="current-lesson-desc" class="text-slate-400 text-sm mb-3">Build vocabulary and grammar
+                            skills with AI conversations</p>
+
+                        <!-- Progress bar -->
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs text-slate-400" id="current-progress-text">90%</span>
+                            <div class="flex-1 h-2 bg-slate-700 rounded-full overflow-hidden">
+                                <div id="current-progress-bar" class="h-full gradient-bg" style="width: 90%"></div>
+                            </div>
+                            <span class="text-xs text-indigo-400 font-semibold">Resume →</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Quick actions -->
+            <div class="grid grid-cols-3 gap-3 mt-4">
+                <button onclick="startQuickMission()"
+                    class="py-3 bg-slate-800/50 rounded-xl border border-slate-700 hover:border-indigo-500 transition text-center">
+                    <div class="text-xl mb-1">⚡</div>
+                    <span class="text-xs">5-min Mission</span>
+                </button>
+                <button onclick="window.location.href='hardware.html'"
+                    class="py-3 bg-slate-800/50 rounded-xl border border-slate-700 hover:border-indigo-500 transition text-center">
+                    <div class="text-xl mb-1">🔌</div>
+                    <span class="text-xs">Connect Box</span>
+                </button>
+                <button onclick="showChallenges()"
+                    class="py-3 bg-slate-800/50 rounded-xl border border-slate-700 hover:border-indigo-500 transition text-center">
+                    <div class="text-xl mb-1">🏆</div>
+                    <span class="text-xs">Challenges</span>
                 </button>
             </div>
-            <div class="grid md:grid-cols-3 gap-4">
-                <div class="recommendation-card p-4 rounded-xl cursor-pointer hover:border-indigo-500 transition">
-                    <div class="flex items-center gap-3 mb-3">
-                        <span class="text-2xl">🧠</span>
-                        <span class="px-2 py-1 bg-indigo-500/20 text-indigo-300 rounded text-xs">High Priority</span>
-                    </div>
-                    <h4 class="font-bold mb-1">Review Physics Basics</h4>
-                    <p class="text-sm text-slate-400 mb-3">You haven't studied Physics in 3 days</p>
-                    <div class="flex items-center gap-2 text-xs text-slate-500">
-                        <span>⏱️ 15 min</span>
-                        <span>•</span>
-                        <span>🎯 50 XP</span>
-                    </div>
-                </div>
-                <div class="recommendation-card p-4 rounded-xl cursor-pointer hover:border-indigo-500 transition">
-                    <div class="flex items-center gap-3 mb-3">
-                        <span class="text-2xl">🏆</span>
-                        <span class="px-2 py-1 bg-purple-500/20 text-purple-300 rounded text-xs">Challenge</span>
-                    </div>
-                    <h4 class="font-bold mb-1">Coding Sprint</h4>
-                    <p class="text-sm text-slate-400 mb-3">Complete 3 lessons in 1 hour</p>
-                    <div class="flex items-center gap-2 text-xs text-slate-500">
-                        <span>⏱️ 60 min</span>
-                        <span>•</span>
-                        <span>🎯 200 XP + Badge</span>
-                    </div>
-                </div>
-                <div class="recommendation-card p-4 rounded-xl cursor-pointer hover:border-indigo-500 transition">
-                    <div class="flex items-center gap-3 mb-3">
-                        <span class="text-2xl">🌟</span>
-                        <span class="px-2 py-1 bg-pink-500/20 text-pink-300 rounded text-xs">New</span>
-                    </div>
-                    <h4 class="font-bold mb-1">Try Chemistry Lab</h4>
-                    <p class="text-sm text-slate-400 mb-3">New virtual experiments available</p>
-                    <div class="flex items-center gap-2 text-xs text-slate-500">
-                        <span>⏱️ 30 min</span>
-                        <span>•</span>
-                        <span>🎯 100 XP</span>
-                    </div>
-                </div>
-            </div>
         </div>
 
-        <!-- Recent Achievements -->
+        <!-- Hardware Status (1/3 width) -->
         <div class="glass-panel p-6 rounded-2xl">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-xl font-bold">🏅 Recent Achievements</h3>
-                <a href="badges.html" class="text-sm text-indigo-400 hover:text-indigo-300">View all →</a>
+            <h3 class="text-xl font-bold mb-4">🔌 Study Box</h3>
+
+            <div id="hardware-disconnected" class="text-center py-6">
+                <div class="w-20 h-20 mx-auto mb-4 bg-slate-800 rounded-full flex items-center justify-center text-3xl">
+                    🔌
+                </div>
+                <h4 class="font-bold mb-2">Not Connected</h4>
+                <p class="text-sm text-slate-400 mb-4">Connect your Study Box for the full experience</p>
+                <button onclick="window.location.href='hardware.html'"
+                    class="w-full py-3 gradient-bg text-white rounded-xl font-semibold hover:shadow-lg transition">
+                    Connect Now
+                </button>
             </div>
-            <div class="flex gap-4 overflow-x-auto pb-2">
-                <div class="flex-shrink-0 text-center">
-                    <div class="w-20 h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center text-3xl mb-2 animate-pulse">
-                        🔥
+
+            <div id="hardware-connected" class="hidden">
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center text-2xl">
+                        ✅
                     </div>
-                    <p class="text-xs font-semibold">7-Day Streak</p>
-                    <p class="text-xs text-slate-500">2 days ago</p>
+                    <div>
+                        <h4 class="font-bold">CodeQuest Buddy</h4>
+                        <p class="text-xs text-green-400">● Connected</p>
+                    </div>
                 </div>
-                <div class="flex-shrink-0 text-center">
-                    <div class="w-20 h-20 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-2xl flex items-center justify-center text-3xl mb-2">
-                        💻
+
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg">
+                        <span class="text-sm">Battery</span>
+                        <div class="flex items-center gap-2">
+                            <div class="w-16 h-2 bg-slate-700 rounded-full overflow-hidden">
+                                <div id="battery-level" class="h-full bg-green-500" style="width: 95%"></div>
+                            </div>
+                            <span id="battery-text" class="text-sm">95%</span>
+                        </div>
                     </div>
-                    <p class="text-xs font-semibold">Code Master</p>
-                    <p class="text-xs text-slate-500">3 days ago</p>
+
+                    <div class="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg">
+                        <span class="text-sm">LED Status</span>
+                        <div class="flex items-center gap-2">
+                            <div id="led-indicator" class="w-4 h-4 bg-green-500 rounded-full pulse"></div>
+                            <span id="led-text" class="text-sm">Ready</span>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg">
+                        <span class="text-sm">Last Session</span>
+                        <span id="last-session" class="text-sm">25 min ago</span>
+                    </div>
                 </div>
-                <div class="flex-shrink-0 text-center">
-                    <div class="w-20 h-20 bg-gradient-to-br from-green-400 to-emerald-500 rounded-2xl flex items-center justify-center text-3xl mb-2">
-                        ⚡
-                    </div>
-                    <p class="text-xs font-semibold">Speed Learner</p>
-                    <p class="text-xs text-slate-500">5 days ago</p>
-                </div>
-                <div class="flex-shrink-0 text-center opacity-50">
-                    <div class="w-20 h-20 bg-slate-700 rounded-2xl flex items-center justify-center text-3xl mb-2">
-                        🔒
-                    </div>
-                    <p class="text-xs font-semibold">Locked</p>
-                    <p class="text-xs text-slate-500">Keep going!</p>
+
+                <div class="grid grid-cols-2 gap-2 mt-4">
+                    <button onclick="testLED()"
+                        class="py-2 bg-indigo-600/20 text-indigo-300 rounded-lg text-sm hover:bg-indigo-600/30 transition">
+                        Test LED
+                    </button>
+                    <button onclick="testBuzzer()"
+                        class="py-2 bg-purple-600/20 text-purple-300 rounded-lg text-sm hover:bg-purple-600/30 transition">
+                        Test Buzzer
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Floating Chat Button -->
-    <div class="chat-bubble pulse-animation" onclick="toggleChat()">
-        <span class="text-2xl">🤖</span>
+    <!-- LEARNING PATH (Row 3) -->
+    <div class="glass-panel p-6 rounded-2xl mb-8">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-xl font-bold">Your Learning Path</h3>
+            <div class="flex items-center space-x-2">
+                <span class="text-xs text-slate-400">Filter:</span>
+                <button onclick="filterPath('all')"
+                    class="px-3 py-1 bg-indigo-600 text-white rounded-full text-xs">All</button>
+                <button onclick="filterPath('beginner')"
+                    class="px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-full text-xs">Beginner</button>
+                <button onclick="filterPath('intermediate')"
+                    class="px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-full text-xs">Intermediate</button>
+            </div>
+        </div>
+
+        <div class="relative">
+            <!-- Timeline line -->
+            <div class="absolute left-8 top-0 bottom-0 w-0.5 bg-slate-700"></div>
+
+            <!-- Path items -->
+            <div id="learning-path" class="space-y-6">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
     </div>
 
-    <!-- Chat Widget -->
-    <div id="chat-widget" class="chat-widget">
-        <div class="p-4 border-b border-slate-700 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center">🤖</div>
-                <div>
-                    <h4 class="font-bold">Study Buddy AI</h4>
-                    <p class="text-xs text-green-400">● Online</p>
+    <!-- ACHIEVEMENTS & BADGES (Row 4) -->
+    <div class="grid md:grid-cols-2 gap-6">
+
+        <!-- Recent Badges -->
+        <div class="glass-panel p-6 rounded-2xl">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold">🏅 Recent Badges</h3>
+                <button onclick="viewAllBadges()" class="text-sm text-indigo-400 hover:text-indigo-300">View
+                    all</button>
+            </div>
+
+            <div id="badges-container" class="grid grid-cols-4 gap-3">
+                <!-- Populated by JavaScript -->
+            </div>
+
+            <div class="mt-4 p-4 bg-indigo-900/20 rounded-xl border border-indigo-500/30">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <span class="text-sm text-indigo-300">Next badge:</span>
+                        <h4 id="next-badge-name" class="font-bold">Loop Master</h4>
+                        <p id="next-badge-progress" class="text-xs text-slate-400">Complete Lesson 3</p>
+                    </div>
+                    <div class="text-3xl opacity-50">🔒</div>
                 </div>
             </div>
-            <button onclick="toggleChat()" class="text-slate-400 hover:text-white">✕</button>
         </div>
-        <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-3">
-            <div class="flex gap-3">
-                <div class="w-8 h-8 gradient-bg rounded-full flex items-center justify-center text-xs flex-shrink-0">🤖</div>
-                <div class="bg-slate-800 p-3 rounded-2xl rounded-tl-none text-sm max-w-[80%]">
-                    Hi Alex! 👋 I'm your AI study buddy. Need help with Physics or want me to explain a concept?
+
+        <!-- Daily Challenge / Goals -->
+        <div class="glass-panel p-6 rounded-2xl">
+            <h3 class="text-xl font-bold mb-4">🎯 Daily Goals</h3>
+
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-8 h-8 bg-indigo-600/20 rounded-full flex items-center justify-center text-indigo-400">
+                            ⏱️
+                        </div>
+                        <span>Study 30 minutes</span>
+                    </div>
+                    <span id="goal-time" class="font-bold text-indigo-400">25/30m</span>
                 </div>
+                <div class="w-full h-2 bg-slate-700 rounded-full overflow-hidden">
+                    <div id="goal-time-bar" class="h-full gradient-bg" style="width: 83%"></div>
+                </div>
+
+                <div class="flex items-center justify-between mt-4">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-8 h-8 bg-purple-600/20 rounded-full flex items-center justify-center text-purple-400">
+                            📚
+                        </div>
+                        <span>Complete 1 lesson</span>
+                    </div>
+                    <span id="goal-lesson" class="font-bold text-purple-400">1/1</span>
+                </div>
+                <div class="w-full h-2 bg-slate-700 rounded-full overflow-hidden">
+                    <div id="goal-lesson-bar" class="h-full bg-purple-500" style="width: 100%"></div>
+                </div>
+
+                <div class="flex items-center justify-between mt-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-pink-600/20 rounded-full flex items-center justify-center text-pink-400">
+                            🔥
+                        </div>
+                        <span>Maintain streak</span>
+                    </div>
+                    <span id="goal-streak" class="font-bold text-pink-400">7 days</span>
+                </div>
+
+                <button
+                    class="w-full mt-4 py-3 gradient-bg text-white rounded-xl font-semibold hover:shadow-lg transition">
+                    Claim Daily Reward
+                </button>
             </div>
         </div>
-        <div class="p-4 border-t border-slate-700">
-            <div class="flex gap-2">
-                <input type="text" id="chat-input" placeholder="Ask me anything..." 
-                       class="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-indigo-500">
-                <button onclick="sendMessage()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg transition">Send</button>
+    </div>
+    </div>
+
+    <!-- Achievement Popup (Hidden by default) -->
+    <div id="achievement-popup"
+        class="fixed bottom-4 right-4 glass-panel p-4 rounded-xl max-w-sm hidden transform transition-all duration-500">
+        <div class="flex items-center gap-3">
+            <div class="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center text-2xl animate-bounce">
+                🏆
             </div>
-            <div class="flex gap-2 mt-2 overflow-x-auto">
-                <button onclick="quickAsk('Explain Newton\'s laws')" class="px-3 py-1 bg-slate-800 rounded-full text-xs whitespace-nowrap hover:bg-slate-700 transition">Newton's laws</button>
-                <button onclick="quickAsk('Help with fractions')" class="px-3 py-1 bg-slate-800 rounded-full text-xs whitespace-nowrap hover:bg-slate-700 transition">Fractions</button>
-                <button onclick="quickAsk('Study tips')" class="px-3 py-1 bg-slate-800 rounded-full text-xs whitespace-nowrap hover:bg-slate-700 transition">Study tips</button>
+            <div>
+                <h4 id="achievement-title" class="font-bold">Achievement Unlocked!</h4>
+                <p id="achievement-desc" class="text-sm text-slate-300">First lesson completed</p>
             </div>
         </div>
     </div>
 
     <script>
-        // Set greeting based on time
-        function setGreeting() {
-            const hour = new Date().getHours();
-            const greeting = document.getElementById('greeting');
-            if (hour < 12) greeting.textContent = 'Good morning';
-            else if (hour < 18) greeting.textContent = 'Good afternoon';
-            else greeting.textContent = 'Good evening';
-        }
-        setGreeting();
+        // ===== USER STATE =====
+        let userState = {
+            name: 'Learner',
+            xp: 450,
+            level: 4,
+            lessonsCompleted: 12,
+            streak: 7,
+            bestStreak: 14,
+            totalTime: 150, // minutes
+            todayTime: 25,
+            avgTime: 30,
 
-        // Generate Heatmap
-        function generateHeatmap() {
-            const container = document.getElementById('heatmap');
-            const levels = ['level-0', 'level-1', 'level-2', 'level-3', 'level-4'];
-            
-            for (let i = 0; i < 30; i++) {
-                const day = document.createElement('div');
-                const randomLevel = Math.floor(Math.random() * 5);
-                day.className = `heatmap-day ${levels[randomLevel]} tooltip`;
-                day.setAttribute('data-tip', `${['No activity', '15 min', '30 min', '45 min', '60+ min'][randomLevel]} on Day ${i + 1}`);
-                container.appendChild(day);
-            }
-        }
-        generateHeatmap();
-
-        // Activity Chart
-        const ctx = document.getElementById('activityChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                datasets: [{
-                    label: 'Study Time (min)',
-                    data: [45, 30, 60, 25, 50, 40, 35],
-                    backgroundColor: 'rgba(99, 102, 241, 0.6)',
-                    borderColor: 'rgba(99, 102, 241, 1)',
-                    borderWidth: 1,
-                    borderRadius: 6
-                }]
+            currentLesson: {
+                id: 1,
+                title: "Introduction to Coding",
+                description: "Learn the basics with your robot companion",
+                difficulty: "beginner",
+                progress: 70,
+                step: 3,
+                totalSteps: 5
             },
-            options: {
-                responsive: true,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                        ticks: { color: '#94a3b8' }
-                    },
-                    x: {
-                        grid: { display: false },
-                        ticks: { color: '#94a3b8' }
-                    }
+
+            badges: [
+                { id: 1, name: "First Focus", icon: "🏆", earned: true },
+                { id: 2, name: "Code Novice", icon: "⭐", earned: true },
+                { id: 3, name: "3-Day Streak", icon: "🔥", earned: true },
+                { id: 4, name: "Loop Master", icon: "🔄", earned: false }
+            ],
+
+            learningPath: [
+                { id: 1, title: "Hello, World!", difficulty: "beginner", xp: 50, completed: true },
+                { id: 2, title: "Variables & Data", difficulty: "beginner", xp: 75, completed: true },
+                { id: 3, title: "If/Else Statements", difficulty: "beginner", xp: 100, completed: false, progress: 40 },
+                { id: 4, title: "Loops", difficulty: "intermediate", xp: 150, completed: false, locked: true },
+                { id: 5, title: "Functions", difficulty: "intermediate", xp: 200, completed: false, locked: true }
+            ],
+
+            hardware: {
+                connected: false,
+                battery: 95,
+                led: "green",
+                lastSession: "25 min ago"
+            }
+        };
+
+        // ===== LOAD USER DATA =====
+        function loadUserData() {
+            // Load from localStorage (set during onboarding)
+            const savedName = localStorage.getItem('userName');
+            if (savedName) userState.name = savedName;
+
+            const savedXP = localStorage.getItem('userXP');
+            if (savedXP) userState.xp = parseInt(savedXP);
+
+            const savedLevel = localStorage.getItem('userLevel');
+            if (savedLevel) userState.level = parseInt(savedLevel);
+
+            const savedStreak = localStorage.getItem('userStreak');
+            if (savedStreak) userState.streak = parseInt(savedStreak);
+
+            const savedLessons = localStorage.getItem('userLessons');
+            if (savedLessons) userState.lessonsCompleted = parseInt(savedLessons);
+
+            // Check hardware connection
+            const hardwareConnected = localStorage.getItem('hardwareConnected');
+            if (hardwareConnected === 'true') {
+                userState.hardware.connected = true;
+            }
+
+            updateUI();
+        }
+
+        // ===== UPDATE UI =====
+        function updateUI() {
+            // Update name
+            document.getElementById('user-name').textContent = userState.name;
+
+            // Update level and XP
+            document.getElementById('nav-level').textContent = userState.level;
+            document.getElementById('stat-level').textContent = userState.level;
+
+            const xpForCurrentLevel = (userState.level - 1) * 100;
+            const xpForNextLevel = userState.level * 100;
+            const xpProgress = ((userState.xp - xpForCurrentLevel) / 100) * 100;
+
+            document.getElementById('nav-xp-bar').style.width = `${xpProgress}%`;
+            document.getElementById('stat-xp-bar').style.width = `${xpProgress}%`;
+
+            const xpText = `${userState.xp - xpForCurrentLevel}/100 XP`;
+            document.getElementById('nav-xp-text').textContent = xpText;
+            document.getElementById('stat-xp-text').textContent = xpText;
+
+            // Update lessons
+            document.getElementById('stat-lessons').textContent = userState.lessonsCompleted;
+
+            // Update streak
+            document.getElementById('stat-streak').textContent = userState.streak;
+            document.getElementById('best-streak').textContent = userState.bestStreak;
+
+            // Streak message
+            if (userState.streak >= 30) {
+                document.getElementById('streak-message').textContent = "Legendary! 🔥";
+            } else if (userState.streak >= 7) {
+                document.getElementById('streak-message').textContent = "Weekly Warrior!";
+            } else if (userState.streak >= 3) {
+                document.getElementById('streak-message').textContent = "Getting Started!";
+            } else {
+                document.getElementById('streak-message').textContent = "Start today!";
+            }
+
+            // Update time stats
+            document.getElementById('stat-time').textContent = (userState.totalTime / 60).toFixed(1);
+            document.getElementById('today-time').textContent = userState.todayTime + 'm';
+            document.getElementById('avg-time').textContent = userState.avgTime + 'm';
+
+            // Update current lesson
+            document.getElementById('current-lesson-title').textContent = userState.currentLesson.title;
+            document.getElementById('current-lesson-desc').textContent = userState.currentLesson.description;
+            document.getElementById('current-lesson-badge').textContent =
+                userState.currentLesson.difficulty.charAt(0).toUpperCase() + userState.currentLesson.difficulty.slice(1);
+            document.getElementById('current-progress-text').textContent = userState.currentLesson.progress + '%';
+            document.getElementById('current-progress-bar').style.width = userState.currentLesson.progress + '%';
+
+            // Update weekly goal
+            const weeklyProgress = Math.min((userState.lessonsCompleted % 5) / 5 * 100, 100);
+            document.getElementById('weekly-goal').textContent = (userState.lessonsCompleted % 5) + '/5';
+            document.getElementById('weekly-bar').style.width = weeklyProgress + '%';
+
+            // Update daily goals
+            document.getElementById('goal-time').textContent = userState.todayTime + '/30m';
+            document.getElementById('goal-time-bar').style.width = (userState.todayTime / 30 * 100) + '%';
+
+            document.getElementById('goal-streak').textContent = userState.streak + ' days';
+
+            // Update learning path
+            renderLearningPath();
+
+            // Update badges
+            renderBadges();
+
+            // Update hardware status
+            updateHardwareUI();
+        }
+
+        // ===== RENDER LEARNING PATH =====
+        function renderLearningPath() {
+            const container = document.getElementById('learning-path');
+            container.innerHTML = '';
+
+            userState.learningPath.forEach((lesson, index) => {
+                const div = document.createElement('div');
+                div.className = 'flex items-start gap-4 relative';
+
+                // Status icon
+                let statusIcon = '';
+                if (lesson.completed) {
+                    statusIcon = '<div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center text-2xl z-10 border-4 border-slate-900">✓</div>';
+                } else if (lesson.locked) {
+                    statusIcon = '<div class="w-16 h-16 bg-slate-700 rounded-full flex items-center justify-center text-2xl z-10 border-4 border-slate-900">🔒</div>';
+                } else {
+                    statusIcon = `<div class="w-16 h-16 gradient-bg rounded-full flex items-center justify-center text-2xl z-10 border-4 border-slate-900">${index + 1}</div>`;
                 }
-            }
-        });
 
-        // Study Timer
-        let timerInterval;
-        let timeLeft = 25 * 60; // 25 minutes
-        let isRunning = false;
+                // Progress bar for in-progress lessons
+                let progressHtml = '';
+                if (!lesson.completed && !lesson.locked && lesson.progress) {
+                    progressHtml = `
+                        <div class="mt-3">
+                            <div class="flex justify-between text-xs text-slate-400 mb-1">
+                                <span>Progress</span>
+                                <span>${lesson.progress}%</span>
+                            </div>
+                            <div class="h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                                <div class="h-full gradient-bg" style="width: ${lesson.progress}%"></div>
+                            </div>
+                        </div>
+                    `;
+                }
 
-        function toggleTimer() {
-            const btn = document.getElementById('timer-toggle');
-            if (isRunning) {
-                clearInterval(timerInterval);
-                btn.textContent = 'Resume';
-                isRunning = false;
-            } else {
-                timerInterval = setInterval(updateTimer, 1000);
-                btn.textContent = 'Pause';
-                isRunning = true;
-            }
-        }
-
-        function updateTimer() {
-            if (timeLeft > 0) {
-                timeLeft--;
-                const minutes = Math.floor(timeLeft / 60);
-                const seconds = timeLeft % 60;
-                document.getElementById('timer-display').textContent = 
-                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                
-                // Update circle
-                const circle = document.getElementById('timer-progress');
-                const offset = 364.4 - (364.4 * timeLeft) / (25 * 60);
-                circle.style.strokeDashoffset = offset;
-            } else {
-                clearInterval(timerInterval);
-                showToast('🎉 Focus session complete! +50 XP');
-                document.getElementById('timer-toggle').textContent = 'Start';
-                isRunning = false;
-                timeLeft = 25 * 60;
-            }
-        }
-
-        function resetTimer() {
-            clearInterval(timerInterval);
-            timeLeft = 25 * 60;
-            document.getElementById('timer-display').textContent = '25:00';
-            document.getElementById('timer-progress').style.strokeDashoffset = 0;
-            document.getElementById('timer-toggle').textContent = 'Start';
-            isRunning = false;
-        }
-
-        // Chat Widget
-        function toggleChat() {
-            const widget = document.getElementById('chat-widget');
-            widget.classList.toggle('active');
-        }
-
-        function sendMessage() {
-            const input = document.getElementById('chat-input');
-            const message = input.value.trim();
-            if (!message) return;
-
-            addMessage(message, 'user');
-            input.value = '';
-
-            // Simulate AI response
-            setTimeout(() => {
-                const responses = [
-                    "Great question! Let me explain that...",
-                    "I'd recommend reviewing the previous lesson first.",
-                    "That's a tricky concept! Here's a simple way to understand it...",
-                    "You're doing great! Keep practicing!",
-                    "Would you like me to create a practice problem for you?"
-                ];
-                addMessage(responses[Math.floor(Math.random() * responses.length)], 'ai');
-            }, 1000);
-        }
-
-        function quickAsk(question) {
-            document.getElementById('chat-input').value = question;
-            sendMessage();
-        }
-
-        function addMessage(text, sender) {
-            const container = document.getElementById('chat-messages');
-            const div = document.createElement('div');
-            div.className = 'flex gap-3 ' + (sender === 'user' ? 'flex-row-reverse' : '');
-            
-            if (sender === 'ai') {
                 div.innerHTML = `
-                    <div class="w-8 h-8 gradient-bg rounded-full flex items-center justify-center text-xs flex-shrink-0">🤖</div>
-                    <div class="bg-slate-800 p-3 rounded-2xl rounded-tl-none text-sm max-w-[80%]">${text}</div>
+                    <div class="relative">
+                        ${statusIcon}
+                    </div>
+                    <div class="flex-1 glass-panel p-4 rounded-xl cursor-pointer hover:border-indigo-500 transition border-2 border-transparent ${lesson.locked ? 'opacity-60' : ''}" 
+                         onclick="${lesson.locked ? '' : `startLesson(${lesson.id})`}">
+                        <div class="flex justify-between items-start mb-2">
+                            <h4 class="font-bold text-lg">${lesson.title}</h4>
+                            <span class="px-2 py-1 bg-slate-700 rounded text-xs capitalize">${lesson.difficulty}</span>
+                        </div>
+                        <p class="text-slate-400 text-sm mb-2">${lesson.xp} XP • ${lesson.completed ? 'Completed' : lesson.locked ? 'Locked' : 'In progress'}</p>
+                        ${progressHtml}
+                    </div>
                 `;
-            } else {
+
+                container.appendChild(div);
+            });
+        }
+
+        // ===== RENDER BADGES =====
+        function renderBadges() {
+            const container = document.getElementById('badges-container');
+            container.innerHTML = '';
+
+            const earnedBadges = userState.badges.filter(b => b.earned);
+            earnedBadges.slice(0, 4).forEach(badge => {
+                const div = document.createElement('div');
+                div.className = 'text-center';
                 div.innerHTML = `
-                    <div class="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-xs flex-shrink-0">👤</div>
-                    <div class="bg-indigo-600 p-3 rounded-2xl rounded-tr-none text-sm max-w-[80%]">${text}</div>
+                    <div class="w-16 h-16 mx-auto mb-2 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-3xl">
+                        ${badge.icon}
+                    </div>
+                    <span class="text-xs text-slate-300">${badge.name}</span>
                 `;
+                container.appendChild(div);
+            });
+
+            // Fill empty slots
+            for (let i = earnedBadges.length; i < 4; i++) {
+                const div = document.createElement('div');
+                div.className = 'text-center opacity-30';
+                div.innerHTML = `
+                    <div class="w-16 h-16 mx-auto mb-2 bg-slate-700 rounded-full flex items-center justify-center text-3xl">
+                        🔒
+                    </div>
+                    <span class="text-xs text-slate-500">Locked</span>
+                `;
+                container.appendChild(div);
             }
-            
-            container.appendChild(div);
-            container.scrollTop = container.scrollHeight;
+
+            // Next badge
+            const nextBadge = userState.badges.find(b => !b.earned);
+            if (nextBadge) {
+                document.getElementById('next-badge-name').textContent = nextBadge.name;
+            }
         }
 
-        // Toast Notification
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            toast.querySelector('p').textContent = message;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 3000);
+        // ===== UPDATE HARDWARE UI =====
+        function updateHardwareUI() {
+            if (userState.hardware.connected) {
+                document.getElementById('hardware-disconnected').classList.add('hidden');
+                document.getElementById('hardware-connected').classList.remove('hidden');
+
+                document.getElementById('battery-level').style.width = userState.hardware.battery + '%';
+                document.getElementById('battery-text').textContent = userState.hardware.battery + '%';
+                document.getElementById('last-session').textContent = userState.hardware.lastSession;
+
+                // LED color
+                const ledIndicator = document.getElementById('led-indicator');
+                ledIndicator.className = `w-4 h-4 rounded-full pulse bg-${userState.hardware.led}-500`;
+            } else {
+                document.getElementById('hardware-disconnected').classList.remove('hidden');
+                document.getElementById('hardware-connected').classList.add('hidden');
+            }
         }
 
-        // Other functions
+        // ===== ACTIONS =====
         function resumeLesson() {
-            window.location.href = 'lesson.html?subject=physics&id=2';
+            window.location.href = `lesson.html?id=${userState.currentLesson.id}&step=${userState.currentLesson.step}`;
+        }
+
+        function startLesson(lessonId) {
+            window.location.href = `lesson.html?id=${lessonId}`;
         }
 
         function startQuickMission() {
-            showToast('🎯 Daily Mission: Complete 1 Physics lesson');
+            // Start a 5-min quick mission
+            showAchievement('Quick Mission!', '+20 XP if you complete in 5 min');
+            setTimeout(() => {
+                window.location.href = 'lesson.html?quick=true';
+            }, 1500);
         }
 
         function showChallenges() {
             window.location.href = 'challenges.html';
         }
 
-        function inviteFriend() {
-            showToast('🔗 Invite link copied to clipboard!');
+        function viewAllBadges() {
+            window.location.href = 'badges.html';
         }
 
-        function startFocusMode() {
-            showToast('🎯 Focus Mode activated! Notifications silenced.');
+        function showProfile() {
+            window.location.href = 'profile.html';
         }
 
-        function showNotifications() {
-            showToast('🔔 You have 3 new notifications');
+        function showDashboard() {
+            // Already on dashboard
         }
 
-        // Show welcome toast on load
-        setTimeout(() => {
-            showToast('🔥 7-day streak! Keep it up!');
-        }, 2000);
+        function filterPath(filter) {
+            // Implement filter logic
+            renderLearningPath();
+        }
+
+        // Hardware test functions
+        function testLED() {
+            if (!userState.hardware.connected) {
+                alert('Connect hardware first');
+                return;
+            }
+            showAchievement('LED Test', 'Sending rainbow signal!');
+            // Actual Bluetooth code would go here
+        }
+
+        function testBuzzer() {
+            if (!userState.hardware.connected) {
+                alert('Connect hardware first');
+                return;
+            }
+            showAchievement('Buzzer Test', 'Playing celebration sound!');
+            // Actual Bluetooth code would go here
+        }
+
+        // ===== ACHIEVEMENT POPUP =====
+        function showAchievement(title, desc) {
+            const popup = document.getElementById('achievement-popup');
+            document.getElementById('achievement-title').textContent = title;
+            document.getElementById('achievement-desc').textContent = desc;
+
+            popup.classList.remove('hidden');
+            setTimeout(() => {
+                popup.classList.add('translate-x-0', 'opacity-100');
+            }, 10);
+
+            setTimeout(() => {
+                popup.classList.add('hidden');
+            }, 3000);
+        }
+
+        // ===== INIT =====
+        document.addEventListener('DOMContentLoaded', () => {
+            loadUserData();
+
+            // Animate stats on load
+            gsap.from('.stat-card', {
+                y: 20,
+                opacity: 0,
+                duration: 0.5,
+                stagger: 0.1
+            });
+        });
+
     </script>
 </body>
 
