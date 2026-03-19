@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson - SmartEco Study Buddy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Fira+Code:wght@400;600&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .code-font {
+            font-family: 'Fira Code', monospace;
+        }
+
+        .typing-cursor::after {
+            content: '|';
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+
+            0%,
+            50% {
+                opacity: 1;
+            }
+
+            51%,
+            100% {
+                opacity: 0;
+            }
+        }
+
+        .success-pulse {
+            animation: successPulse 0.6s ease-out;
+        }
+
+        @keyframes successPulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+            }
+
+            70% {
+                transform: scale(1.02);
+                box-shadow: 0 0 0 20px rgba(34, 197, 94, 0);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .code-editor {
+            background: #1e1e1e;
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'Fira Code', monospace;
+            border: 1px solid #333;
+        }
+
+        .line-numbers {
+            color: #858585;
+            text-align: right;
+            padding-right: 16px;
+            user-select: none;
+            border-right: 1px solid #333;
+            margin-right: 16px;
+        }
+
+        #canvas-container {
+            width: 100%;
+            height: 300px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #0a0a0a;
+        }
+
+        .robot-message {
+            transition: all 0.3s ease;
+        }
+
+        .tab-active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .hint-popup {
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            animation: particleFloat 2s ease-out forwards;
+        }
+
+        @keyframes particleFloat {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-100px) scale(0);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body class="min-h-screen">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 glass-panel border-b border-slate-700/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <div
+                        class="w-10 h-10 gradient-bg rounded-lg flex items-center justify-center text-white font-bold text-xl">
+                        SB
+                    </div>
+                    <span
+                        class="text-xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">SmartEco</span>
+                </div>
+
+                <!-- Navigation Links -->
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="dashboard.html" class="nav-link hover:text-indigo-400 transition"
+                        data-page="dashboard">Dashboard</a>
+                    <a href="lessons.html" class="nav-link hover:text-indigo-400 transition"
+                        data-page="lessons">Lessons</a>
+                    <a href="hardware.html" class="nav-link hover:text-indigo-400 transition"
+                        data-page="hardware">Hardware</a>
+                    <a href="badges.html" class="nav-link hover:text-indigo-400 transition"
+                        data-page="badges">Badges</a>
+                    <a href="profile.html" class="nav-link hover:text-indigo-400 transition"
+                        data-page="profile">Profile</a>
+
+                    <!-- XP Display -->
+                    <div
+                        class="flex items-center space-x-3 bg-slate-800/50 px-4 py-2 rounded-full border border-slate-700">
+                        <div
+                            class="w-8 h-8 gradient-bg rounded-full flex items-center justify-center text-white font-bold text-sm">
+                            <span id="nav-level">1</span>
+                        </div>
+                        <div class="w-32 h-2 bg-slate-700 rounded-full overflow-hidden">
+                            <div id="nav-xp-bar" class="h-full gradient-bg" style="width: 0%"></div>
+                        </div>
+                        <span id="nav-xp-text" class="text-xs text-slate-400">0/100 XP</span>
+                    </div>
+
+                    <!-- Profile Avatar -->
+                    <a href="profile.html"
+                        class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center text-white font-bold cursor-pointer hover:scale-110 transition">
+                        <span id="user-avatar">👤</span>
+                    </a>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linecap="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Dropdown -->
+        <div id="mobile-menu" class="hidden md:hidden glass-panel border-t border-slate-700/50 p-4">
+            <div class="flex flex-col space-y-3">
+                <a href="dashboard.html"
+                    class="mobile-nav-link px-4 py-2 hover:bg-slate-800 rounded-lg transition">Dashboard</a>
+                <a href="lessons.html"
+                    class="mobile-nav-link px-4 py-2 hover:bg-slate-800 rounded-lg transition">Lessons</a>
+                <a href="hardware.html"
+                    class="mobile-nav-link px-4 py-2 hover:bg-slate-800 rounded-lg transition">Hardware</a>
+                <a href="badges.html"
+                    class="mobile-nav-link px-4 py-2 hover:bg-slate-800 rounded-lg transition">Badges</a>
+                <a href="profile.html"
+                    class="mobile-nav-link px-4 py-2 hover:bg-slate-800 rounded-lg transition">Profile</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Lesson Area -->
+    <div class="pt-20 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+
+        <!-- Lesson Header -->
+        <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-4">
+                <button onclick="window.location.href='dashboard.html'"
+                    class="text-slate-400 hover:text-white transition flex items-center gap-2">
+                    ← Back to Dashboard
+                </button>
+                <div class="h-6 w-px bg-slate-700"></div>
+                <h1 id="lesson-title" class="text-2xl font-bold">Introduction to Coding</h1>
+                <span id="lesson-difficulty"
+                    class="px-3 py-1 bg-indigo-500/20 text-indigo-300 rounded-full text-xs">Beginner</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <span id="step-indicator" class="text-sm text-slate-400">Step 1 of 5</span>
+                <div class="w-32 h-2 bg-slate-700 rounded-full overflow-hidden">
+                    <div id="lesson-progress" class="h-full gradient-bg" style="width: 20%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="grid lg:grid-cols-2 gap-6">
+
+            <!-- LEFT COLUMN: Lesson Content & Code -->
+            <div class="space-y-6">
+
+                <!-- Tutor Card -->
+                <div class="glass-panel p-6 rounded-2xl">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div id="tutor-avatar"
+                            class="w-16 h-16 gradient-bg rounded-full flex items-center justify-center text-4xl">
+                            🤖
+                        </div>
+                        <div>
+                            <h3 id="tutor-name" class="font-bold text-xl">Robo-Tutor</h3>
+                            <p class="text-sm text-slate-400">Your AI Learning Companion</p>
+                        </div>
+                    </div>
+
+                    <!-- Lesson Content with Typing Animation -->
+                    <div id="lesson-content"
+                        class="prose prose-invert max-w-none min-h-[120px] text-lg leading-relaxed">
+                        Welcome to your first coding lesson! I'm Robo, and I'll be your guide.
+                    </div>
+
+                    <!-- Hint Button -->
+                    <button id="hint-btn" onclick="showHint()"
+                        class="mt-4 text-sm text-indigo-400 hover:text-indigo-300 transition flex items-center gap-2">
+                        <span>💡</span> Need a hint?
+                    </button>
+
+                    <!-- Hint Popup (Hidden) -->
+                    <div id="hint-popup"
+                        class="hidden mt-4 p-4 bg-indigo-900/30 border border-indigo-500/30 rounded-lg text-sm text-indigo-200 hint-popup">
+                        Try typing: <span id="hint-code"
+                            class="code-font bg-slate-800 px-2 py-1 rounded">print("Hello")</span>
+                    </div>
+                </div>
+
+                <!-- Code Editor Card -->
+                <div class="glass-panel p-6 rounded-2xl" id="code-section">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></span>
+                            <h4 class="font-bold">Code Editor</h4>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="resetCode()"
+                                class="px-3 py-1 bg-slate-700 rounded text-xs hover:bg-slate-600 transition">Reset</button>
+                            <button onclick="toggleTheme()"
+                                class="px-3 py-1 bg-slate-700 rounded text-xs hover:bg-slate-600 transition">Dark/Light</button>
+                        </div>
+                    </div>
+
+                    <!-- Code Editor -->
+                    <div class="code-editor">
+                        <div class="flex">
+                            <div class="line-numbers text-sm">
+                                <div>1</div>
+                                <div>2</div>
+                                <div>3</div>
+                                <div>4</div>
+                                <div>5</div>
+                            </div>
+                            <textarea id="code-input"
+                                class="flex-1 bg-transparent text-slate-300 resize-none outline-none code-font text-sm"
+                                rows="5" spellcheck="false" placeholder="# Write your code here"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="grid grid-cols-2 gap-3 mt-4">
+                        <button onclick="runCode()"
+                            class="py-3 gradient-bg text-white rounded-lg font-semibold hover:shadow-lg transition flex items-center justify-center gap-2">
+                            <span>▶</span> Run Code
+                        </button>
+                        <button onclick="checkSolution()"
+                            class="py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition flex items-center justify-center gap-2">
+                            <span>✓</span> Check
+                        </button>
+                    </div>
+
+                    <!-- Output Area -->
+                    <div id="code-output" class="hidden mt-4 p-4 bg-slate-900 rounded-lg border border-slate-700">
+                        <p class="text-sm text-slate-400 mb-2">Output:</p>
+                        <div id="output-content" class="code-font text-sm text-green-400"></div>
+                    </div>
+                </div>
+
+                <!-- Hardware Status (Mobile) -->
+                <div class="glass-panel p-4 rounded-2xl lg:hidden">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                            <span class="text-sm">Study Box</span>
+                        </div>
+                        <button onclick="window.location.href='hardware.html'"
+                            class="text-indigo-400 text-sm">Connect</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: 3D World -->
+            <div class="space-y-6">
+
+                <!-- 3D Canvas -->
+                <div class="glass-panel p-6 rounded-2xl">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="font-bold flex items-center gap-2">
+                            <span>🌍</span> 3D Playground
+                        </h4>
+                        <div class="flex gap-2">
+                            <button onclick="reset3D()"
+                                class="px-3 py-1 bg-slate-700 rounded text-xs hover:bg-slate-600 transition">Reset
+                                View</button>
+                            <button onclick="toggleCamera()"
+                                class="px-3 py-1 bg-slate-700 rounded text-xs hover:bg-slate-600 transition">Orbit</button>
+                        </div>
+                    </div>
+
+                    <div id="canvas-container" class="bg-slate-950 border border-slate-800"></div>
+
+                    <!-- 3D Instructions -->
+                    <div id="3d-instructions"
+                        class="mt-4 p-4 bg-indigo-900/30 border border-indigo-500/30 rounded-lg text-sm text-indigo-200">
+                        👆 Watch the robot! Your code controls its movements.
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="grid grid-cols-3 gap-2 mt-4">
+                        <button onclick="moveRobot(1)"
+                            class="py-2 bg-slate-700 hover:bg-slate-600 rounded text-sm transition">⬆️ Move</button>
+                        <button onclick="turnRobot('left')"
+                            class="py-2 bg-slate-700 hover:bg-slate-600 rounded text-sm transition">↺ Left</button>
+                        <button onclick="turnRobot('right')"
+                            class="py-2 bg-slate-700 hover:bg-slate-600 rounded text-sm transition">↻ Right</button>
+                    </div>
+                </div>
+
+                <!-- Hardware Status (Desktop) -->
+                <div class="glass-panel p-4 rounded-2xl hidden lg:block">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div id="hardware-led" class="w-3 h-3 bg-red-500 rounded-full pulse"></div>
+                            <span class="text-sm font-medium">Study Box</span>
+                        </div>
+                        <span id="hardware-status" class="text-sm text-slate-400">Not connected</span>
+                        <button onclick="window.location.href='hardware.html'"
+                            class="text-indigo-400 text-sm hover:text-indigo-300">
+                            Connect
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Footer -->
+        <div class="flex justify-between items-center mt-8 pt-6 border-t border-slate-800">
+            <button id="prev-btn" onclick="prevStep()"
+                class="px-6 py-3 bg-slate-700 rounded-full text-white font-semibold hover:bg-slate-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled>
+                ← Previous
+            </button>
+
+            <div class="flex items-center gap-4">
+                <span id="xp-earned" class="text-sm text-indigo-400">+0 XP</span>
+                <button id="next-btn" onclick="nextStep()"
+                    class="px-8 py-3 gradient-bg text-white rounded-full font-semibold hover:shadow-lg transition transform hover:scale-105">
+                    Next →
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Achievement Popup (Hidden) -->
+    <div id="achievement-popup"
+        class="fixed bottom-4 right-4 glass-panel p-4 rounded-xl max-w-sm hidden transform transition-all duration-500 z-50">
+        <div class="flex items-center gap-3">
+            <div class="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center text-2xl animate-bounce">
+                🏆
+            </div>
+            <div>
+                <h4 id="achievement-title" class="font-bold">Achievement!</h4>
+                <p id="achievement-desc" class="text-sm text-slate-300">You're on fire!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== THREE.JS SETUP =====
+        let scene, camera, renderer, robot;
+        let robotPosition = { x: 0, z: 0 };
+        let robotRotation = 0;
+        let isCameraRotating = false;
+
+        // ===== LESSON DATA =====
+        const lessons = {
+            1: {
+                id: 1,
+                title: "Introduction to Coding",
+                difficulty: "beginner",
+                steps: [
+                    {
+                        type: "intro",
+                        content: "Welcome to your first coding lesson! I'm Robo, your AI companion. Today we'll learn how to make computers do amazing things using simple instructions called 'code'.",
+                        tutor: "Robo",
+                        avatar: "🤖",
+                        hint: "Just click next when you're ready!"
+                    },
+                    {
+                        type: "concept",
+                        content: "Coding is like giving directions to a robot. Just like you might tell a friend 'walk to the door', we tell computers what to do using special languages they understand.",
+                        tutor: "Robo",
+                        avatar: "🤖",
+                        hint: "Think of it as giving instructions step by step."
+                    },
+                    {
+                        type: "code",
+                        content: "Let's write your first program! Type <span class='code-font bg-slate-800 px-2 py-1 rounded'>print('Hello')</span> in the editor and click Run.",
+                        tutor: "Robo",
+                        avatar: "🤖",
+                        expected: "print('Hello')",
+                        hint: "Make sure to use quotes around Hello",
+                        success: "Great job! You just wrote your first line of code!"
+                    },
+                    {
+                        type: "interactive",
+                        content: "Now let's make it personal! Change the text to say hello to YOU. Replace 'Hello' with your name.",
+                        tutor: "Robo",
+                        avatar: "🤖",
+                        expected: "print('",
+                        hint: "Try: print('Alex') with YOUR name",
+                        success: "Perfect! Personalized code is always more fun!"
+                    },
+                    {
+                        type: "3d",
+                        content: "Watch me move! Type <span class='code-font bg-slate-800 px-2 py-1 rounded'>move(3)</span> and click Run to make me walk forward.",
+                        tutor: "Robo",
+                        avatar: "🤖",
+                        expected: "move",
+                        hint: "Try: move(3) - the number is how many steps",
+                        success: "Excellent! You're controlling a 3D robot with code!"
+                    }
+                ],
+                xpReward: 50
+            },
+            2: {
+                id: 2,
+                title: "Variables",
+                difficulty: "beginner",
+                steps: [
+                    {
+                        type: "intro",
+                        content: "Great job with your first lesson! Now let's learn about variables - they're like boxes that store information.",
+                        tutor: "Robo",
+                        avatar: "🤖"
+                    }
+                ],
+                xpReward: 75
+            }
+        };
+
+        // ===== USER STATE =====
+        let userState = {
+            xp: 450,
+            level: 4,
+            currentLesson: 1,
+            currentStep: 0,
+            stepsCompleted: 0,
+            hardwareConnected: false
+        };
+
+        // Get lesson ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const lessonId = parseInt(urlParams.get('id')) || 1;
+        const quickMode = urlParams.get('quick') === 'true';
+
+        // Load lesson data
+        const lesson = lessons[lessonId] || lessons[1];
+        userState.currentLesson = lessonId;
+
+        // ===== INIT =====
+        document.addEventListener('DOMContentLoaded', () => {
+            init3D();
+            loadUserData();
+            renderStep();
+            updateUI();
+
+            // Quick mode - skip intro
+            if (quickMode) {
+                userState.currentStep = 2;
+                renderStep();
+            }
+        });
+
+        // ===== LOAD USER DATA =====
+        function loadUserData() {
+            const savedXP = localStorage.getItem('userXP');
+            if (savedXP) userState.xp = parseInt(savedXP);
+
+            const savedLevel = localStorage.getItem('userLevel');
+            if (savedLevel) userState.level = parseInt(savedLevel);
+
+            const hardwareConnected = localStorage.getItem('hardwareConnected');
+            if (hardwareConnected === 'true') {
+                userState.hardwareConnected = true;
+                document.getElementById('hardware-led').className = 'w-3 h-3 bg-green-500 rounded-full pulse';
+                document.getElementById('hardware-status').textContent = 'Connected';
+            }
+        }
+
+        // ===== RENDER STEP =====
+        function renderStep() {
+            const step = lesson.steps[userState.currentStep];
+            if (!step) return;
+
+            // Update UI
+            document.getElementById('lesson-title').textContent = lesson.title;
+            document.getElementById('lesson-difficulty').textContent =
+                lesson.difficulty.charAt(0).toUpperCase() + lesson.difficulty.slice(1);
+
+            // Update progress
+            const totalSteps = lesson.steps.length;
+            const progress = ((userState.currentStep + 1) / totalSteps) * 100;
+            document.getElementById('lesson-progress').style.width = progress + '%';
+            document.getElementById('step-indicator').textContent =
+                `Step ${userState.currentStep + 1} of ${totalSteps}`;
+
+            // Update tutor
+            document.getElementById('tutor-name').textContent = step.tutor || 'Robo';
+            document.getElementById('tutor-avatar').textContent = step.avatar || '🤖';
+
+            // Animate lesson content
+            const contentDiv = document.getElementById('lesson-content');
+            contentDiv.innerHTML = '<span class="typing-cursor"></span>';
+
+            let i = 0;
+            const text = step.content;
+            contentDiv.innerHTML = '';
+
+            function typeWriter() {
+                if (i < text.length) {
+                    contentDiv.innerHTML = text.substring(0, i + 1) + '<span class="typing-cursor"></span>';
+                    i++;
+                    setTimeout(typeWriter, 20);
+                } else {
+                    contentDiv.innerHTML = text;
+                }
+            }
+            typeWriter();
+
+            // Show/hide code section based on step type
+            const codeSection = document.getElementById('code-section');
+            if (step.type === 'code' || step.type === 'interactive' || step.type === '3d') {
+                codeSection.style.display = 'block';
+
+                // Set default code based on step
+                if (step.type === '3d') {
+                    document.getElementById('code-input').value = 'move(3)';
+                } else if (step.type === 'code') {
+                    document.getElementById('code-input').value = 'print("Hello")';
+                } else if (step.type === 'interactive') {
+                    document.getElementById('code-input').value = 'print("Your Name")';
+                }
+            } else {
+                codeSection.style.display = 'none';
+            }
+
+            // Update 3D instructions
+            const instructions = document.getElementById('3d-instructions');
+            if (step.type === '3d') {
+                instructions.innerHTML = '🤖 The robot will move when you run your code!';
+                instructions.className = 'mt-4 p-4 bg-green-900/30 border border-green-500/30 rounded-lg text-sm text-green-200';
+            } else {
+                instructions.innerHTML = '👆 Watch the robot! More interactions coming in next steps.';
+                instructions.className = 'mt-4 p-4 bg-indigo-900/30 border border-indigo-500/30 rounded-lg text-sm text-indigo-200';
+            }
+
+            // Hide hint popup
+            document.getElementById('hint-popup').classList.add('hidden');
+
+            // Hide output
+            document.getElementById('code-output').classList.add('hidden');
+
+            // Update navigation buttons
+            document.getElementById('prev-btn').disabled = userState.currentStep === 0;
+
+            const nextBtn = document.getElementById('next-btn');
+            if (userState.currentStep === lesson.steps.length - 1) {
+                nextBtn.textContent = 'Complete Lesson ✓';
+            } else {
+                nextBtn.textContent = 'Next →';
+            }
+        }
+
+        // ===== NAVIGATION =====
+        function nextStep() {
+            if (userState.currentStep < lesson.steps.length - 1) {
+                userState.currentStep++;
+                renderStep();
+            } else {
+                completeLesson();
+            }
+        }
+
+        function prevStep() {
+            if (userState.currentStep > 0) {
+                userState.currentStep--;
+                renderStep();
+            }
+        }
+
+        // ===== CODE EXECUTION =====
+        function runCode() {
+            const code = document.getElementById('code-input').value;
+            const step = lesson.steps[userState.currentStep];
+            const outputDiv = document.getElementById('code-output');
+            const outputContent = document.getElementById('output-content');
+
+            outputDiv.classList.remove('hidden');
+
+            // Parse code
+            let output = '';
+            let success = false;
+
+            // Check for print statements
+            const printMatch = code.match(/print\(['"](.+?)['"]\)/);
+            if (printMatch) {
+                output += `🤖 Robo says: "${printMatch[1]}"\n`;
+
+                // Check if correct
+                if (step.type === 'code' && code.includes('print') && code.includes('Hello')) {
+                    success = true;
+                } else if (step.type === 'interactive' && code.includes('print') && code.includes('(') && !code.includes('Hello')) {
+                    success = true;
+                }
+            }
+
+            // Check for move commands
+            const moveMatch = code.match(/move\((\d+)\)/);
+            if (moveMatch) {
+                const steps = parseInt(moveMatch[1]);
+                output += `Moving ${steps} steps forward...\n`;
+                moveRobot(steps);
+
+                if (step.type === '3d') {
+                    success = true;
+                }
+            }
+
+            // Display output
+            outputContent.innerHTML = output.replace(/\n/g, '<br>');
+
+            if (success) {
+                outputDiv.classList.add('success-pulse');
+
+                // Award XP
+                const xpGain = 10;
+                userState.xp += xpGain;
+                document.getElementById('xp-earned').textContent = `+${xpGain} XP`;
+
+                // Check level up
+                if (userState.xp >= userState.level * 100) {
+                    userState.level++;
+                    showAchievement('Level Up!', `You're now level ${userState.level}!`);
+                }
+
+                // Show success message
+                setTimeout(() => {
+                    showAchievement('Correct!', step.success || 'Great job!');
+
+                    // Auto advance after success
+                    if (userState.currentStep < lesson.steps.length - 1) {
+                        setTimeout(() => nextStep(), 1500);
+                    }
+                }, 500);
+
+                // Hardware feedback if connected
+                if (userState.hardwareConnected) {
+                    // Send to ESP32 (simulated)
+                    console.log('Sending to hardware: LED_GREEN');
+                }
+            } else {
+                outputContent.innerHTML += '<br><span class="text-yellow-400">❌ Not quite. Try again!</span>';
+            }
+        }
+
+        function checkSolution() {
+            runCode(); // Same as run for MVP
+        }
+
+        function resetCode() {
+            const step = lesson.steps[userState.currentStep];
+            if (step.type === '3d') {
+                document.getElementById('code-input').value = 'move(3)';
+            } else if (step.type === 'code') {
+                document.getElementById('code-input').value = 'print("Hello")';
+            } else if (step.type === 'interactive') {
+                document.getElementById('code-input').value = 'print("Your Name")';
+            }
+        }
+
+        function toggleTheme() {
+            // Simple theme toggle for editor
+            const editor = document.querySelector('.code-editor');
+            if (editor.style.background === 'rgb(255, 255, 255)') {
+                editor.style.background = '#1e1e1e';
+                editor.style.color = '#e2e8f0';
+            } else {
+                editor.style.background = '#ffffff';
+                editor.style.color = '#0f172a';
+            }
+        }
+
+        // ===== HINT SYSTEM =====
+        function showHint() {
+            const step = lesson.steps[userState.currentStep];
+            const hintPopup = document.getElementById('hint-popup');
+            const hintCode = document.getElementById('hint-code');
+
+            hintCode.textContent = step.hint || 'Try writing some code!';
+            hintPopup.classList.remove('hidden');
+
+            // Auto hide after 5 seconds
+            setTimeout(() => {
+                hintPopup.classList.add('hidden');
+            }, 5000);
+        }
+
+        // ===== 3D FUNCTIONS =====
+        function init3D() {
+            const container = document.getElementById('canvas-container');
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0f172a);
+
+            camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.set(3, 2, 5);
+            camera.lookAt(0, 0, 0);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.shadowMap.enabled = true;
+            container.appendChild(renderer.domElement);
+
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0x404040);
+            scene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+            directionalLight.position.set(5, 5, 5);
+            directionalLight.castShadow = true;
+            scene.add(directionalLight);
+
+            // Ground
+            const groundGeometry = new THREE.PlaneGeometry(10, 10);
+            const groundMaterial = new THREE.MeshStandardMaterial({ color: 0x1e293b });
+            const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+            ground.rotation.x = -Math.PI / 2;
+            ground.receiveShadow = true;
+            scene.add(ground);
+
+            // Grid
+            const gridHelper = new THREE.GridHelper(10, 20, 0x667eea, 0x334155);
+            scene.add(gridHelper);
+
+            // Create robot
+            createRobot();
+
+            // Start animation
+            animate();
+
+            // Handle resize
+            window.addEventListener('resize', () => {
+                if (container.clientWidth > 0) {
+                    camera.aspect = container.clientWidth / container.clientHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(container.clientWidth, container.clientHeight);
+                }
+            });
+        }
+
+        function createRobot() {
+            robot = new THREE.Group();
+
+            // Body
+            const bodyGeo = new THREE.BoxGeometry(0.8, 0.8, 0.8);
+            const bodyMat = new THREE.MeshStandardMaterial({ color: 0x667eea });
+            const body = new THREE.Mesh(bodyGeo, bodyMat);
+            body.position.y = 0.4;
+            body.castShadow = true;
+            robot.add(body);
+
+            // Head
+            const headGeo = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+            const headMat = new THREE.MeshStandardMaterial({ color: 0x818cf8 });
+            const head = new THREE.Mesh(headGeo, headMat);
+            head.position.y = 1.0;
+            head.castShadow = true;
+            robot.add(head);
+
+            // Eyes
+            const eyeGeo = new THREE.SphereGeometry(0.1);
+            const eyeMat = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
+
+            const leftEye = new THREE.Mesh(eyeGeo, eyeMat);
+            leftEye.position.set(-0.15, 1.05, 0.25);
+            robot.add(leftEye);
+
+            const rightEye = new THREE.Mesh(eyeGeo, eyeMat);
+            rightEye.position.set(0.15, 1.05, 0.25);
+            robot.add(rightEye);
+
+            scene.add(robot);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (isCameraRotating) {
+                const time = Date.now() * 0.001;
+                camera.position.x = Math.sin(time) * 5;
+                camera.position.z = Math.cos(time) * 5;
+                camera.lookAt(0, 0, 0);
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        function moveRobot(steps) {
+            const targetZ = robotPosition.z - steps * 0.5;
+
+            gsap.to(robotPosition, {
+                z: targetZ,
+                duration: 1,
+                ease: "power2.out",
+                onUpdate: () => {
+                    if (robot) robot.position.z = robotPosition.z;
+                }
+            });
+        }
+
+        function turnRobot(direction) {
+            const amount = direction === 'left' ? Math.PI / 2 : -Math.PI / 2;
+            robotRotation += amount;
+
+            gsap.to(robot.rotation, {
+                y: robotRotation,
+                duration: 0.5
+            });
+        }
+
+        function reset3D() {
+            robotPosition = { x: 0, z: 0 };
+            robotRotation = 0;
+            gsap.to(robot.position, { z: 0, duration: 0.5 });
+            gsap.to(robot.rotation, { y: 0, duration: 0.5 });
+        }
+
+        function toggleCamera() {
+            isCameraRotating = !isCameraRotating;
+        }
+
+        // ===== LESSON COMPLETION =====
+        function completeLesson() {
+            // Award XP
+            const xpGain = lesson.xpReward || 50;
+            userState.xp += xpGain;
+
+            // Update localStorage
+            localStorage.setItem('userXP', userState.xp);
+            localStorage.setItem('userLevel', userState.level);
+            localStorage.setItem('lastLesson', lessonId);
+
+            // Show celebration
+            showAchievement('Lesson Complete!', `You earned ${xpGain} XP!`);
+
+            // Hardware celebration
+            if (userState.hardwareConnected) {
+                console.log('Sending to hardware: PLAY_CELEBRATION');
+            }
+
+            // Redirect to dashboard
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 2000);
+        }
+
+        // ===== UI UTILITIES =====
+        function showAchievement(title, desc) {
+            const popup = document.getElementById('achievement-popup');
+            document.getElementById('achievement-title').textContent = title;
+            document.getElementById('achievement-desc').textContent = desc;
+
+            popup.classList.remove('hidden');
+
+            setTimeout(() => {
+                popup.classList.add('hidden');
+            }, 3000);
+        }
+
+        function updateUI() {
+            // Update XP display
+            const xpForLevel = userState.level * 100;
+            const xpProgress = (userState.xp % 100);
+            document.getElementById('nav-xp-bar').style.width = xpProgress + '%';
+            document.getElementById('nav-xp-text').textContent = `${xpProgress}/100 XP`;
+            document.getElementById('nav-level').textContent = userState.level;
+        }
+    </script>
+</body>
+
+</html>

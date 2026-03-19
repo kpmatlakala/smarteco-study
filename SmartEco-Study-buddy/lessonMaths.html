@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mathematics Lessons - SmartEco Study Buddy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .lesson-item {
+            transition: all 0.3s ease;
+        }
+
+        .lesson-item:hover {
+            transform: translateX(5px);
+        }
+
+        .completed { border-left: 4px solid #10b981; }
+        .in-progress { border-left: 4px solid #f97316; }
+        .locked { opacity: 0.5; pointer-events: none; }
+    </style>
+</head>
+
+<body class="min-h-screen">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 glass-panel border-b border-slate-700/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <a href="lessons.html" class="text-slate-400 hover:text-white mr-4">← Back</a>
+                    <div class="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg flex items-center justify-center text-white font-bold text-xl">
+                        🧮
+                    </div>
+                    <span class="text-xl font-bold text-white">Mathematics</span>
+                </div>
+
+                <div class="flex items-center space-x-3 bg-slate-800/50 px-4 py-2 rounded-full border border-slate-700">
+                    <span class="text-xs text-slate-400">Subject Progress</span>
+                    <div class="w-32 h-2 bg-slate-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-orange-500 to-red-500" style="width: 45%"></div>
+                    </div>
+                    <span class="text-xs text-orange-400">45%</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="pt-20 pb-12 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold mb-2">Introduction to Mathematics</h1>
+            <p class="text-slate-400">Master numbers, operations, and problem-solving</p>
+        </div>
+
+        <!-- Lessons List -->
+        <div class="space-y-4">
+
+            <!-- Lesson 1: Completed -->
+            <div class="lesson-item glass-panel p-6 rounded-xl completed cursor-pointer" onclick="startLesson(1)">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center text-green-400 text-xl">✓</div>
+                        <div>
+                            <h3 class="text-lg font-bold">Lesson 1: Numbers & Counting</h3>
+                            <p class="text-slate-400 text-sm">Understanding number systems</p>
+                            <div class="flex items-center gap-2 mt-2">
+                                <span class="text-xs text-green-400">Completed</span>
+                                <span class="text-xs text-slate-500">• 50 XP earned</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm transition">Review</button>
+                </div>
+            </div>
+
+            <!-- Lesson 2: Completed -->
+            <div class="lesson-item glass-panel p-6 rounded-xl completed cursor-pointer" onclick="startLesson(2)">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center text-green-400 text-xl">✓</div>
+                        <div>
+                            <h3 class="text-lg font-bold">Lesson 2: Basic Operations</h3>
+                            <p class="text-slate-400 text-sm">Addition, subtraction, multiplication, division</p>
+                            <div class="flex items-center gap-2 mt-2">
+                                <span class="text-xs text-green-400">Completed</span>
+                                <span class="text-xs text-slate-500">• 75 XP earned</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm transition">Review</button>
+                </div>
+            </div>
+
+            <!-- Lesson 3: In Progress -->
+            <div class="lesson-item glass-panel p-6 rounded-xl in-progress cursor-pointer border border-orange-500/50" onclick="startLesson(3)">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-full flex items-center justify-center text-white text-xl animate-pulse">▶</div>
+                        <div>
+                            <h3 class="text-lg font-bold text-orange-300">Lesson 3: Fractions & Decimals</h3>
+                            <p class="text-slate-400 text-sm">Parts of a whole and decimal notation</p>
+                            <div class="flex items-center gap-2 mt-2">
+                                <span class="text-xs text-orange-400">In Progress</span>
+                                <span class="text-xs text-slate-500">• 60% complete</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="px-4 py-2 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-lg text-sm hover:shadow-lg transition">Continue</button>
+                </div>
+                <div class="mt-4 pl-16">
+                    <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-orange-500 to-red-500" style="width: 60%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lesson 4: Locked -->
+            <div class="lesson-item glass-panel p-6 rounded-xl locked">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-slate-700 rounded-full flex items-center justify-center text-slate-500 text-xl">🔒</div>
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-500">Lesson 4: Algebra Basics</h3>
+                            <p class="text-slate-500 text-sm">Variables and simple equations</p>
+                            <div class="flex items-center gap-2 mt-2">
+                                <span class="text-xs text-slate-500">Complete Lesson 3 to unlock</span>
+                                <span class="text-xs text-slate-600">• 150 XP</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lesson 5: Locked -->
+            <div class="lesson-item glass-panel p-6 rounded-xl locked">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-slate-700 rounded-full flex items-center justify-center text-slate-500 text-xl">🔒</div>
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-500">Lesson 5: Geometry</h3>
+                            <p class="text-slate-500 text-sm">Shapes, angles, and measurements</p>
+                            <div class="flex items-center gap-2 mt-2">
+                                <span class="text-xs text-slate-500">Complete Lesson 4 to unlock</span>
+                                <span class="text-xs text-slate-600">• 200 XP</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lesson 6: Locked -->
+            <div class="lesson-item glass-panel p-6 rounded-xl locked">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-slate-700 rounded-full flex items-center justify-center text-slate-500 text-xl">🔒</div>
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-500">Lesson 6: Data & Statistics</h3>
+                            <p class="text-slate-500 text-sm">Charts, graphs, and probability</p>
+                            <div class="flex items-center gap-2 mt-2">
+                                <span class="text-xs text-slate-500">Complete Lesson 5 to unlock</span>
+                                <span class="text-xs text-slate-600">• 250 XP</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Math Tools -->
+        <div class="mt-8 glass-panel p-6 rounded-2xl">
+            <h3 class="text-xl font-bold mb-4">🧮 Math Tools</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700 hover:border-orange-500 transition cursor-pointer text-center">
+                    <div class="text-3xl mb-2">📊</div>
+                    <h4 class="font-bold text-sm">Calculator</h4>
+                </div>
+                <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700 hover:border-orange-500 transition cursor-pointer text-center">
+                    <div class="text-3xl mb-2">📐</div>
+                    <h4 class="font-bold text-sm">Geometry Tool</h4>
+                </div>
+                <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700 hover:border-orange-500 transition cursor-pointer text-center">
+                    <div class="text-3xl mb-2">📈</div>
+                    <h4 class="font-bold text-sm">Graph Plotter</h4>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function startLesson(lessonId) {
+            window.location.href = `lesson.html?subject=maths&id=${lessonId}`;
+        }
+    </script>
+
+</body>
+
+</html>
