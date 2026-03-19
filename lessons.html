@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Lessons - SmartEco Study Buddy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .subject-card {
+            transition: all 0.3s ease;
+        }
+
+        .subject-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.3);
+        }
+
+        .locked {
+            opacity: 0.5;
+            pointer-events: none;
+            filter: grayscale(0.8);
+        }
+    </style>
+</head>
+
+<body class="min-h-screen">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 glass-panel border-b border-slate-700/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 gradient-bg rounded-lg flex items-center justify-center text-white font-bold text-xl">
+                        SB
+                    </div>
+                    <span class="text-xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">SmartEco</span>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="dashboard.html" class="nav-link hover:text-indigo-400 transition">Dashboard</a>
+                    <a href="lessons.html" class="nav-link text-indigo-400 transition">Lessons</a>
+                    <a href="hardware.html" class="nav-link hover:text-indigo-400 transition">Hardware</a>
+                    <a href="badges.html" class="nav-link hover:text-indigo-400 transition">Badges</a>
+                    <a href="profile.html" class="nav-link hover:text-indigo-400 transition">Profile</a>
+
+                    <div class="flex items-center space-x-3 bg-slate-800/50 px-4 py-2 rounded-full border border-slate-700">
+                        <div class="w-8 h-8 gradient-bg rounded-full flex items-center justify-center text-white font-bold text-sm">
+                            <span id="nav-level">4</span>
+                        </div>
+                        <div class="w-32 h-2 bg-slate-700 rounded-full overflow-hidden">
+                            <div class="h-full gradient-bg" style="width: 50%"></div>
+                        </div>
+                        <span class="text-xs text-slate-400">50/100 XP</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="pt-20 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-4xl font-bold mb-2">All Lessons</h1>
+            <p class="text-slate-400">Choose a subject to start learning</p>
+        </div>
+
+        <!-- Subject Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+            <!-- Coding -->
+            <a href="lessonCoding.html" class="subject-card glass-panel p-6 rounded-2xl border border-slate-700 hover:border-indigo-500">
+                <div class="w-16 h-16 gradient-bg rounded-xl flex items-center justify-center text-3xl mb-4">
+                    🤖
+                </div>
+                <h3 class="text-xl font-bold mb-2">Introduction to Coding</h3>
+                <p class="text-slate-400 text-sm mb-4">Learn Python programming with your robot companion</p>
+                <div class="flex items-center gap-2 text-xs">
+                    <span class="px-2 py-1 bg-indigo-500/20 text-indigo-300 rounded">Beginner</span>
+                    <span class="text-slate-500">• 5 lessons</span>
+                </div>
+                <div class="mt-4">
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="text-slate-400">Progress</span>
+                        <span class="text-indigo-400">70%</span>
+                    </div>
+                    <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+                        <div class="h-full gradient-bg" style="width: 70%"></div>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Mathematics -->
+            <a href="lessonMaths.html" class="subject-card glass-panel p-6 rounded-2xl border border-slate-700 hover:border-orange-500">
+                <div class="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center text-3xl mb-4">
+                    🧮
+                </div>
+                <h3 class="text-xl font-bold mb-2">Introduction to Mathematics</h3>
+                <p class="text-slate-400 text-sm mb-4">Master numbers, algebra, and geometry</p>
+                <div class="flex items-center gap-2 text-xs">
+                    <span class="px-2 py-1 bg-orange-500/20 text-orange-300 rounded">Beginner</span>
+                    <span class="text-slate-500">• 6 lessons</span>
+                </div>
+                <div class="mt-4">
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="text-slate-400">Progress</span>
+                        <span class="text-orange-400">45%</span>
+                    </div>
+                    <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-orange-500 to-red-500" style="width: 45%"></div>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Physics -->
+            <a href="lessonPhysics.html" class="subject-card glass-panel p-6 rounded-2xl border border-slate-700 hover:border-blue-500">
+                <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center text-3xl mb-4">
+                    ⚛️
+                </div>
+                <h3 class="text-xl font-bold mb-2">Introduction to Physics</h3>
+                <p class="text-slate-400 text-sm mb-4">Explore forces, motion, and energy</p>
+                <div class="flex items-center gap-2 text-xs">
+                    <span class="px-2 py-1 bg-blue-500/20 text-blue-300 rounded">Beginner</span>
+                    <span class="text-slate-500">• 5 lessons</span>
+                </div>
+                <div class="mt-4">
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="text-slate-400">Progress</span>
+                        <span class="text-blue-400">30%</span>
+                    </div>
+                    <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-blue-500 to-cyan-500" style="width: 30%"></div>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Chemistry -->
+            <a href="lessonChemistry.html" class="subject-card glass-panel p-6 rounded-2xl border border-slate-700 hover:border-emerald-500">
+                <div class="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center text-3xl mb-4">
+                    🧪
+                </div>
+                <h3 class="text-xl font-bold mb-2">Introduction to Chemistry</h3>
+                <p class="text-slate-400 text-sm mb-4">Discover atoms, molecules, and reactions</p>
+                <div class="flex items-center gap-2 text-xs">
+                    <span class="px-2 py-1 bg-emerald-500/20 text-emerald-300 rounded">Beginner</span>
+                    <span class="text-slate-500">• 5 lessons</span>
+                </div>
+                <div class="mt-4">
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="text-slate-400">Progress</span>
+                        <span class="text-emerald-400">15%</span>
+                    </div>
+                    <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-emerald-500 to-teal-500" style="width: 15%"></div>
+                    </div>
+                </div>
+            </a>
+
+            <!-- English -->
+            <a href="lessonEnglish.html" class="subject-card glass-panel p-6 rounded-2xl border border-slate-700 hover:border-pink-500">
+                <div class="w-16 h-16 bg-gradient-to-br from-pink-500 to-rose-600 rounded-xl flex items-center justify-center text-3xl mb-4">
+                    📚
+                </div>
+                <h3 class="text-xl font-bold mb-2">Introduction to English</h3>
+                <p class="text-slate-400 text-sm mb-4">Build vocabulary and grammar skills</p>
+                <div class="flex items-center gap-2 text-xs">
+                    <span class="px-2 py-1 bg-pink-500/20 text-pink-300 rounded">Beginner</span>
+                    <span class="text-slate-500">• 4 lessons</span>
+                </div>
+                <div class="mt-4">
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="text-slate-400">Progress</span>
+                        <span class="text-pink-400">60%</span>
+                    </div>
+                    <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-pink-500 to-rose-500" style="width: 60%"></div>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Advanced Coding (Locked) -->
+            <div class="subject-card glass-panel p-6 rounded-2xl border border-slate-700 locked">
+                <div class="absolute top-4 right-4 bg-slate-800 px-3 py-1 rounded-full text-xs font-bold">🔒 Lv. 5 Required</div>
+                <div class="w-16 h-16 bg-slate-700 rounded-xl flex items-center justify-center text-3xl mb-4">
+                    🚀
+                </div>
+                <h3 class="text-xl font-bold mb-2">Advanced Coding</h3>
+                <p class="text-slate-400 text-sm mb-4">Master algorithms and data structures</p>
+                <div class="flex items-center gap-2 text-xs">
+                    <span class="px-2 py-1 bg-slate-700 text-slate-400 rounded">Intermediate</span>
+                    <span class="text-slate-500">• 8 lessons</span>
+                </div>
+                <div class="mt-4">
+                    <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-slate-600" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+
+</html>

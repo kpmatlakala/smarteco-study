@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Started - SmartEco Study Buddy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .step-transition { transition: all 0.5s ease; }
+        .progress-step { transition: all 0.3s ease; }
+        .progress-step.active { transform: scale(1.2); }
+        .floating { animation: float 3s ease-in-out infinite; }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
+
+    <!-- Main Container -->
+    <div class="max-w-4xl w-full bg-white rounded-3xl shadow-2xl overflow-hidden">
+        
+        <!-- Progress Bar -->
+        <div class="h-2 bg-gray-100 w-full">
+            <div id="progress-bar" class="h-full gradient-bg transition-all duration-500" style="width: 25%"></div>
+        </div>
+        
+        <!-- Content Area -->
+        <div class="p-8 md:p-12">
+            
+            <!-- Progress Steps -->
+            <div class="flex justify-between mb-8">
+                <div class="flex items-center">
+                    <div id="step1-indicator" class="w-8 h-8 gradient-bg text-white rounded-full flex items-center justify-center font-bold text-sm">1</div>
+                    <span class="ml-2 text-sm font-medium text-gray-900">Welcome</span>
+                </div>
+                <div class="flex-1 mx-4 h-0.5 bg-gray-200 self-center"></div>
+                <div class="flex items-center">
+                    <div id="step2-indicator" class="w-8 h-8 bg-gray-200 text-gray-400 rounded-full flex items-center justify-center font-bold text-sm">2</div>
+                    <span class="ml-2 text-sm font-medium text-gray-400">Your Background</span>
+                </div>
+                <div class="flex-1 mx-4 h-0.5 bg-gray-200 self-center"></div>
+                <div class="flex items-center">
+                    <div id="step3-indicator" class="w-8 h-8 bg-gray-200 text-gray-400 rounded-full flex items-center justify-center font-bold text-sm">3</div>
+                    <span class="ml-2 text-sm font-medium text-gray-400">Experience</span>
+                </div>
+                <div class="flex-1 mx-4 h-0.5 bg-gray-200 self-center"></div>
+                <div class="flex items-center">
+                    <div id="step4-indicator" class="w-8 h-8 bg-gray-200 text-gray-400 rounded-full flex items-center justify-center font-bold text-sm">4</div>
+                    <span class="ml-2 text-sm font-medium text-gray-400">Interests</span>
+                </div>
+            </div>
+            
+            <!-- STEP 1: WELCOME -->
+            <div id="step-1" class="step-transition">
+                <div class="text-center">
+                    <div class="floating inline-block mb-6">
+                        <div class="w-24 h-24 gradient-bg rounded-full flex items-center justify-center text-5xl text-white mx-auto">
+                            🤖
+                        </div>
+                    </div>
+                    
+                    <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                        Welcome to <span class="gradient-bg bg-clip-text text-transparent">SmartEco</span>
+                    </h1>
+                    
+                    <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+                        Your AI-powered study companion that makes learning fun through 3D adventures, gamification, and real hardware.
+                    </p>
+                    
+                    <div class="grid md:grid-cols-3 gap-4 mb-8">
+                        <div class="bg-indigo-50 p-4 rounded-xl">
+                            <div class="text-3xl mb-2">🌍</div>
+                            <h3 class="font-semibold">3D Worlds</h3>
+                            <p class="text-sm text-gray-600">Learn by exploring</p>
+                        </div>
+                        <div class="bg-purple-50 p-4 rounded-xl">
+                            <div class="text-3xl mb-2">🎮</div>
+                            <h3 class="font-semibold">Gamification</h3>
+                            <p class="text-sm text-gray-600">XP, badges, streaks</p>
+                        </div>
+                        <div class="bg-pink-50 p-4 rounded-xl">
+                            <div class="text-3xl mb-2">🔌</div>
+                            <h3 class="font-semibold">Hardware</h3>
+                            <p class="text-sm text-gray-600">Physical feedback</p>
+                        </div>
+                    </div>
+                    
+                    <button onclick="nextStep(2)" class="px-8 py-4 gradient-bg text-white rounded-full font-bold text-lg hover:shadow-xl transition transform hover:scale-105">
+                        Start Your Journey →
+                    </button>
+                    
+                    <p class="text-sm text-gray-400 mt-4">Takes less than 60 seconds</p>
+                </div>
+            </div>
+            
+            <!-- STEP 2: BACKGROUND -->
+            <div id="step-2" class="step-transition hidden">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-2">Tell us about yourself</h2>
+                    <p class="text-gray-600">We'll customize your learning experience</p>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-4 mb-8">
+                    <!-- Tech Student -->
+                    <div onclick="selectBackground('tech-student')" id="bg-tech-student" class="border-2 border-gray-200 hover:border-indigo-500 rounded-xl p-6 cursor-pointer transition text-center">
+                        <div class="text-4xl mb-3">💻</div>
+                        <h3 class="font-bold text-lg mb-1">Tech Student</h3>
+                        <p class="text-sm text-gray-500">Computer Science, Engineering</p>
+                    </div>
+                    
+                    <!-- Non-Tech Student -->
+                    <div onclick="selectBackground('nontech-student')" id="bg-nontech-student" class="border-2 border-gray-200 hover:border-indigo-500 rounded-xl p-6 cursor-pointer transition text-center">
+                        <div class="text-4xl mb-3">🎨</div>
+                        <h3 class="font-bold text-lg mb-1">Non-Tech Student</h3>
+                        <p class="text-sm text-gray-500">Arts, Business, Sciences</p>
+                    </div>
+                    
+                    <!-- Professional -->
+                    <div onclick="selectBackground('professional')" id="bg-professional" class="border-2 border-gray-200 hover:border-indigo-500 rounded-xl p-6 cursor-pointer transition text-center">
+                        <div class="text-4xl mb-3">💼</div>
+                        <h3 class="font-bold text-lg mb-1">Working Professional</h3>
+                        <p class="text-sm text-gray-500">Upskilling or career change</p>
+                    </div>
+                    
+                    <!-- Hobbyist -->
+                    <div onclick="selectBackground('hobbyist')" id="bg-hobbyist" class="border-2 border-gray-200 hover:border-indigo-500 rounded-xl p-6 cursor-pointer transition text-center">
+                        <div class="text-4xl mb-3">🎮</div>
+                        <h3 class="font-bold text-lg mb-1">Hobbyist</h3>
+                        <p class="text-sm text-gray-500">Learning for fun</p>
+                    </div>
+                </div>
+                
+                <div class="flex justify-between">
+                    <button onclick="prevStep(1)" class="px-6 py-3 border border-gray-300 rounded-full font-semibold hover:bg-gray-50 transition">
+                        ← Back
+                    </button>
+                    <button id="step2-next" onclick="nextStep(3)" disabled class="px-6 py-3 bg-gray-300 text-gray-500 rounded-full font-semibold cursor-not-allowed">
+                        Next →
+                    </button>
+                </div>
+            </div>
+            
+            <!-- STEP 3: EXPERIENCE LEVEL -->
+            <div id="step-3" class="step-transition hidden">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-2">What's your experience level?</h2>
+                    <p class="text-gray-600">We'll start you at the perfect difficulty</p>
+                </div>
+                
+                <div class="space-y-4 mb-8 max-w-2xl mx-auto">
+                    <!-- Beginner -->
+                    <div onclick="selectLevel('beginner')" id="level-beginner" class="border-2 border-gray-200 hover:border-indigo-500 rounded-xl p-6 cursor-pointer transition">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="font-bold text-lg">Complete Beginner</h3>
+                                <p class="text-sm text-gray-500">Never coded before or tried once/twice</p>
+                            </div>
+                            <div class="text-3xl">🌱</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Intermediate -->
+                    <div onclick="selectLevel('intermediate')" id="level-intermediate" class="border-2 border-gray-200 hover:border-indigo-500 rounded-xl p-6 cursor-pointer transition">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="font-bold text-lg">Some Experience</h3>
+                                <p class="text-sm text-gray-500">Know basics, built small projects</p>
+                            </div>
+                            <div class="text-3xl">🌿</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Advanced -->
+                    <div onclick="selectLevel('advanced')" id="level-advanced" class="border-2 border-gray-200 hover:border-indigo-500 rounded-xl p-6 cursor-pointer transition">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="font-bold text-lg">Advanced</h3>
+                                <p class="text-sm text-gray-500">Comfortable with coding, want mastery</p>
+                            </div>
+                            <div class="text-3xl">🌳</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-between">
+                    <button onclick="prevStep(2)" class="px-6 py-3 border border-gray-300 rounded-full font-semibold hover:bg-gray-50 transition">
+                        ← Back
+                    </button>
+                    <button id="step3-next" onclick="nextStep(4)" disabled class="px-6 py-3 bg-gray-300 text-gray-500 rounded-full font-semibold cursor-not-allowed">
+                        Next →
+                    </button>
+                </div>
+            </div>
+            
+            <!-- STEP 4: INTERESTS -->
+            <div id="step-4" class="step-transition hidden">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-2">What interests you?</h2>
+                    <p class="text-gray-600">Select all that apply (at least one)</p>
+                </div>
+                
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8" id="interests-grid">
+                    <!-- Populated by JavaScript -->
+                </div>
+                
+                <div class="flex justify-between">
+                    <button onclick="prevStep(3)" class="px-6 py-3 border border-gray-300 rounded-full font-semibold hover:bg-gray-50 transition">
+                        ← Back
+                    </button>
+                    <button id="complete-btn" onclick="completeOnboarding()" disabled class="px-8 py-3 gradient-bg text-white rounded-full font-semibold opacity-50 cursor-not-allowed transition">
+                        Launch Learning Path 🚀
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Hardware Option (Appears after Step 4) -->
+            <div id="hardware-option" class="hidden mt-8 p-6 bg-indigo-50 rounded-xl">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 bg-indigo-200 rounded-full flex items-center justify-center text-2xl">
+                            🔌
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-900">Have a Study Box?</h3>
+                            <p class="text-sm text-gray-600">Connect now for the full experience</p>
+                        </div>
+                    </div>
+                    <button onclick="connectHardware()" class="px-4 py-2 bg-indigo-600 text-white rounded-full text-sm font-semibold hover:bg-indigo-700 transition">
+                        Connect Hardware
+                    </button>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <script>
+        // ===== STATE MANAGEMENT =====
+        let currentStep = 1;
+        let userData = {
+            background: '',
+            level: '',
+            interests: []
+        };
+        
+        // Interests data
+        const interests = [
+            { id: 'web', icon: '🌐', label: 'Web Development' },
+            { id: 'game', icon: '🎮', label: 'Game Development' },
+            { id: 'ai', icon: '🧠', label: 'AI & Machine Learning' },
+            { id: 'data', icon: '📊', label: 'Data Science' },
+            { id: 'mobile', icon: '📱', label: 'Mobile Apps' },
+            { id: 'hardware', icon: '🔌', label: 'Hardware / IoT' },
+            { id: 'design', icon: '🎨', label: 'Creative Coding' },
+            { id: 'math', icon: '🧮', label: 'Mathematics' }
+        ];
+        
+        // Initialize interests grid
+        function initInterests() {
+            const grid = document.getElementById('interests-grid');
+            interests.forEach(interest => {
+                const div = document.createElement('div');
+                div.className = 'border-2 border-gray-200 hover:border-indigo-500 rounded-xl p-4 cursor-pointer transition text-center';
+                div.onclick = () => toggleInterest(interest.id, div);
+                div.innerHTML = `
+                    <div class="text-3xl mb-2">${interest.icon}</div>
+                    <div class="text-sm font-medium">${interest.label}</div>
+                `;
+                grid.appendChild(div);
+            });
+        }
+        
+        // Toggle interest selection
+        function toggleInterest(id, element) {
+            const index = userData.interests.indexOf(id);
+            if (index > -1) {
+                userData.interests.splice(index, 1);
+                element.classList.remove('border-indigo-500', 'bg-indigo-50');
+            } else {
+                userData.interests.push(id);
+                element.classList.add('border-indigo-500', 'bg-indigo-50');
+            }
+            
+            // Enable/disable complete button
+            const completeBtn = document.getElementById('complete-btn');
+            if (userData.interests.length > 0) {
+                completeBtn.disabled = false;
+                completeBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            } else {
+                completeBtn.disabled = true;
+                completeBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        }
+        
+        // ===== NAVIGATION =====
+        function nextStep(step) {
+            // Validate current step before proceeding
+            if (currentStep === 2 && !userData.background) {
+                alert('Please select your background');
+                return;
+            }
+            if (currentStep === 3 && !userData.level) {
+                alert('Please select your experience level');
+                return;
+            }
+            
+            // Hide current step
+            document.getElementById(`step-${currentStep}`).classList.add('hidden');
+            
+            // Show next step
+            document.getElementById(`step-${step}`).classList.remove('hidden');
+            currentStep = step;
+            
+            // Update progress bar
+            updateProgress();
+            
+            // Update step indicators
+            updateStepIndicators();
+        }
+        
+        function prevStep(step) {
+            // Hide current step
+            document.getElementById(`step-${currentStep}`).classList.add('hidden');
+            
+            // Show previous step
+            document.getElementById(`step-${step}`).classList.remove('hidden');
+            currentStep = step;
+            
+            // Update progress bar
+            updateProgress();
+            
+            // Update step indicators
+            updateStepIndicators();
+        }
+        
+        function updateProgress() {
+            const progress = (currentStep / 4) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+        }
+        
+        function updateStepIndicators() {
+            for (let i = 1; i <= 4; i++) {
+                const indicator = document.getElementById(`step${i}-indicator`);
+                const text = indicator.nextElementSibling;
+                
+                if (i < currentStep) {
+                    // Completed steps
+                    indicator.className = 'w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center font-bold text-sm';
+                    indicator.textContent = '✓';
+                    text.className = 'ml-2 text-sm font-medium text-green-600';
+                } else if (i === currentStep) {
+                    // Current step
+                    indicator.className = 'w-8 h-8 gradient-bg text-white rounded-full flex items-center justify-center font-bold text-sm';
+                    indicator.textContent = i;
+                    text.className = 'ml-2 text-sm font-medium text-gray-900';
+                } else {
+                    // Future steps
+                    indicator.className = 'w-8 h-8 bg-gray-200 text-gray-400 rounded-full flex items-center justify-center font-bold text-sm';
+                    indicator.textContent = i;
+                    text.className = 'ml-2 text-sm font-medium text-gray-400';
+                }
+            }
+        }
+        
+        // ===== BACKGROUND SELECTION =====
+        function selectBackground(bg) {
+            // Remove previous selection
+            document.querySelectorAll('[id^="bg-"]').forEach(el => {
+                el.classList.remove('border-indigo-500', 'bg-indigo-50');
+            });
+            
+            // Highlight selected
+            document.getElementById(`bg-${bg}`).classList.add('border-indigo-500', 'bg-indigo-50');
+            
+            // Save selection
+            userData.background = bg;
+            
+            // Enable next button
+            document.getElementById('step2-next').disabled = false;
+            document.getElementById('step2-next').classList.remove('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+            document.getElementById('step2-next').classList.add('gradient-bg', 'text-white');
+        }
+        
+        // ===== LEVEL SELECTION =====
+        function selectLevel(level) {
+            // Remove previous selection
+            document.querySelectorAll('[id^="level-"]').forEach(el => {
+                el.classList.remove('border-indigo-500', 'bg-indigo-50');
+            });
+            
+            // Highlight selected
+            document.getElementById(`level-${level}`).classList.add('border-indigo-500', 'bg-indigo-50');
+            
+            // Save selection
+            userData.level = level;
+            
+            // Enable next button
+            document.getElementById('step3-next').disabled = false;
+            document.getElementById('step3-next').classList.remove('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+            document.getElementById('step3-next').classList.add('gradient-bg', 'text-white');
+        }
+        
+        // ===== COMPLETE ONBOARDING =====
+        function completeOnboarding() {
+            // Save to localStorage
+            localStorage.setItem('userBackground', userData.background);
+            localStorage.setItem('userLevel', userData.level);
+            localStorage.setItem('userInterests', JSON.stringify(userData.interests));
+            localStorage.setItem('onboardingComplete', 'true');
+            
+            // Show hardware option
+            document.getElementById('hardware-option').classList.remove('hidden');
+            
+            // Update button
+            document.getElementById('complete-btn').textContent = 'Continue to Dashboard →';
+            document.getElementById('complete-btn').onclick = goToDashboard;
+        }
+        
+        function goToDashboard() {
+            window.location.href = 'dashboard.html';
+        }
+        
+        // ===== HARDWARE CONNECTION =====
+        function connectHardware() {
+            // Redirect to hardware connection page
+            window.location.href = 'hardware.html';
+        }
+        
+        // ===== INITIALIZE =====
+        document.addEventListener('DOMContentLoaded', () => {
+            initInterests();
+            
+            // Check if user already completed onboarding
+            if (localStorage.getItem('onboardingComplete') === 'true') {
+                // Redirect to dashboard
+                window.location.href = 'dashboard.html';
+            }
+        });
+    </script>
+</body>
+</html>

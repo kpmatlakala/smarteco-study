@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect Hardware - SmartEco Study Buddy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
+        .pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+        
+        /* Timer Circle Styles */
+        .timer-circle {
+            transition: stroke-dashoffset 0.5s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+        .timer-text {
+            font-feature-settings: "tnum";
+            font-variant-numeric: tabular-nums;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen p-8">
+
+<div class="max-w-4xl mx-auto">
+    <h1 class="text-3xl font-bold mb-2">🔌 Study Box Controller</h1>
+    <p class="text-gray-400 mb-8">Connect to your ESP32 and control study sessions</p>
+
+    <!-- Connection Card -->
+    <div class="glass-panel p-6 rounded-2xl mb-8">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-bold">Bluetooth Connection</h2>
+            <span id="connection-status" class="px-4 py-2 bg-yellow-600/20 text-yellow-400 rounded-full text-sm">Disconnected</span>
+        </div>
+
+        <div class="flex items-center gap-6 p-6 bg-gray-800/50 rounded-xl">
+            <div class="w-24 h-24 gradient-bg rounded-2xl flex items-center justify-center text-5xl">
+                🔌
+            </div>
+            <div>
+                <h3 class="text-2xl font-bold mb-1">SmartEco Study Box</h3>
+                <p class="text-gray-400 mb-2">ESP32-WROOM • Button Control • RGB LED • Timer</p>
+                <div class="flex gap-3">
+                    <button id="connect-btn" onclick="connectBLE()" class="px-6 py-3 gradient-bg rounded-xl font-bold hover:scale-105 transition">
+                        🔍 Connect
+                    </button>
+                    <button id="disconnect-btn" onclick="disconnectBLE()" class="px-6 py-3 bg-gray-700 rounded-xl font-bold hover:bg-gray-600 transition hidden">
+                        Disconnect
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timer Visualization -->
+    <div class="glass-panel p-6 rounded-2xl mb-8" id="timer-panel" style="display: none;">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-bold">⏱️ Study Timer</h2>
+            <div class="flex items-center gap-2">
+                <span id="session-status" class="px-3 py-1 bg-gray-700 rounded-full text-sm">Ready</span>
+            </div>
+        </div>
+
+        <!-- Timer Circle Visualization -->
+        <div class="flex flex-col items-center mb-6">
+            <div class="relative w-48 h-48">
+                <!-- Background circle -->
+                <svg class="w-48 h-48 transform -rotate-90">
+                    <circle cx="96" cy="96" r="88" fill="none" stroke="#374151" stroke-width="12"/>
+                    <!-- Progress circle -->
+                    <circle id="timer-progress" cx="96" cy="96" r="88" fill="none" 
+                            stroke="url(#gradient)" stroke-width="12" stroke-linecap="round"
+                            stroke-dasharray="553" stroke-dashoffset="553"
+                            class="timer-circle"/>
+                    <defs>
+                        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#667eea"/>
+                            <stop offset="100%" stop-color="#764ba2"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <!-- Timer text -->
+                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                    <span id="timer-minutes" class="text-5xl font-bold timer-text">25</span>
+                    <span class="text-sm text-gray-400">minutes</span>
+                </div>
+            </div>
+            <div class="mt-4 text-center">
+                <div id="timer-seconds" class="text-2xl font-mono text-indigo-400">00:00</div>
+            </div>
+        </div>
+
+        <!-- Progress bar alternative -->
+        <div class="mb-6">
+            <div class="flex justify-between text-sm mb-2">
+                <span>Progress</span>
+                <span id="progress-percent">0%</span>
+            </div>
+            <div class="w-full h-4 bg-gray-700 rounded-full overflow-hidden">
+                <div id="progress-bar" class="h-full gradient-bg transition-all duration-300" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- Session Controls -->
+        <div class="grid grid-cols-2 gap-4">
+            <button id="start-btn" onclick="sendCommand('START_SESSION')" 
+                    class="py-4 bg-green-600 rounded-xl font-bold hover:bg-green-700 transition text-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                ▶️ Start Session
+            </button>
+            <button id="end-btn" onclick="sendCommand('END_SESSION')" 
+                    class="py-4 bg-red-600 rounded-xl font-bold hover:bg-red-700 transition text-lg hidden">
+                ⏹️ End Session
+            </button>
+        </div>
+
+        <!-- Quick timer presets -->
+        <div class="grid grid-cols-3 gap-2 mt-4">
+            <button onclick="setTimerPreset(15)" class="py-2 bg-gray-800 rounded-lg hover:bg-gray-700 transition text-sm">
+                15 min
+            </button>
+            <button onclick="setTimerPreset(25)" class="py-2 bg-indigo-600/30 text-indigo-400 rounded-lg hover:bg-indigo-600/50 transition text-sm">
+                25 min
+            </button>
+            <button onclick="setTimerPreset(45)" class="py-2 bg-gray-800 rounded-lg hover:bg-gray-700 transition text-sm">
+                45 min
+            </button>
+        </div>
+    </div>
+
+    <!-- Live Monitor -->
+    <div class="glass-panel p-6 rounded-2xl mb-8" id="monitor-panel" style="display: none;">
+        <h2 class="text-xl font-bold mb-4">🎤 Live Microphone</h2>
+        
+        <div class="mb-4">
+            <div class="flex justify-between mb-1">
+                <span>Sound Level</span>
+                <span id="sound-value" class="font-mono">0</span>
+            </div>
+            <div class="w-full h-8 bg-gray-700 rounded-lg overflow-hidden">
+                <div id="sound-bar" class="h-full gradient-bg transition-all duration-100" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-4 mb-4">
+            <div class="bg-gray-800 p-3 rounded-lg text-center">
+                <div class="text-sm text-gray-400">Min</div>
+                <div id="min-sound" class="text-xl">0</div>
+            </div>
+            <div class="bg-gray-800 p-3 rounded-lg text-center">
+                <div class="text-sm text-gray-400">Max</div>
+                <div id="max-sound" class="text-xl">0</div>
+            </div>
+            <div class="bg-gray-800 p-3 rounded-lg text-center">
+                <div class="text-sm text-gray-400">Avg</div>
+                <div id="avg-sound" class="text-xl">0</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hardware Controls -->
+    <div class="glass-panel p-6 rounded-2xl mb-8" id="controls-panel" style="display: none;">
+        <h2 class="text-xl font-bold mb-4">🎮 Hardware Controls</h2>
+        
+        <div class="grid md:grid-cols-2 gap-6">
+            <!-- LED Control -->
+            <div>
+                <h3 class="font-semibold mb-3">LED Color</h3>
+                <div class="grid grid-cols-4 gap-2">
+                    <button onclick="sendCommand('LED_RED')" class="aspect-square bg-red-600 rounded-lg hover:ring-2 hover:ring-white transition"></button>
+                    <button onclick="sendCommand('LED_GREEN')" class="aspect-square bg-green-600 rounded-lg hover:ring-2 transition"></button>
+                    <button onclick="sendCommand('LED_BLUE')" class="aspect-square bg-blue-600 rounded-lg hover:ring-2 transition"></button>
+                    <button onclick="sendCommand('LED_YELLOW')" class="aspect-square bg-yellow-600 rounded-lg hover:ring-2 transition"></button>
+                </div>
+            </div>
+            
+            <!-- Sound Control -->
+            <div>
+                <h3 class="font-semibold mb-3">Sounds</h3>
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="sendCommand('PLAY_CHIME')" class="py-3 bg-indigo-600/20 rounded-lg hover:bg-indigo-600/30 transition">🔔 Chime</button>
+                    <button onclick="sendCommand('PLAY_CELEBRATION')" class="py-3 bg-purple-600/20 rounded-lg hover:bg-purple-600/30 transition">🎉 Celebration</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Button Press History -->
+    <div class="glass-panel p-6 rounded-2xl mb-8" id="history-panel" style="display: none;">
+        <h2 class="text-xl font-bold mb-4">📋 Button Press History</h2>
+        <div id="button-history" class="space-y-2 max-h-40 overflow-y-auto">
+            <div class="text-gray-500 text-center">No presses yet</div>
+        </div>
+    </div>
+
+    <!-- Event Log -->
+    <div class="glass-panel p-6 rounded-2xl">
+        <h2 class="text-xl font-bold mb-4">📋 Event Log</h2>
+        <div id="event-log" class="h-40 overflow-y-auto bg-gray-900 p-4 rounded-lg font-mono text-sm"></div>
+    </div>
+</div>
+
+<script>
+// ===== BLE Variables =====
+let bluetoothDevice = null;
+let characteristic = null;
+let soundHistory = [];
+let sessionActive = false;
+let sessionTime = 0;
+let sessionDuration = 1500; // 25 minutes in seconds
+let buttonPresses = [];
+
+// ===== Timer Variables =====
+let timerInterval = null;
+let lastMinute = 25;
+
+// ===== Log Function =====
+function log(message) {
+    const log = document.getElementById('event-log');
+    const entry = document.createElement('div');
+    entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+    log.appendChild(entry);
+    log.scrollTop = log.scrollHeight;
+}
+
+// ===== Timer Functions =====
+function updateTimerDisplay(seconds) {
+    const totalSeconds = sessionDuration - seconds;
+    const mins = Math.floor(totalSeconds / 60);
+    const secs = totalSeconds % 60;
+    const timeString = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    
+    // Update main display
+    document.getElementById('timer-seconds').textContent = timeString;
+    document.getElementById('timer-minutes').textContent = mins;
+    
+    // Update progress
+    const progress = (seconds / sessionDuration) * 100;
+    const percent = Math.min(100, Math.max(0, progress));
+    document.getElementById('progress-bar').style.width = percent + '%';
+    document.getElementById('progress-percent').textContent = Math.round(percent) + '%';
+    
+    // Update circle progress (stroke-dashoffset = (1 - progress) * circumference)
+    const circumference = 2 * Math.PI * 88; // r=88
+    const offset = circumference * (1 - (seconds / sessionDuration));
+    document.getElementById('timer-progress').style.strokeDashoffset = offset;
+    
+    // Change color based on time remaining
+    if (seconds > sessionDuration * 0.7) {
+        document.getElementById('timer-progress').setAttribute('stroke', '#10b981'); // Green
+    } else if (seconds > sessionDuration * 0.3) {
+        document.getElementById('timer-progress').setAttribute('stroke', '#f59e0b'); // Orange
+    } else {
+        document.getElementById('timer-progress').setAttribute('stroke', '#ef4444'); // Red
+    }
+    
+    // Check if minute changed
+    if (mins !== lastMinute) {
+        lastMinute = mins;
+        if (mins > 0) {
+            log(`⏱️ ${mins} minutes remaining`);
+        }
+    }
+}
+
+function setTimerPreset(minutes) {
+    sessionDuration = minutes * 60;
+    document.getElementById('timer-minutes').textContent = minutes;
+    resetTimer();
+    log(`⏱️ Timer set to ${minutes} minutes`);
+    
+    // Send to ESP32 if needed
+    if (characteristic) {
+        // You could add a command to set duration on ESP32
+        // sendCommand(`SET_DURATION:${minutes}`);
+    }
+}
+
+function resetTimer() {
+    sessionTime = 0;
+    updateTimerDisplay(0);
+}
+
+function startTimer() {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+        if (sessionActive) {
+            sessionTime++;
+            updateTimerDisplay(sessionTime);
+            
+            // Check if session complete
+            if (sessionTime >= sessionDuration) {
+                sessionComplete();
+            }
+        }
+    }, 1000);
+}
+
+function sessionComplete() {
+    sessionActive = false;
+    clearInterval(timerInterval);
+    log('✅ Session complete! Great job!');
+    showAchievement('Session Complete!', '+50 XP earned!');
+    
+    // Update UI
+    document.getElementById('start-btn').classList.remove('hidden');
+    document.getElementById('end-btn').classList.add('hidden');
+    document.getElementById('session-status').textContent = 'Complete';
+    document.getElementById('session-status').className = 'px-3 py-1 bg-green-600/20 text-green-400 rounded-full text-sm';
+    
+    // Play celebration sound via ESP32
+    sendCommand('PLAY_CELEBRATION');
+}
+
+// ===== Button History =====
+function addButtonPress() {
+    const time = new Date().toLocaleTimeString();
+    buttonPresses.unshift(time);
+    if (buttonPresses.length > 10) buttonPresses.pop();
+    
+    const historyDiv = document.getElementById('button-history');
+    historyDiv.innerHTML = buttonPresses.map(t => 
+        `<div class="p-2 bg-gray-800 rounded-lg text-sm">🔘 Button pressed at ${t}</div>`
+    ).join('');
+}
+
+// ===== Connect BLE =====
+async function connectBLE() {
+    try {
+        log('🔵 Requesting Bluetooth device...');
+        
+        bluetoothDevice = await navigator.bluetooth.requestDevice({
+            filters: [{ name: 'SmartEco Buddy' }],
+            optionalServices: ['4fafc201-1fb5-459e-8fcc-c5c9c331914b']
+        });
+
+        log(`✅ Found: ${bluetoothDevice.name}`);
+
+        const server = await bluetoothDevice.gatt.connect();
+        const service = await server.getPrimaryService('4fafc201-1fb5-459e-8fcc-c5c9c331914b');
+        characteristic = await service.getCharacteristic('beb5483e-36e1-4688-b7f5-ea07361b26a8');
+
+        // Enable notifications
+        await characteristic.startNotifications();
+        characteristic.addEventListener('characteristicvaluechanged', handleData);
+
+        // Update UI
+        document.getElementById('connection-status').textContent = '✅ Connected';
+        document.getElementById('connection-status').className = 'px-4 py-2 bg-green-600/20 text-green-400 rounded-full text-sm';
+        document.getElementById('connect-btn').classList.add('hidden');
+        document.getElementById('disconnect-btn').classList.remove('hidden');
+        document.getElementById('timer-panel').style.display = 'block';
+        document.getElementById('monitor-panel').style.display = 'block';
+        document.getElementById('controls-panel').style.display = 'block';
+        document.getElementById('history-panel').style.display = 'block';
+        
+        log('🎯 Connected! Ready for study sessions');
+        
+        // Start timer (inactive initially)
+        resetTimer();
+
+    } catch (error) {
+        log(`❌ Error: ${error.message}`);
+        alert('Connection failed: ' + error.message);
+    }
+}
+
+// ===== Handle Incoming Data =====
+function handleData(event) {
+    const value = new TextDecoder().decode(event.target.value);
+    log(`📩 ESP32: ${value}`);
+
+    if (value.startsWith('SOUND:')) {
+        const sound = parseInt(value.split(':')[1]);
+        updateSound(sound);
+    }
+    else if (value === 'BUTTON_PRESS') {
+        log('👆 Button pressed on ESP32');
+        addButtonPress();
+        
+        // Toggle session on button press
+        if (!sessionActive) {
+            sendCommand('START_SESSION');
+        } else {
+            sendCommand('END_SESSION');
+        }
+    }
+    else if (value === 'SESSION_STARTED') {
+        sessionActive = true;
+        sessionTime = 0;
+        startTimer();
+        log('▶️ Session started!');
+        
+        // Update UI
+        document.getElementById('start-btn').classList.add('hidden');
+        document.getElementById('end-btn').classList.remove('hidden');
+        document.getElementById('session-status').textContent = 'Focusing';
+        document.getElementById('session-status').className = 'px-3 py-1 bg-green-600/20 text-green-400 rounded-full text-sm pulse';
+    }
+    else if (value === 'SESSION_ENDED') {
+        sessionActive = false;
+        clearInterval(timerInterval);
+        log('⏹️ Session ended');
+        
+        // Update UI
+        document.getElementById('start-btn').classList.remove('hidden');
+        document.getElementById('end-btn').classList.add('hidden');
+        document.getElementById('session-status').textContent = 'Paused';
+        document.getElementById('session-status').className = 'px-3 py-1 bg-yellow-600/20 text-yellow-400 rounded-full text-sm';
+        resetTimer();
+    }
+    else if (value === 'SESSION_COMPLETE') {
+        sessionComplete();
+    }
+    else if (value.startsWith('XP_EARNED:')) {
+        const xp = value.split(':')[1];
+        log(`✨ +${xp} XP earned!`);
+        updateXP(parseInt(xp));
+    }
+    else if (value.startsWith('TIME:')) {
+        const seconds = parseInt(value.split(':')[1]);
+        if (sessionActive) {
+            sessionTime = seconds;
+            updateTimerDisplay(seconds);
+        }
+    }
+    else if (value === 'DOUBLE_CLAP') {
+        log('👏 Double clap detected!');
+        // Toggle session
+        if (!sessionActive) {
+            sendCommand('START_SESSION');
+        } else {
+            sendCommand('END_SESSION');
+        }
+    }
+}
+
+// ===== Send Command =====
+async function sendCommand(cmd) {
+    if (!characteristic) {
+        alert('Not connected!');
+        return;
+    }
+    
+    try {
+        const encoder = new TextEncoder();
+        await characteristic.writeValue(encoder.encode(cmd));
+        log(`📤 Sent: ${cmd}`);
+        
+        // Handle UI updates locally
+        if (cmd === 'START_SESSION') {
+            sessionActive = true;
+            sessionTime = 0;
+            startTimer();
+            document.getElementById('start-btn').classList.add('hidden');
+            document.getElementById('end-btn').classList.remove('hidden');
+            document.getElementById('session-status').textContent = 'Focusing';
+            document.getElementById('session-status').className = 'px-3 py-1 bg-green-600/20 text-green-400 rounded-full text-sm pulse';
+        } else if (cmd === 'END_SESSION') {
+            sessionActive = false;
+            clearInterval(timerInterval);
+            document.getElementById('start-btn').classList.remove('hidden');
+            document.getElementById('end-btn').classList.add('hidden');
+            document.getElementById('session-status').textContent = 'Ready';
+            document.getElementById('session-status').className = 'px-3 py-1 bg-gray-700 text-gray-300 rounded-full text-sm';
+            resetTimer();
+        }
+        
+    } catch (error) {
+        log(`❌ Send error: ${error.message}`);
+    }
+}
+
+// ===== Update Sound Display =====
+function updateSound(sound) {
+    const percent = (sound / 4095) * 100;
+    document.getElementById('sound-bar').style.width = percent + '%';
+    document.getElementById('sound-value').textContent = sound;
+    
+    soundHistory.push(sound);
+    if (soundHistory.length > 100) soundHistory.shift();
+    
+    if (soundHistory.length > 0) {
+        document.getElementById('min-sound').textContent = Math.min(...soundHistory);
+        document.getElementById('max-sound').textContent = Math.max(...soundHistory);
+        const avg = soundHistory.reduce((a,b) => a+b, 0) / soundHistory.length;
+        document.getElementById('avg-sound').textContent = Math.round(avg);
+    }
+    
+    // Flash when loud
+    if (sound > 500) {
+        document.getElementById('sound-bar').classList.add('animate-pulse');
+        setTimeout(() => {
+            document.getElementById('sound-bar').classList.remove('animate-pulse');
+        }, 200);
+    }
+}
+
+// ===== Update XP =====
+function updateXP(amount) {
+    let xp = parseInt(localStorage.getItem('xp')) || 0;
+    xp += amount;
+    localStorage.setItem('xp', xp);
+    log(`💰 Total XP: ${xp}`);
+}
+
+// ===== Show Achievement =====
+function showAchievement(title, message) {
+    const popup = document.createElement('div');
+    popup.className = 'fixed top-4 right-4 gradient-bg text-white px-6 py-4 rounded-xl shadow-lg z-50 animate-bounce';
+    popup.innerHTML = `<strong>${title}</strong><br>${message}`;
+    document.body.appendChild(popup);
+    setTimeout(() => popup.remove(), 3000);
+}
+
+// ===== Disconnect =====
+function disconnectBLE() {
+    if (bluetoothDevice && bluetoothDevice.gatt.connected) {
+        bluetoothDevice.gatt.disconnect();
+    }
+    
+    if (timerInterval) clearInterval(timerInterval);
+    
+    document.getElementById('connection-status').textContent = 'Disconnected';
+    document.getElementById('connection-status').className = 'px-4 py-2 bg-yellow-600/20 text-yellow-400 rounded-full text-sm';
+    document.getElementById('connect-btn').classList.remove('hidden');
+    document.getElementById('disconnect-btn').classList.add('hidden');
+    document.getElementById('timer-panel').style.display = 'none';
+    document.getElementById('monitor-panel').style.display = 'none';
+    document.getElementById('controls-panel').style.display = 'none';
+    document.getElementById('history-panel').style.display = 'none';
+    
+    log('🔌 Disconnected');
+}
+
+// ===== Initialize =====
+document.addEventListener('DOMContentLoaded', () => {
+    resetTimer();
+    log('🚀 Ready to connect');
+});
+</script>
+</body>
+</html>

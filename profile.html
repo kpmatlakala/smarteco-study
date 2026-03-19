@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - SmartEco Study Buddy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-card {
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.3);
+        }
+
+        .badge-card {
+            transition: all 0.2s ease;
+        }
+
+        .badge-card:hover {
+            transform: scale(1.05);
+            filter: drop-shadow(0 0 10px rgba(99, 102, 241, 0.5));
+        }
+
+        .progress-ring {
+            transition: stroke-dashoffset 0.5s;
+        }
+
+        .tab-active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .edit-mode {
+            border: 2px solid #667eea;
+            background: rgba(99, 102, 241, 0.1);
+        }
+    </style>
+</head>
+
+<body class="min-h-screen">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 glass-panel border-b border-slate-700/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <div
+                        class="w-10 h-10 gradient-bg rounded-lg flex items-center justify-center text-white font-bold text-xl">
+                        SB
+                    </div>
+                    <span
+                        class="text-xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">SmartEco</span>
+                </div>
+
+                <!-- Navigation Links -->
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="dashboard.html" class="nav-link hover:text-indigo-400 transition"
+                        data-page="dashboard">Dashboard</a>
+                    <a href="lessons.html" class="nav-link hover:text-indigo-400 transition"
+                        data-page="lessons">Lessons</a>
+                    <a href="hardware.html" class="nav-link hover:text-indigo-400 transition"
+                        data-page="hardware">Hardware</a>
+                    <a href="badges.html" class="nav-link hover:text-indigo-400 transition"
+                        data-page="badges">Badges</a>
+                    <a href="profile.html" class="nav-link hover:text-indigo-400 transition"
+                        data-page="profile">Profile</a>
+
+                    <!-- XP Display -->
+                    <div
+                        class="flex items-center space-x-3 bg-slate-800/50 px-4 py-2 rounded-full border border-slate-700">
+                        <div
+                            class="w-8 h-8 gradient-bg rounded-full flex items-center justify-center text-white font-bold text-sm">
+                            <span id="nav-level">1</span>
+                        </div>
+                        <div class="w-32 h-2 bg-slate-700 rounded-full overflow-hidden">
+                            <div id="nav-xp-bar" class="h-full gradient-bg" style="width: 0%"></div>
+                        </div>
+                        <span id="nav-xp-text" class="text-xs text-slate-400">0/100 XP</span>
+                    </div>
+
+                    <!-- Profile Avatar -->
+                    <a href="profile.html"
+                        class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center text-white font-bold cursor-pointer hover:scale-110 transition">
+                        <span id="user-avatar">👤</span>
+                    </a>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linecap="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Dropdown -->
+        <div id="mobile-menu" class="hidden md:hidden glass-panel border-t border-slate-700/50 p-4">
+            <div class="flex flex-col space-y-3">
+                <a href="dashboard.html"
+                    class="mobile-nav-link px-4 py-2 hover:bg-slate-800 rounded-lg transition">Dashboard</a>
+                <a href="lessons.html"
+                    class="mobile-nav-link px-4 py-2 hover:bg-slate-800 rounded-lg transition">Lessons</a>
+                <a href="hardware.html"
+                    class="mobile-nav-link px-4 py-2 hover:bg-slate-800 rounded-lg transition">Hardware</a>
+                <a href="badges.html"
+                    class="mobile-nav-link px-4 py-2 hover:bg-slate-800 rounded-lg transition">Badges</a>
+                <a href="profile.html"
+                    class="mobile-nav-link px-4 py-2 hover:bg-slate-800 rounded-lg transition">Profile</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="pt-20 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+
+        <!-- Profile Header with Edit Toggle -->
+        <div class="flex items-center justify-between mb-6">
+            <h1 class="text-3xl font-bold">My Profile</h1>
+            <div class="flex gap-3">
+                <button id="edit-btn" onclick="toggleEdit()"
+                    class="px-4 py-2 bg-indigo-600/20 text-indigo-400 rounded-full text-sm hover:bg-indigo-600/30 transition flex items-center gap-2">
+                    <span>✎</span> Edit Profile
+                </button>
+                <button id="save-btn" onclick="saveProfile()"
+                    class="hidden px-4 py-2 bg-green-600 text-white rounded-full text-sm hover:bg-green-700 transition flex items-center gap-2">
+                    <span>✓</span> Save Changes
+                </button>
+            </div>
+        </div>
+
+        <!-- Profile Grid -->
+        <div class="grid lg:grid-cols-3 gap-8">
+
+            <!-- LEFT COLUMN: User Info Card -->
+            <div class="space-y-6">
+
+                <!-- Profile Card -->
+                <div class="glass-panel p-6 rounded-2xl text-center">
+                    <div class="relative inline-block">
+                        <div class="w-32 h-32 mx-auto mb-4 gradient-bg rounded-full flex items-center justify-center text-5xl text-white"
+                            id="avatar-display">
+                            👤
+                        </div>
+                        <button id="edit-avatar" onclick="editAvatar()"
+                            class="absolute bottom-4 right-0 w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white text-sm hover:bg-indigo-700 transition opacity-0 group-hover:opacity-100">
+                            ✎
+                        </button>
+                    </div>
+
+                    <div id="view-mode">
+                        <h2 id="display-name" class="text-2xl font-bold mb-1">Alex Chen</h2>
+                        <p id="display-username" class="text-indigo-400 mb-3">@alexcodes</p>
+                        <p id="display-bio" class="text-sm text-slate-400 mb-4">Coding enthusiast • Lifelong learner •
+                            Building cool stuff</p>
+                    </div>
+
+                    <div id="edit-mode" class="hidden text-left space-y-4">
+                        <div>
+                            <label class="text-sm text-slate-400 mb-1 block">Display Name</label>
+                            <input id="edit-name" type="text" value="Alex Chen"
+                                class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-indigo-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="text-sm text-slate-400 mb-1 block">Username</label>
+                            <input id="edit-username" type="text" value="@alexcodes"
+                                class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-indigo-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="text-sm text-slate-400 mb-1 block">Bio</label>
+                            <textarea id="edit-bio" rows="3"
+                                class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-indigo-500 outline-none">Coding enthusiast • Lifelong learner • Building cool stuff</textarea>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-center gap-3 mt-4">
+                        <div class="px-3 py-1 bg-indigo-600/20 rounded-full text-xs text-indigo-400">Python</div>
+                        <div class="px-3 py-1 bg-purple-600/20 rounded-full text-xs text-purple-400">JavaScript</div>
+                        <div class="px-3 py-1 bg-pink-600/20 rounded-full text-xs text-pink-400">IoT</div>
+                    </div>
+
+                    <div class="border-t border-slate-700 my-4"></div>
+
+                    <div class="grid grid-cols-2 gap-3 text-sm">
+                        <div>
+                            <span class="text-slate-400">Member since</span>
+                            <p class="font-semibold">March 2024</p>
+                        </div>
+                        <div>
+                            <span class="text-slate-400">Last active</span>
+                            <p class="font-semibold text-green-400">Online now</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hardware Connection Status -->
+                <div class="glass-panel p-6 rounded-2xl">
+                    <h3 class="font-bold mb-4 flex items-center gap-2">
+                        <span>🔌</span> Connected Devices
+                    </h3>
+
+                    <div id="hardware-status-profile"
+                        class="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg">
+                        <div class="flex items-center gap-3">
+                            <div class="w-3 h-3 bg-green-500 rounded-full pulse"></div>
+                            <span>Study Box v1</span>
+                        </div>
+                        <span class="text-sm text-green-400">Connected</span>
+                    </div>
+
+                    <button onclick="window.location.href='hardware.html'"
+                        class="w-full mt-3 py-2 bg-indigo-600/20 text-indigo-400 rounded-lg text-sm hover:bg-indigo-600/30 transition">
+                        Manage Devices
+                    </button>
+                </div>
+            </div>
+
+            <!-- MIDDLE COLUMN: Stats & Progress -->
+            <div class="lg:col-span-2 space-y-6">
+
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="stat-card glass-panel p-4 rounded-xl text-center">
+                        <div class="text-3xl mb-1 text-indigo-400">📊</div>
+                        <div class="text-2xl font-bold" id="stat-level">4</div>
+                        <div class="text-xs text-slate-400">Current Level</div>
+                    </div>
+
+                    <div class="stat-card glass-panel p-4 rounded-xl text-center">
+                        <div class="text-3xl mb-1 text-purple-400">📚</div>
+                        <div class="text-2xl font-bold" id="stat-lessons">24</div>
+                        <div class="text-xs text-slate-400">Lessons Done</div>
+                    </div>
+
+                    <div class="stat-card glass-panel p-4 rounded-xl text-center">
+                        <div class="text-3xl mb-1 text-pink-400">⏱️</div>
+                        <div class="text-2xl font-bold" id="stat-hours">28.5</div>
+                        <div class="text-xs text-slate-400">Hours Studied</div>
+                    </div>
+
+                    <div class="stat-card glass-panel p-4 rounded-xl text-center">
+                        <div class="text-3xl mb-1 text-yellow-400">🏆</div>
+                        <div class="text-2xl font-bold" id="stat-badges">12</div>
+                        <div class="text-xs text-slate-400">Badges Earned</div>
+                    </div>
+                </div>
+
+                <!-- XP Progress Card -->
+                <div class="glass-panel p-6 rounded-2xl">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold">Level Progress</h3>
+                        <span class="text-sm text-indigo-400" id="xp-total">2,450 / 3,000 XP</span>
+                    </div>
+
+                    <div class="w-full h-4 bg-slate-700 rounded-full overflow-hidden mb-2">
+                        <div id="profile-xp-bar" class="h-full gradient-bg" style="width: 82%"></div>
+                    </div>
+
+                    <div class="flex justify-between text-sm text-slate-400">
+                        <span>Level <span id="level-start">4</span></span>
+                        <span>Level <span id="level-next">5</span></span>
+                    </div>
+
+                    <!-- Next level preview -->
+                    <div class="mt-4 p-4 bg-indigo-900/30 rounded-xl border border-indigo-500/30">
+                        <p class="text-sm text-indigo-300">🎯 Next level unlocks:</p>
+                        <ul class="text-xs text-slate-400 mt-2 space-y-1">
+                            <li>• New avatar customization</li>
+                            <li>• Hardware control mode</li>
+                            <li>• Special "Level 5" badge</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Learning Stats -->
+                <div class="glass-panel p-6 rounded-2xl">
+                    <h3 class="font-bold mb-4">📈 Learning Statistics</h3>
+
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <!-- Streak Calendar -->
+                        <div>
+                            <h4 class="text-sm font-semibold text-indigo-400 mb-3">Activity Streak</h4>
+                            <div class="grid grid-cols-7 gap-1 mb-2">
+                                <div class="aspect-square bg-green-500/20 rounded"></div>
+                                <div class="aspect-square bg-green-500/20 rounded"></div>
+                                <div class="aspect-square bg-green-500/40 rounded"></div>
+                                <div class="aspect-square bg-green-500/60 rounded"></div>
+                                <div class="aspect-square bg-green-500/80 rounded"></div>
+                                <div class="aspect-square bg-green-500 rounded"></div>
+                                <div class="aspect-square bg-green-500 rounded"></div>
+                            </div>
+                            <div class="grid grid-cols-7 gap-1 mb-2">
+                                <div class="aspect-square bg-green-500 rounded"></div>
+                                <div class="aspect-square bg-green-500 rounded"></div>
+                                <div class="aspect-square bg-green-500/80 rounded"></div>
+                                <div class="aspect-square bg-green-500/60 rounded"></div>
+                                <div class="aspect-square bg-green-500/40 rounded"></div>
+                                <div class="aspect-square bg-green-500/20 rounded"></div>
+                                <div class="aspect-square bg-green-500/20 rounded"></div>
+                            </div>
+                            <div class="grid grid-cols-7 gap-1 mb-2">
+                                <div class="aspect-square bg-green-500/20 rounded"></div>
+                                <div class="aspect-square bg-green-500/40 rounded"></div>
+                                <div class="aspect-square bg-green-500/60 rounded"></div>
+                                <div class="aspect-square bg-green-500/80 rounded"></div>
+                                <div class="aspect-square bg-green-500 rounded"></div>
+                                <div class="aspect-square bg-green-500 rounded"></div>
+                                <div class="aspect-square bg-green-500/80 rounded"></div>
+                            </div>
+                            <div class="flex justify-between text-xs text-slate-500 mt-2">
+                                <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
+                            </div>
+                            <p class="text-xs text-slate-400 mt-3">
+                                🔥 Current streak: <span class="text-orange-400 font-bold" id="streak-count">7
+                                    days</span>
+                            </p>
+                        </div>
+
+                        <!-- Stats List -->
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg">
+                                <span class="text-sm">Best streak</span>
+                                <span class="font-bold text-indigo-400" id="best-streak">14 days</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg">
+                                <span class="text-sm">Most active day</span>
+                                <span class="font-bold text-purple-400" id="best-day">Thursday</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg">
+                                <span class="text-sm">Favorite time</span>
+                                <span class="font-bold text-pink-400" id="fav-time">Evening (8-10pm)</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg">
+                                <span class="text-sm">Top subject</span>
+                                <span class="font-bold text-yellow-400" id="top-subject">Python</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg">
+                                <span class="text-sm">Avg session</span>
+                                <span class="font-bold text-green-400" id="avg-session">32 minutes</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Badges Section -->
+        <div class="mt-8 glass-panel p-6 rounded-2xl">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold">🏅 My Badges</h3>
+                <button onclick="window.location.href='badges.html'"
+                    class="text-sm text-indigo-400 hover:text-indigo-300">
+                    View All →
+                </button>
+            </div>
+
+            <!-- Badges Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                <!-- Badge 1 -->
+                <div class="badge-card text-center p-3 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl">
+                    <div class="text-3xl mb-1">🏆</div>
+                    <div class="text-xs font-bold text-white">First Focus</div>
+                    <div class="text-[10px] text-white/70">Mar 15</div>
+                </div>
+
+                <!-- Badge 2 -->
+                <div class="badge-card text-center p-3 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-xl">
+                    <div class="text-3xl mb-1">⭐</div>
+                    <div class="text-xs font-bold text-white">Code Novice</div>
+                    <div class="text-[10px] text-white/70">Mar 18</div>
+                </div>
+
+                <!-- Badge 3 -->
+                <div class="badge-card text-center p-3 bg-gradient-to-br from-purple-400 to-pink-500 rounded-xl">
+                    <div class="text-3xl mb-1">🔥</div>
+                    <div class="text-xs font-bold text-white">3-Day Streak</div>
+                    <div class="text-[10px] text-white/70">Mar 20</div>
+                </div>
+
+                <!-- Badge 4 -->
+                <div class="badge-card text-center p-3 bg-gradient-to-br from-green-400 to-emerald-500 rounded-xl">
+                    <div class="text-3xl mb-1">🔁</div>
+                    <div class="text-xs font-bold text-white">Loop Master</div>
+                    <div class="text-[10px] text-white/70">Mar 22</div>
+                </div>
+
+                <!-- Badge 5 -->
+                <div class="badge-card text-center p-3 bg-gradient-to-br from-red-400 to-rose-500 rounded-xl">
+                    <div class="text-3xl mb-1">🤖</div>
+                    <div class="text-xs font-bold text-white">Robot Tamer</div>
+                    <div class="text-[10px] text-white/70">Mar 25</div>
+                </div>
+
+                <!-- Badge 6 -->
+                <div class="badge-card text-center p-3 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-xl">
+                    <div class="text-3xl mb-1">🧮</div>
+                    <div class="text-xs font-bold text-white">Math Wiz</div>
+                    <div class="text-[10px] text-white/70">Mar 28</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="mt-8 glass-panel p-6 rounded-2xl">
+            <h3 class="text-xl font-bold mb-4">📋 Recent Activity</h3>
+
+            <div class="space-y-3">
+                <div class="flex items-center gap-4 p-3 bg-slate-800/50 rounded-lg">
+                    <div class="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center text-green-400">✓
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-semibold">Completed "Introduction to Coding"</p>
+                        <p class="text-xs text-slate-400">2 hours ago • +50 XP</p>
+                    </div>
+                    <span class="text-indigo-400 text-sm">View →</span>
+                </div>
+
+                <div class="flex items-center gap-4 p-3 bg-slate-800/50 rounded-lg">
+                    <div class="w-8 h-8 bg-purple-500/20 rounded-full flex items-center justify-center text-purple-400">
+                        🏆</div>
+                    <div class="flex-1">
+                        <p class="font-semibold">Earned "Loop Master" badge</p>
+                        <p class="text-xs text-slate-400">Yesterday • New achievement</p>
+                    </div>
+                    <span class="text-indigo-400 text-sm">View →</span>
+                </div>
+
+                <div class="flex items-center gap-4 p-3 bg-slate-800/50 rounded-lg">
+                    <div class="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center text-blue-400">🔌
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-semibold">Connected Study Box</p>
+                        <p class="text-xs text-slate-400">2 days ago • Hardware unlocked</p>
+                    </div>
+                    <span class="text-indigo-400 text-sm">View →</span>
+                </div>
+            </div>
+
+            <button class="w-full mt-4 py-3 text-indigo-400 hover:text-indigo-300 transition text-sm">
+                Load More Activity →
+            </button>
+        </div>
+    </div>
+
+    <!-- Edit Avatar Modal -->
+    <div id="avatar-modal"
+        class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+        <div class="glass-panel p-8 rounded-2xl max-w-md w-full mx-4">
+            <h3 class="text-2xl font-bold mb-4">Choose Avatar</h3>
+
+            <div class="grid grid-cols-4 gap-4 mb-6">
+                <div onclick="selectAvatar('👤')"
+                    class="aspect-square bg-indigo-600/20 rounded-xl flex items-center justify-center text-3xl cursor-pointer hover:bg-indigo-600/30 transition">
+                    👤</div>
+                <div onclick="selectAvatar('🧑')"
+                    class="aspect-square bg-purple-600/20 rounded-xl flex items-center justify-center text-3xl cursor-pointer hover:bg-purple-600/30 transition">
+                    🧑</div>
+                <div onclick="selectAvatar('👩')"
+                    class="aspect-square bg-pink-600/20 rounded-xl flex items-center justify-center text-3xl cursor-pointer hover:bg-pink-600/30 transition">
+                    👩</div>
+                <div onclick="selectAvatar('🧔')"
+                    class="aspect-square bg-orange-600/20 rounded-xl flex items-center justify-center text-3xl cursor-pointer hover:bg-orange-600/30 transition">
+                    🧔</div>
+                <div onclick="selectAvatar('👨‍💻')"
+                    class="aspect-square bg-green-600/20 rounded-xl flex items-center justify-center text-3xl cursor-pointer hover:bg-green-600/30 transition">
+                    👨‍💻</div>
+                <div onclick="selectAvatar('👩‍💻')"
+                    class="aspect-square bg-blue-600/20 rounded-xl flex items-center justify-center text-3xl cursor-pointer hover:bg-blue-600/30 transition">
+                    👩‍💻</div>
+                <div onclick="selectAvatar('🦸')"
+                    class="aspect-square bg-yellow-600/20 rounded-xl flex items-center justify-center text-3xl cursor-pointer hover:bg-yellow-600/30 transition">
+                    🦸</div>
+                <div onclick="selectAvatar('🧙')"
+                    class="aspect-square bg-red-600/20 rounded-xl flex items-center justify-center text-3xl cursor-pointer hover:bg-red-600/30 transition">
+                    🧙</div>
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="closeAvatarModal()"
+                    class="flex-1 py-3 bg-slate-700 rounded-xl hover:bg-slate-600 transition">
+                    Cancel
+                </button>
+                <button onclick="saveAvatar()" class="flex-1 py-3 gradient-bg rounded-xl hover:shadow-lg transition">
+                    Save
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== USER STATE =====
+        let userState = {
+            name: 'Alex Chen',
+            username: '@alexcodes',
+            bio: 'Coding enthusiast • Lifelong learner • Building cool stuff',
+            avatar: '👤',
+            level: 4,
+            xp: 2450,
+            lessonsCompleted: 24,
+            hoursStudied: 28.5,
+            badgesEarned: 12,
+            streak: 7,
+            bestStreak: 14,
+            bestDay: 'Thursday',
+            favTime: 'Evening (8-10pm)',
+            topSubject: 'Python',
+            avgSession: '32 minutes',
+            hardwareConnected: true
+        };
+
+        // ===== LOAD USER DATA =====
+        function loadUserData() {
+            // Load from localStorage
+            const savedName = localStorage.getItem('profile_name');
+            if (savedName) userState.name = savedName;
+
+            const savedUsername = localStorage.getItem('profile_username');
+            if (savedUsername) userState.username = savedUsername;
+
+            const savedBio = localStorage.getItem('profile_bio');
+            if (savedBio) userState.bio = savedBio;
+
+            const savedAvatar = localStorage.getItem('profile_avatar');
+            if (savedAvatar) userState.avatar = savedAvatar;
+
+            // Load XP and level
+            const savedXP = localStorage.getItem('userXP');
+            if (savedXP) userState.xp = parseInt(savedXP);
+
+            const savedLevel = localStorage.getItem('userLevel');
+            if (savedLevel) userState.level = parseInt(savedLevel);
+
+            // Load hardware status
+            const hardwareConnected = localStorage.getItem('hardwareConnected');
+            userState.hardwareConnected = hardwareConnected === 'true';
+
+            updateUI();
+        }
+
+        // ===== UPDATE UI =====
+        function updateUI() {
+            // Update navigation
+            document.getElementById('nav-level').textContent = userState.level;
+            const xpProgress = userState.xp % 100;
+            document.getElementById('nav-xp-bar').style.width = xpProgress + '%';
+            document.getElementById('nav-xp-text').textContent = xpProgress + '/100 XP';
+
+            // Update profile info
+            document.getElementById('display-name').textContent = userState.name;
+            document.getElementById('display-username').textContent = userState.username;
+            document.getElementById('display-bio').textContent = userState.bio;
+            document.getElementById('avatar-display').textContent = userState.avatar;
+
+            // Update edit fields
+            document.getElementById('edit-name').value = userState.name;
+            document.getElementById('edit-username').value = userState.username;
+            document.getElementById('edit-bio').value = userState.bio;
+
+            // Update stats
+            document.getElementById('stat-level').textContent = userState.level;
+            document.getElementById('stat-lessons').textContent = userState.lessonsCompleted;
+            document.getElementById('stat-hours').textContent = userState.hoursStudied.toFixed(1);
+            document.getElementById('stat-badges').textContent = userState.badgesEarned;
+
+            // Update XP
+            const xpNeeded = userState.level * 500;
+            const xpPercent = (userState.xp / xpNeeded) * 100;
+            document.getElementById('profile-xp-bar').style.width = xpPercent + '%';
+            document.getElementById('xp-total').textContent = `${userState.xp} / ${xpNeeded} XP`;
+            document.getElementById('level-start').textContent = userState.level;
+            document.getElementById('level-next').textContent = userState.level + 1;
+
+            // Update learning stats
+            document.getElementById('streak-count').textContent = userState.streak + ' days';
+            document.getElementById('best-streak').textContent = userState.bestStreak + ' days';
+            document.getElementById('best-day').textContent = userState.bestDay;
+            document.getElementById('fav-time').textContent = userState.favTime;
+            document.getElementById('top-subject').textContent = userState.topSubject;
+            document.getElementById('avg-session').textContent = userState.avgSession;
+
+            // Update hardware status
+            if (userState.hardwareConnected) {
+                document.getElementById('hardware-status-profile').innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-3 h-3 bg-green-500 rounded-full pulse"></div>
+                        <span>Study Box v1</span>
+                    </div>
+                    <span class="text-sm text-green-400">Connected</span>
+                `;
+            }
+        }
+
+        // ===== EDIT MODE TOGGLE =====
+        function toggleEdit() {
+            document.getElementById('view-mode').classList.toggle('hidden');
+            document.getElementById('edit-mode').classList.toggle('hidden');
+            document.getElementById('edit-btn').classList.toggle('hidden');
+            document.getElementById('save-btn').classList.toggle('hidden');
+        }
+
+        function saveProfile() {
+            // Get values from edit fields
+            userState.name = document.getElementById('edit-name').value;
+            userState.username = document.getElementById('edit-username').value;
+            userState.bio = document.getElementById('edit-bio').value;
+
+            // Save to localStorage
+            localStorage.setItem('profile_name', userState.name);
+            localStorage.setItem('profile_username', userState.username);
+            localStorage.setItem('profile_bio', userState.bio);
+
+            // Update display
+            updateUI();
+
+            // Exit edit mode
+            toggleEdit();
+
+            // Show success message
+            showNotification('Profile updated successfully!');
+        }
+
+        // ===== AVATAR EDITING =====
+        function editAvatar() {
+            document.getElementById('avatar-modal').classList.remove('hidden');
+        }
+
+        function selectAvatar(avatar) {
+            userState.avatar = avatar;
+            document.getElementById('avatar-display').textContent = avatar;
+        }
+
+        function saveAvatar() {
+            localStorage.setItem('profile_avatar', userState.avatar);
+            closeAvatarModal();
+            showNotification('Avatar updated!');
+        }
+
+        function closeAvatarModal() {
+            document.getElementById('avatar-modal').classList.add('hidden');
+        }
+
+        // ===== NOTIFICATION =====
+        function showNotification(message) {
+            // Create temporary notification
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-24 right-4 glass-panel px-6 py-3 rounded-xl z-50 animate-bounce';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => notification.remove(), 3000);
+        }
+
+        // ===== INIT =====
+        document.addEventListener('DOMContentLoaded', () => {
+            loadUserData();
+
+            // Animate entrance
+            gsap.from('.glass-panel', {
+                y: 20,
+                opacity: 0,
+                duration: 0.5,
+                stagger: 0.1
+            });
+        });
+    </script>
+</body>
+
+</html>
