@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>♜ Math Chess Master - Maths Edition</title>
+    
+    <!-- Tailwind CSS for navigation -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Shared State & Navigation -->
+    <script src="../shared-state.js"></script>
+    <script src="../navigation.js"></script>
+    
+    <!-- Game Styles -->
+    <link rel="stylesheet" href="index.css">
+    
+    <style>
+        /* Navigation Styles */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .nav-link {
+            transition: color 0.2s;
+        }
+        
+        .nav-link:hover {
+            color: #818cf8;
+        }
+        
+        /* Adjust body for fixed navbar */
+        body {
+            padding-top: 64px;
+            background: linear-gradient(135deg, #1e3c3f 0%, #315d5f 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            padding-top: 84px; /* 64px navbar + 20px padding */
+        }
+        
+        /* Timer in header */
+        .timer-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(79, 70, 229, 0.2);
+            border: 1px solid rgba(79, 70, 229, 0.3);
+            border-radius: 9999px;
+            padding: 4px 12px;
+        }
+        
+        .timer-text {
+            font-family: monospace;
+            color: #818cf8;
+            min-width: 45px;
+            text-align: center;
+        }
+        
+        .timer-progress {
+            width: 60px;
+            height: 6px;
+            background: #1e293b;
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+        
+        .timer-progress-bar {
+            height: 100%;
+            background: #4f46e5;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        /* Hardware status */
+        .hardware-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid #334155;
+            border-radius: 9999px;
+            padding: 4px 12px;
+        }
+        
+        .hardware-led {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #6b7280;
+        }
+        
+        .hardware-led.connected {
+            background: #10b981;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* Ensure game container stays above everything */
+        .game-container {
+            max-width: 1400px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin-top: 0;
+        }
+        
+        /* XP Display in nav */
+        .xp-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid #334155;
+            border-radius: 9999px;
+            padding: 4px 12px;
+        }
+        
+        .xp-level {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        
+        .xp-bar {
+            width: 80px;
+            height: 6px;
+            background: #1e293b;
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+        
+        .xp-bar-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .xp-text {
+            font-size: 0.7rem;
+            color: #94a3b8;
+            min-width: 45px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 glass-panel border-b border-slate-700/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 gradient-bg rounded-lg flex items-center justify-center text-white font-bold text-xl">
+                        SB
+                    </div>
+                    <span class="text-xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">SmartEco</span>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="../dashboard.html" class="nav-link hover:text-indigo-400 transition">Dashboard</a>
+                    <a href="../lessons.html" class="nav-link hover:text-indigo-400 transition">Lessons</a>
+                    <a href="../hardware.html" class="nav-link hover:text-indigo-400 transition">Hardware</a>
+                    <a href="../badges.html" class="nav-link hover:text-indigo-400 transition">Badges</a>
+                    <a href="../profile.html" class="nav-link hover:text-indigo-400 transition">Profile</a>
+
+                    <!-- Timer Display -->
+                    <div class="timer-badge">
+                        <span class="text-indigo-400">⏱️</span>
+                        <span id="header-timer" class="timer-text">00:00</span>
+                        <div class="timer-progress">
+                            <div id="header-timer-progress" class="timer-progress-bar" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- XP Display -->
+                    <div class="xp-display">
+                        <div class="xp-level">
+                            <span class="nav-level">1</span>
+                        </div>
+                        <div class="xp-bar">
+                            <div class="nav-xp-bar xp-bar-fill" style="width: 0%"></div>
+                        </div>
+                        <span class="nav-xp-text xp-text">0/100 XP</span>
+                    </div>
+
+                    <!-- Hardware Status -->
+                    <div class="hardware-indicator">
+                        <span class="hardware-led" id="nav-hardware-led"></span>
+                        <span class="hardware-status-text text-xs text-gray-400" id="nav-hardware-text">Disconnected</span>
+                    </div>
+
+                    <!-- Profile Avatar -->
+                    <a href="../profile.html" class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center text-white font-bold cursor-pointer hover:scale-110 transition">
+                        <span class="user-avatar">👤</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Original Game Container (unchanged) -->
+    <div class="game-container">
+        <!-- Header -->
+        <div class="chess-header">
+            <h1>♜ MATH CHESS MASTER ♞</h1>
+            <div class="grade-level"> Mathematics</div>
+        </div>
+
+        <!-- Main Game Area -->
+        <div class="game-area">
+            <!-- Chess Board Side -->
+            <div class="chess-side">
+                <div class="board-container">
+                    <div class="chess-board" id="chessBoard"></div>
+                    
+                    <!-- Game Status -->
+                    <div class="game-status" id="gameStatus">
+                        <span class="turn-indicator" id="turnIndicator">Your Turn</span>
+                        <div class="captured-pieces" id="capturedPieces"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Math Challenge Side -->
+            <div class="math-side">
+                <!-- Selected Piece Info -->
+                <div class="piece-info" id="pieceInfo">
+                    <div class="piece-icon" id="selectedPieceIcon">♙</div>
+                    <div class="piece-details">
+                        <h3 id="selectedPieceName">Pawn</h3>
+                        <p id="selectedPieceDesc">Algebra Challenge</p>
+                    </div>
+                </div>
+
+                <!-- Math Problem Card -->
+                <div class="problem-card" id="problemCard">
+                    <div class="problem-header">
+                        <span class="problem-topic" id="problemTopic">Algebra</span>
+                        <span class="difficulty-badge" id="difficultyBadge">Grade 10</span>
+                    </div>
+                    <div class="problem-content">
+                        <h2 id="problemQuestion">Solve for x: 3x² - 12x + 9 = 0</h2>
+                    </div>
+                </div>
+
+                <!-- Answer Input Area -->
+                <div class="answer-area">
+                    <input type="text" id="answerInput" placeholder="Enter your answer..." class="math-input">
+                    <button id="submitBtn" class="math-button">
+                        <span>Submit Move ✓</span>
+                    </button>
+                </div>
+
+                <!-- Feedback & Hints -->
+                <div id="feedbackMessage" class="feedback-message"></div>
+
+                <!-- Quick Help -->
+                <div class="help-section" id="helpSection">
+                    <button id="hintBtn" class="help-btn">💡 Hint</button>
+                    <button id="formulaBtn" class="help-btn">📐 Formula</button>
+                </div>
+
+                <!-- Game Stats -->
+                <div class="game-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Score</span>
+                        <span class="stat-value" id="scoreDisplay">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Streak</span>
+                        <span class="stat-value" id="streakDisplay">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Moves</span>
+                        <span class="stat-value" id="movesDisplay">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Captures</span>
+                        <span class="stat-value" id="capturesDisplay">0</span>
+                    </div>
+                </div>
+
+                <!-- Move History -->
+                <div class="history-section">
+                    <h4>📜 Move History</h4>
+                    <ul id="moveHistory"></ul>
+                </div>
+
+                <!-- Control Buttons -->
+                <div class="control-buttons">
+                    <button id="newGameBtn" class="control-btn">🔄 New Game</button>
+                    <button id="surrenderBtn" class="control-btn surrender">🏳️ Surrender</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Math Formula Modal (hidden by default) -->
+    <div id="formulaModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3 id="modalTitle">Formula Reference</h3>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <!-- Original Game Script (unchanged) -->
+    <script src="index.js"></script>
+    
+    <!-- Integration Script (adds SmartEco features without modifying game) -->
+    <script>
+        // Wait for everything to load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Store original game instance
+            let gameInstance = null;
+            
+            // Try to get game instance (it's created in index.js)
+            setTimeout(() => {
+                // Find the game instance (it's not exposed globally, so we need to patch)
+                patchGameInstance();
+                initSmartEcoIntegration();
+            }, 500);
+            
+            function patchGameInstance() {
+                // We need to patch the constructor to expose the instance
+                const originalAutomaticMathChess = window.AutomaticMathChess || AutomaticMathChess;
+                
+                window.AutomaticMathChess = class extends originalAutomaticMathChess {
+                    constructor() {
+                        super();
+                        // Store instance globally
+                        window.gameInstance = this;
+                        gameInstance = this;
+                        
+                        // Patch handleCorrectAnswer to award XP
+                        const originalHandleCorrect = this.handleCorrectAnswer;
+                        this.handleCorrectAnswer = function() {
+                            // Call original
+                            originalHandleCorrect.call(this);
+                            
+                            // Award XP
+                            if (this.currentProblem && window.SmartEco) {
+                                const xpEarned = 10 + (this.currentProblem.grade * 2);
+                                SmartEco.addXP(xpEarned);
+                                SmartEco.completeLesson(`math_${this.currentProblem.grade}`);
+                                console.log(`🎓 Math XP: +${xpEarned}`);
+                            }
+                        };
+                    }
+                };
+            }
+            
+            function initSmartEcoIntegration() {
+                console.log('🎮 Math Chess - SmartEco Integration');
+                
+                // Timer elements
+                const headerTimer = document.getElementById('header-timer');
+                const headerTimerProgress = document.getElementById('header-timer-progress');
+                
+                // Start session if not active
+                if (window.SmartEco && !SmartEco.state.sessionActive) {
+                    SmartEco.startSession();
+                }
+                
+                // Update timer display
+                function updateTimer() {
+                    if (!window.SmartEco || !headerTimer || !headerTimerProgress) return;
+                    
+                    const state = SmartEco.state;
+                    const mins = Math.floor(state.sessionTime / 60);
+                    const secs = state.sessionTime % 60;
+                    headerTimer.textContent = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+                    
+                    const progress = (state.sessionTime / state.sessionDuration) * 100;
+                    headerTimerProgress.style.width = Math.min(progress, 100) + '%';
+                }
+                
+                // Update navbar
+                function updateNavbar() {
+                    if (!window.SmartEco) return;
+                    
+                    const state = SmartEco.state;
+                    
+                    // Update level
+                    document.querySelectorAll('.nav-level').forEach(el => el.textContent = state.level);
+                    
+                    // Update XP bar
+                    const xpInLevel = state.xp % 100;
+                    document.querySelectorAll('.nav-xp-bar').forEach(el => el.style.width = xpInLevel + '%');
+                    document.querySelectorAll('.nav-xp-text').forEach(el => el.textContent = xpInLevel + '/100 XP');
+                    
+                    // Update hardware status
+                    const hardwareLed = document.getElementById('nav-hardware-led');
+                    const hardwareText = document.getElementById('nav-hardware-text');
+                    
+                    if (state.hardwareConnected) {
+                        hardwareLed.className = 'hardware-led connected';
+                        hardwareText.textContent = 'Connected';
+                        hardwareText.className = 'hardware-status-text text-xs text-green-400';
+                    } else {
+                        hardwareLed.className = 'hardware-led';
+                        hardwareText.textContent = 'Disconnected';
+                        hardwareText.className = 'hardware-status-text text-xs text-gray-400';
+                    }
+                }
+                
+                // Listen for state changes
+                if (window.SmartEco) {
+                    SmartEco.addListener((event, data, state) => {
+                        if (event === 'sessionTime') {
+                            updateTimer();
+                        }
+                        if (['xp', 'level', 'hardwareConnected'].includes(event)) {
+                            updateNavbar();
+                        }
+                    });
+                    
+                    // Initial updates
+                    updateTimer();
+                    updateNavbar();
+                }
+                
+                // Timer update interval
+                setInterval(() => {
+                    if (window.SmartEco && SmartEco.state.sessionActive && !SmartEco.state.sessionPaused) {
+                        const newTime = SmartEco.state.sessionTime + 1;
+                        SmartEco.updateSessionTime(newTime);
+                    }
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+</html>

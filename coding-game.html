@@ -1,0 +1,1823 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeQuest - Coding Adventure</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="shared-state.js"></script>
+    <script src="navigation.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --accent-rose: #f43f5e;
+            --accent-emerald: #10b981;
+            --accent-blue: #3b82f6;
+            --accent-purple: #a855f7;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-color: #475569;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding-top: 64px; /* Space for fixed navbar */
+        }
+
+        /* Navigation Styles */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .nav-link {
+            transition: color 0.2s;
+        }
+
+        .nav-link:hover {
+            color: #818cf8;
+        }
+
+        /* Intro Screen */
+        .intro-screen {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-primary);
+            z-index: 1000;
+            transition: opacity 0.5s, visibility 0.5s;
+        }
+
+        .intro-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .logo-container {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .robot-logo {
+            width: 120px;
+            height: 120px;
+            background: var(--accent-blue);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 60px rgba(59, 130, 246, 0.4);
+            animation: float 3s ease-in-out infinite;
+            position: relative;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(3deg);
+            }
+
+            50% {
+                transform: translateY(-10px) rotate(3deg);
+            }
+        }
+
+        .robot-logo::after {
+            content: '🤖';
+            font-size: 60px;
+        }
+
+        .intro-title {
+            font-size: 4rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .intro-title span {
+            color: var(--accent-blue);
+        }
+
+        .intro-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            max-width: 600px;
+            text-align: center;
+            line-height: 1.6;
+            margin-bottom: 3rem;
+        }
+
+        .feature-grid {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .feature-card {
+            background: var(--bg-secondary);
+            padding: 1.5rem 2rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-title {
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+
+        .feature-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .btn-primary {
+            background: var(--text-primary);
+            color: var(--bg-primary);
+            border: none;
+            padding: 1rem 3rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 1rem 3rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            margin-top: 1rem;
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-secondary);
+            border-color: var(--text-primary);
+        }
+
+        /* Background Animation */
+        .bg-particles {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            border: 1px solid var(--accent-blue);
+            border-radius: 50%;
+            opacity: 0.2;
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 0.2;
+            }
+
+            50% {
+                transform: scale(1.2);
+                opacity: 0.4;
+            }
+        }
+
+        /* Game Layout */
+        .game-container {
+            display: none;
+            min-height: calc(100vh - 64px);
+        }
+
+        .game-container.active {
+            display: flex;
+        }
+
+        /* Left Panel - Editor */
+        .editor-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+        }
+
+        .panel-header {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1.5rem;
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .panel-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .panel-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .panel-info h3 {
+            font-size: 0.9rem;
+            margin-bottom: 0.1rem;
+        }
+
+        .panel-info p {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .panel-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-icon {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .btn-icon:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .editor-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .line-numbers {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 50px;
+            background: var(--bg-primary);
+            border-right: 1px solid var(--border-color);
+            padding: 1.5rem 0;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            line-height: 1.6;
+            user-select: none;
+        }
+
+        .code-editor {
+            width: 100%;
+            height: 100%;
+            padding: 1.5rem 1.5rem 1.5rem 70px;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            resize: none;
+            outline: none;
+            tab-size: 2;
+        }
+
+        .code-editor::placeholder {
+            color: var(--text-muted);
+        }
+
+        /* Syntax Highlighting Overlay */
+        .code-highlight {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 1.5rem 1.5rem 1.5rem 70px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            pointer-events: none;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            color: transparent;
+        }
+
+        .code-keyword {
+            color: var(--accent-purple);
+        }
+
+        .code-function {
+            color: var(--accent-blue);
+        }
+
+        .code-method {
+            color: var(--accent-emerald);
+        }
+
+        .code-comment {
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        /* Console */
+        .console-panel {
+            height: 200px;
+            border-top: 1px solid var(--border-color);
+            background: #020617;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .console-header {
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1rem;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-weight: bold;
+        }
+
+        .console-output {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            font-size: 0.85rem;
+        }
+
+        .console-line {
+            margin-bottom: 0.5rem;
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .console-time {
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        .console-msg {
+            color: var(--accent-emerald);
+        }
+
+        .console-error {
+            color: var(--accent-rose);
+            font-weight: bold;
+        }
+
+        .console-warn {
+            color: #fbbf24;
+        }
+
+        /* Control Bar */
+        .control-bar {
+            padding: 1rem;
+            background: var(--bg-primary);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-run {
+            flex: 1;
+            background: var(--accent-emerald);
+            color: white;
+            border: none;
+            padding: 0.875rem;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+            font-family: inherit;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .btn-run:hover:not(:disabled) {
+            background: #059669;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-run:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-run.running {
+            background: var(--accent-rose);
+        }
+
+        .spin {
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Right Panel - Game View */
+        .game-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-primary);
+            position: relative;
+        }
+
+        .game-info {
+            position: absolute;
+            top: 1.5rem;
+            left: 1.5rem;
+            right: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .level-info {
+            background: rgba(30, 41, 59, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            max-width: 320px;
+            pointer-events: auto;
+        }
+
+        .level-info h2 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .level-info p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 0.75rem;
+        }
+
+        .concept-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--accent-blue);
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .level-counter {
+            background: rgba(30, 41, 59, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 0.75rem 1.25rem;
+            border-radius: 50px;
+            border: 1px solid var(--border-color);
+            font-weight: bold;
+            pointer-events: auto;
+        }
+
+        .game-area {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .grid-container {
+            position: relative;
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 12px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .game-grid {
+            display: grid;
+            gap: 4px;
+        }
+
+        .cell {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .cell-empty {
+            background: rgba(51, 65, 85, 0.3);
+            border: 1px solid rgba(71, 85, 105, 0.3);
+        }
+
+        .cell-wall {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+        }
+
+        .cell-wall::after {
+            content: '';
+            position: absolute;
+            inset: 4px;
+            background: repeating-linear-gradient(45deg,
+                    transparent,
+                    transparent 5px,
+                    rgba(0, 0, 0, 0.2) 5px,
+                    rgba(0, 0, 0, 0.2) 10px);
+            border-radius: 4px;
+        }
+
+        .cell-start {
+            background: rgba(244, 63, 94, 0.15);
+            border: 1px solid rgba(244, 63, 94, 0.3);
+        }
+
+        .cell-goal {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .cell-goal::after {
+            content: '';
+            width: 16px;
+            height: 16px;
+            background: var(--accent-emerald);
+            border-radius: 50%;
+            box-shadow: 0 0 20px var(--accent-emerald);
+            animation: pulse-goal 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-goal {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.2);
+                opacity: 0.8;
+            }
+        }
+
+        /* Robot */
+        .robot {
+            position: absolute;
+            width: 52px;
+            height: 52px;
+            background: var(--accent-blue);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.5);
+            z-index: 100;
+        }
+
+        .robot::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            width: 20px;
+            height: 20px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            opacity: 0.7;
+        }
+
+        .robot-face {
+            font-size: 24px;
+            transition: transform 0.3s;
+        }
+
+        .robot.up .robot-face {
+            transform: rotate(0deg);
+        }
+
+        .robot.right .robot-face {
+            transform: rotate(90deg);
+        }
+
+        .robot.down .robot-face {
+            transform: rotate(180deg);
+        }
+
+        .robot.left .robot-face {
+            transform: rotate(-90deg);
+        }
+
+        /* Modals */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 3rem;
+            text-align: center;
+            max-width: 420px;
+            transform: scale(0.9);
+            transition: transform 0.3s;
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+
+        .modal-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--accent-emerald);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 40px;
+            box-shadow: 0 0 40px rgba(16, 185, 129, 0.4);
+        }
+
+        .modal h2 {
+            font-size: 1.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .modal p {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .victory .modal-icon {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            box-shadow: 0 0 40px rgba(251, 191, 36, 0.4);
+        }
+
+        /* XP Display */
+        .xp-display {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            padding: 0.5rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            z-index: 1000;
+        }
+
+        .xp-display span {
+            color: var(--accent-emerald);
+            font-weight: bold;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .game-container.active {
+                flex-direction: column;
+            }
+
+            .editor-panel {
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+                min-height: 50vh;
+            }
+
+            .intro-title {
+                font-size: 2.5rem;
+            }
+
+            .feature-grid {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .cell {
+                width: 45px;
+                height: 45px;
+            }
+
+            .robot {
+                width: 39px;
+                height: 39px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 glass-panel border-b border-slate-700/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 gradient-bg rounded-lg flex items-center justify-center text-white font-bold text-xl">
+                        SB
+                    </div>
+                    <span class="text-xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">SmartEco</span>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="dashboard.html" class="nav-link hover:text-indigo-400 transition">Dashboard</a>
+                    <a href="lessons.html" class="nav-link hover:text-indigo-400 transition">Lessons</a>                    
+                    <a href="badges.html" class="nav-link hover:text-indigo-400 transition">Badges</a>
+                    <a href="profile.html" class="nav-link hover:text-indigo-400 transition">Profile</a>
+
+                    <!-- XP Display -->
+                    <div class="flex items-center space-x-3 bg-slate-800/50 px-4 py-2 rounded-full border border-slate-700">
+                        <div class="w-8 h-8 gradient-bg rounded-full flex items-center justify-center text-white font-bold text-sm">
+                            <span class="nav-level">1</span>
+                        </div>
+                        <div class="w-32 h-2 bg-slate-700 rounded-full overflow-hidden">
+                            <div class="nav-xp-bar h-full gradient-bg" style="width: 0%"></div>
+                        </div>
+                        <span class="nav-xp-text text-xs text-slate-400">0/100 XP</span>
+                    </div>
+
+                    <!-- Hardware Status -->
+                    <div class="flex items-center gap-2 px-3 py-1 bg-slate-800/50 rounded-full border border-slate-700">
+                        <span class="hardware-led w-2 h-2 bg-gray-500 rounded-full"></span>
+                        <span class="hardware-status-text text-xs text-gray-400">Disconnected</span>
+                    </div>
+
+                    <!-- Profile Avatar -->
+                    <a href="profile.html" class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center text-white font-bold cursor-pointer hover:scale-110 transition">
+                        <span class="user-avatar">👤</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- XP Display (for game) -->
+    <div class="xp-display" id="xpDisplay">
+        <span>⚡</span>
+        <span id="xpValue">0</span> XP
+    </div>
+
+    <!-- Background Particles -->
+    <div class="bg-particles" id="particles"></div>
+
+    <!-- Intro Screen -->
+    <div class="intro-screen" id="introScreen">
+        <div class="logo-container">
+            <div class="robot-logo"></div>
+        </div>
+        <h1 class="intro-title">CODE<span>QUEST</span></h1>
+        <p class="intro-subtitle">
+            The robot needs your commands. Write <strong style="color: var(--accent-blue);">code</strong>, solve
+            <strong style="color: var(--accent-emerald);">puzzles</strong>, and master programming.
+        </p>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">⌨️</div>
+                <div class="feature-title">Real JavaScript</div>
+                <div class="feature-desc">Write actual code syntax</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🤖</div>
+                <div class="feature-title">Robot Control</div>
+                <div class="feature-desc">See your code in action</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🧩</div>
+                <div class="feature-title">5 Challenges</div>
+                <div class="feature-desc">From loops to conditionals</div>
+            </div>
+        </div>
+        <button class="btn-primary" onclick="startGame()">START CODING</button>
+        <button class="btn-secondary" onclick="window.location.href='dashboard.html'">← Back to Dashboard</button>
+    </div>
+
+    <!-- Game Container -->
+    <div class="game-container" id="gameContainer">
+        <!-- Editor Panel -->
+        <div class="editor-panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <div class="panel-icon">⌨️</div>
+                    <div class="panel-info">
+                        <h3>CODE EDITOR</h3>
+                        <p id="levelSubtitle">Level 1 // Initialization</p>
+                    </div>
+                </div>
+                <div class="panel-actions">
+                    <button class="btn-icon" onclick="showHint()" title="Hint">💡</button>
+                    <button class="btn-icon" onclick="resetLevel()" title="Reset Level">🔄</button>
+                </div>
+            </div>
+
+            <div class="editor-container">
+                <div class="line-numbers" id="lineNumbers">1</div>
+                <div class="code-highlight" id="codeHighlight"></div>
+                <textarea class="code-editor" id="codeEditor" placeholder="// Write your code here..."
+                    spellcheck="false"></textarea>
+            </div>
+
+            <div class="console-panel">
+                <div class="console-header">
+                    <span>CONSOLE OUTPUT</span>
+                    <button onclick="clearConsole()"
+                        style="background: none; border: none; color: inherit; cursor: pointer;">CLEAR</button>
+                </div>
+                <div class="console-output" id="consoleOutput"></div>
+            </div>
+
+            <div class="control-bar">
+                <button class="btn-run" id="runBtn" onclick="runCode()">
+                    <span>▶</span> RUN CODE
+                </button>
+            </div>
+        </div>
+
+        <!-- Game Panel -->
+        <div class="game-panel">
+            <div class="game-info">
+                <div class="level-info">
+                    <h2 id="levelTitle">Initialization</h2>
+                    <p id="levelDesc">Guide the robot to the green portal using direct commands.</p>
+                    <span class="concept-tag" id="conceptTag">⚡ SEQUENCE</span>
+                </div>
+                <div class="level-counter">
+                    <span id="currentLevel">1</span> / <span id="totalLevels">5</span>
+                </div>
+            </div>
+
+            <div class="game-area">
+                <div class="grid-container">
+                    <div class="game-grid" id="gameGrid"></div>
+                    <div class="robot up" id="robot">
+                        <span class="robot-face">🤖</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Level Complete Modal -->
+    <div class="modal-overlay" id="levelModal">
+        <div class="modal">
+            <div class="modal-icon">🏆</div>
+            <h2>LEVEL COMPLETE!</h2>
+            <p id="completionMessage">Excellent coding! +50 XP earned.</p>
+            <button class="btn-primary" onclick="nextLevel()">NEXT LEVEL →</button>
+        </div>
+    </div>
+
+    <!-- Victory Modal -->
+    <div class="modal-overlay victory" id="victoryModal">
+        <div class="modal">
+            <div class="modal-icon">👑</div>
+            <h2>CODING MASTER!</h2>
+            <p>You've completed all coding challenges! +200 XP bonus!</p>
+            <button class="btn-primary" onclick="returnToDashboard()">BACK TO DASHBOARD</button>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // CODING GAME DATA
+        // ==========================================
+        const CODING_LEVELS = [
+            {
+                id: 1,
+                title: "Initialization",
+                description: "Guide the robot to the green portal using direct commands.",
+                concept: "SEQUENCE",
+                xpReward: 50,
+                gridSize: 5,
+                grid: [
+                    ['EMPTY', 'EMPTY', 'EMPTY', 'EMPTY', 'EMPTY'],
+                    ['EMPTY', 'WALL', 'WALL', 'WALL', 'EMPTY'],
+                    ['START', 'EMPTY', 'EMPTY', 'EMPTY', 'GOAL'],
+                    ['EMPTY', 'WALL', 'WALL', 'WALL', 'EMPTY'],
+                    ['EMPTY', 'EMPTY', 'EMPTY', 'EMPTY', 'EMPTY'],
+                ],
+                startPos: { x: 0, y: 2 },
+                endPos: { x: 4, y: 2 },
+                starterCode: "// Move the robot 4 steps to the right\nrobot.moveRight();\nrobot.moveRight();\nrobot.moveRight();\nrobot.moveRight();",
+                hint: "robot.moveRight(); robot.moveRight(); robot.moveRight(); robot.moveRight();"
+            },
+            {
+                id: 2,
+                title: "Loops",
+                description: "The path is long. Use a loop to avoid repetitive code.",
+                concept: "LOOPS",
+                xpReward: 75,
+                gridSize: 6,
+                grid: [
+                    ['START', 'EMPTY', 'EMPTY', 'EMPTY', 'EMPTY', 'GOAL'],
+                    ['WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL'],
+                    ['EMPTY', 'EMPTY', 'EMPTY', 'EMPTY', 'EMPTY', 'EMPTY'],
+                    ['EMPTY', 'EMPTY', 'EMPTY', 'EMPTY', 'EMPTY', 'EMPTY'],
+                    ['EMPTY', 'EMPTY', 'EMPTY', 'EMPTY', 'EMPTY', 'EMPTY'],
+                    ['EMPTY', 'EMPTY', 'EMPTY', 'EMPTY', 'EMPTY', 'EMPTY'],
+                ],
+                startPos: { x: 0, y: 0 },
+                endPos: { x: 5, y: 0 },
+                starterCode: "// Use a for loop to move 5 times\nfor (let i = 0; i < 5; i++) {\n  robot.moveRight();\n}",
+                hint: "for (let i = 0; i < 5; i++) { robot.moveRight(); }"
+            },
+            {
+                id: 3,
+                title: "Conditionals",
+                description: "Walls block the path. Check surroundings before moving.",
+                concept: "CONDITIONALS",
+                xpReward: 100,
+                gridSize: 5,
+                grid: [
+                    ['START', 'WALL', 'EMPTY', 'EMPTY', 'EMPTY'],
+                    ['EMPTY', 'WALL', 'EMPTY', 'WALL', 'EMPTY'],
+                    ['EMPTY', 'EMPTY', 'EMPTY', 'WALL', 'EMPTY'],
+                    ['WALL', 'WALL', 'EMPTY', 'WALL', 'EMPTY'],
+                    ['EMPTY', 'EMPTY', 'EMPTY', 'WALL', 'GOAL'],
+                ],
+                startPos: { x: 0, y: 0 },
+                endPos: { x: 4, y: 4 },
+                starterCode: "// Check if you can move down\nif (robot.canMoveDown()) {\n  robot.moveDown();\n} else {\n  robot.moveRight();\n}",
+                hint: "Use a loop with if/else to navigate the maze."
+            },
+            {
+                id: 4,
+                title: "The Spiral",
+                description: "Combine loops and conditionals to escape the spiral.",
+                concept: "ADVANCED",
+                xpReward: 125,
+                gridSize: 7,
+                grid: [
+                    ['START', 'EMPTY', 'EMPTY', 'EMPTY', 'EMPTY', 'EMPTY', 'WALL'],
+                    ['WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'EMPTY', 'WALL'],
+                    ['GOAL', 'EMPTY', 'EMPTY', 'EMPTY', 'WALL', 'EMPTY', 'WALL'],
+                    ['WALL', 'WALL', 'WALL', 'EMPTY', 'WALL', 'EMPTY', 'WALL'],
+                    ['WALL', 'EMPTY', 'EMPTY', 'EMPTY', 'WALL', 'EMPTY', 'WALL'],
+                    ['WALL', 'EMPTY', 'WALL', 'WALL', 'WALL', 'EMPTY', 'WALL'],
+                    ['WALL', 'EMPTY', 'EMPTY', 'EMPTY', 'EMPTY', 'EMPTY', 'WALL'],
+                ],
+                startPos: { x: 0, y: 0 },
+                endPos: { x: 0, y: 2 },
+                starterCode: "// Navigate the spiral\n// Hint: Follow the right wall\nfor (let i = 0; i < 20; i++) {\n  \n}",
+                hint: "Follow the right-hand rule: always try to turn right first."
+            },
+            {
+                id: 5,
+                title: "The Gauntlet",
+                description: "Your final test. Reach the goal using minimal commands.",
+                concept: "OPTIMIZATION",
+                xpReward: 150,
+                gridSize: 8,
+                grid: [
+                    ['START', 'EMPTY', 'WALL', 'EMPTY', 'EMPTY', 'EMPTY', 'EMPTY', 'EMPTY'],
+                    ['EMPTY', 'EMPTY', 'WALL', 'EMPTY', 'WALL', 'WALL', 'WALL', 'EMPTY'],
+                    ['WALL', 'EMPTY', 'WALL', 'EMPTY', 'EMPTY', 'EMPTY', 'WALL', 'EMPTY'],
+                    ['WALL', 'EMPTY', 'EMPTY', 'EMPTY', 'WALL', 'EMPTY', 'WALL', 'EMPTY'],
+                    ['WALL', 'WALL', 'WALL', 'EMPTY', 'WALL', 'EMPTY', 'EMPTY', 'EMPTY'],
+                    ['EMPTY', 'EMPTY', 'WALL', 'EMPTY', 'WALL', 'WALL', 'WALL', 'WALL'],
+                    ['EMPTY', 'WALL', 'WALL', 'EMPTY', 'EMPTY', 'EMPTY', 'EMPTY', 'EMPTY'],
+                    ['EMPTY', 'EMPTY', 'EMPTY', 'EMPTY', 'WALL', 'WALL', 'WALL', 'GOAL'],
+                ],
+                startPos: { x: 0, y: 0 },
+                endPos: { x: 7, y: 7 },
+                starterCode: "// The Gauntlet - Find your path\n",
+                hint: "Sometimes the long way around is the fastest."
+            }
+        ];
+
+        // Game State
+        let currentLevelIdx = 0;
+        let robotPos = { x: 0, y: 0 };
+        let robotDir = 'RIGHT';
+        let isRunning = false;
+        let executionAbort = false;
+        let totalXP = 0;
+
+        // DOM Elements
+        let introScreen, gameContainer, codeEditor, codeHighlight, lineNumbers;
+        let consoleOutput, gameGrid, robot, runBtn, levelModal, victoryModal;
+        let xpDisplay, xpValue;
+
+        // ==========================================
+        // INITIALIZATION
+        // ==========================================
+
+        function init() {
+            // Cache DOM elements
+            introScreen = document.getElementById('introScreen');
+            gameContainer = document.getElementById('gameContainer');
+            codeEditor = document.getElementById('codeEditor');
+            codeHighlight = document.getElementById('codeHighlight');
+            lineNumbers = document.getElementById('lineNumbers');
+            consoleOutput = document.getElementById('consoleOutput');
+            gameGrid = document.getElementById('gameGrid');
+            robot = document.getElementById('robot');
+            runBtn = document.getElementById('runBtn');
+            levelModal = document.getElementById('levelModal');
+            victoryModal = document.getElementById('victoryModal');
+            xpDisplay = document.getElementById('xpDisplay');
+            xpValue = document.getElementById('xpValue');
+
+            // Load XP from shared state
+            if (window.SmartEco) {
+                totalXP = SmartEco.state.xp;
+                xpValue.textContent = totalXP;
+            }
+
+            createParticles();
+            document.getElementById('totalLevels').textContent = CODING_LEVELS.length;
+            loadLevel(0);
+
+            // Editor events
+            codeEditor.addEventListener('input', updateEditor);
+            codeEditor.addEventListener('scroll', syncScroll);
+            codeEditor.addEventListener('keydown', handleTab);
+        }
+
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 5; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.width = Math.random() * 300 + 100 + 'px';
+                p.style.height = p.style.width;
+                p.style.left = Math.random() * 100 + '%';
+                p.style.top = Math.random() * 100 + '%';
+                p.style.animationDelay = Math.random() * 4 + 's';
+                p.style.animationDuration = Math.random() * 4 + 4 + 's';
+                container.appendChild(p);
+            }
+        }
+
+        // ==========================================
+        // GAME FLOW
+        // ==========================================
+
+        function startGame() {
+            introScreen.classList.add('hidden');
+            gameContainer.classList.add('active');
+        }
+
+        function resetLevel() {
+            loadLevel(currentLevelIdx);
+        }
+
+        function loadLevel(idx) {
+            currentLevelIdx = idx;
+            const level = CODING_LEVELS[idx];
+
+            // Update UI
+            document.getElementById('levelSubtitle').textContent = `Level ${level.id} // ${level.title}`;
+            document.getElementById('levelTitle').textContent = level.title;
+            document.getElementById('levelDesc').textContent = level.description;
+            document.getElementById('conceptTag').textContent = `⚡ ${level.concept}`;
+            document.getElementById('currentLevel').textContent = idx + 1;
+
+            // Set editor content
+            codeEditor.value = level.starterCode;
+            updateEditor();
+
+            // Reset robot
+            robotPos = { ...level.startPos };
+            robotDir = 'RIGHT';
+            updateRobotPosition();
+
+            // Build grid
+            buildGrid(level);
+
+            // Clear console
+            clearConsole();
+
+            // Hide modals
+            levelModal.classList.remove('active');
+        }
+
+        function nextLevel() {
+            if (currentLevelIdx < CODING_LEVELS.length - 1) {
+                loadLevel(currentLevelIdx + 1);
+            } else {
+                victoryModal.classList.add('active');
+                // Bonus XP for completing all levels
+                addXP(200);
+            }
+        }
+
+        function returnToDashboard() {
+            window.location.href = 'dashboard.html';
+        }
+
+        // ==========================================
+        // GRID & ROBOT RENDERING
+        // ==========================================
+
+        function buildGrid(level) {
+            gameGrid.innerHTML = '';
+            gameGrid.style.gridTemplateColumns = `repeat(${level.gridSize}, 1fr)`;
+
+            for (let y = 0; y < level.gridSize; y++) {
+                for (let x = 0; x < level.gridSize; x++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    const type = level.grid[y][x];
+
+                    if (type === 'WALL') cell.classList.add('cell-wall');
+                    else if (type === 'START') cell.classList.add('cell-start');
+                    else if (type === 'GOAL') cell.classList.add('cell-goal');
+                    else cell.classList.add('cell-empty');
+
+                    gameGrid.appendChild(cell);
+                }
+            }
+
+            updateRobotPosition();
+        }
+
+        function updateRobotPosition() {
+            const cellSize = 64;
+            robot.style.left = (12 + robotPos.x * cellSize) + 'px';
+            robot.style.top = (12 + robotPos.y * cellSize) + 'px';
+            robot.className = 'robot ' + robotDir.toLowerCase();
+        }
+
+        // ==========================================
+        // EDITOR FUNCTIONS
+        // ==========================================
+
+        function updateEditor() {
+            const code = codeEditor.value;
+
+            // Update line numbers
+            const lines = code.split('\n').length;
+            lineNumbers.innerHTML = Array.from({ length: Math.max(lines, 1) }, (_, i) => i + 1).join('<br>');
+
+            // Syntax highlighting
+            let highlighted = code
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/\b(if|else|for|while|let|var|const|function|return)\b/g, '<span class="code-keyword">$1</span>')
+                .replace(/\b(robot)\b/g, '<span class="code-function">$1</span>')
+                .replace(/\b(moveRight|moveLeft|moveUp|moveDown|canMoveRight|canMoveLeft|canMoveUp|canMoveDown)\b/g, '<span class="code-method">$1</span>')
+                .replace(/(\/\/.*)/g, '<span class="code-comment">$1</span>');
+
+            codeHighlight.innerHTML = highlighted + '<br><br>';
+        }
+
+        function syncScroll() {
+            codeHighlight.scrollTop = codeEditor.scrollTop;
+            lineNumbers.scrollTop = codeEditor.scrollTop;
+        }
+
+        function handleTab(e) {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const start = codeEditor.selectionStart;
+                const end = codeEditor.selectionEnd;
+                codeEditor.value = codeEditor.value.substring(0, start) + '  ' + codeEditor.value.substring(end);
+                codeEditor.selectionStart = codeEditor.selectionEnd = start + 2;
+                updateEditor();
+            }
+        }
+
+        // ==========================================
+        // CONSOLE FUNCTIONS
+        // ==========================================
+
+        function log(msg, type = 'info') {
+            const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+            const line = document.createElement('div');
+            line.className = 'console-line';
+
+            let msgClass = 'console-msg';
+            if (type === 'error') msgClass = 'console-error';
+            if (type === 'warn') msgClass = 'console-warn';
+
+            line.innerHTML = `
+                <span class="console-time">[${time}]</span>
+                <span class="${msgClass}">${escapeHtml(msg)}</span>
+            `;
+            consoleOutput.appendChild(line);
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function clearConsole() {
+            consoleOutput.innerHTML = '';
+        }
+
+        function showHint() {
+            const hint = CODING_LEVELS[currentLevelIdx].hint;
+            log('💡 HINT: ' + hint, 'warn');
+        }
+
+        // ==========================================
+        // XP FUNCTIONS
+        // ==========================================
+
+        function addXP(amount) {
+            totalXP += amount;
+            xpValue.textContent = totalXP;
+
+            if (window.SmartEco) {
+                SmartEco.addXP(amount);
+            }
+        }
+
+        // ==========================================
+        // EXECUTION ENGINE
+        // ==========================================
+
+        function tokenize(code) {
+            const tokens = [];
+            let current = '';
+            let inString = false;
+            let stringChar = '';
+
+            for (let i = 0; i < code.length; i++) {
+                const char = code[i];
+
+                if ((char === '"' || char === "'") && !inString) {
+                    if (current) tokens.push(current);
+                    current = char;
+                    inString = true;
+                    stringChar = char;
+                    continue;
+                }
+
+                if (char === stringChar && inString) {
+                    current += char;
+                    tokens.push(current);
+                    current = '';
+                    inString = false;
+                    continue;
+                }
+
+                if (inString) {
+                    current += char;
+                    continue;
+                }
+
+                if (/\s/.test(char)) {
+                    if (current) {
+                        tokens.push(current);
+                        current = '';
+                    }
+                    continue;
+                }
+
+                if (char === '{' || char === '}' || char === '(' || char === ')' ||
+                    char === ';' || char === ',' ||
+                    char === '+' || char === '-' || char === '*' || char === '/' ||
+                    char === '=' || char === '<' || char === '>' || char === '!') {
+
+                    const nextChar = code[i + 1] || '';
+                    const twoChar = char + nextChar;
+
+                    if (twoChar === '++' || twoChar === '--' || twoChar === '<=' ||
+                        twoChar === '>=' || twoChar === '==' || twoChar === '!=' ||
+                        twoChar === '===' || twoChar === '!==' || twoChar === '+=' ||
+                        twoChar === '-=' || twoChar === '*=' || twoChar === '/=') {
+
+                        if (current) tokens.push(current);
+                        tokens.push(twoChar);
+                        current = '';
+                        i++;
+                        continue;
+                    }
+
+                    if (current) tokens.push(current);
+                    tokens.push(char);
+                    current = '';
+                    continue;
+                }
+
+                if (char === '.') {
+                    if (current) tokens.push(current);
+                    tokens.push('.');
+                    current = '';
+                    continue;
+                }
+
+                current += char;
+            }
+
+            if (current) tokens.push(current);
+            return tokens.filter(t => t !== '');
+        }
+
+        function parse(tokens) {
+            const statements = [];
+            let i = 0;
+
+            while (i < tokens.length) {
+                const token = tokens[i];
+
+                if (token === ';') {
+                    i++;
+                    continue;
+                }
+
+                if (token === 'for' && tokens[i + 1] === '(') {
+                    const loop = parseForLoop(tokens, i);
+                    statements.push(loop.node);
+                    i = loop.nextIndex;
+                    continue;
+                }
+
+                if (token === 'if' && tokens[i + 1] === '(') {
+                    const conditional = parseIfStatement(tokens, i);
+                    statements.push(conditional.node);
+                    i = conditional.nextIndex;
+                    continue;
+                }
+
+                if (token === 'robot' || token === 'let' || token === 'var' || token === 'const') {
+                    let stmt = '';
+                    while (i < tokens.length && tokens[i] !== ';' && tokens[i] !== '}') {
+                        stmt += tokens[i];
+                        i++;
+                    }
+                    statements.push({ type: 'expression', code: stmt });
+                    if (tokens[i] === ';') i++;
+                    continue;
+                }
+
+                if (token !== '{' && token !== '}') {
+                    let stmt = token;
+                    i++;
+                    while (i < tokens.length && tokens[i] !== ';' && tokens[i] !== '}') {
+                        stmt += tokens[i];
+                        i++;
+                    }
+                    statements.push({ type: 'expression', code: stmt });
+                    if (tokens[i] === ';') i++;
+                    continue;
+                }
+
+                i++;
+            }
+
+            return statements;
+        }
+
+        function parseForLoop(tokens, startIdx) {
+            let i = startIdx;
+            i += 2;
+
+            let init = '';
+            while (i < tokens.length && tokens[i] !== ';') {
+                init += tokens[i];
+                i++;
+            }
+            i++;
+
+            let condition = '';
+            while (i < tokens.length && tokens[i] !== ';') {
+                condition += tokens[i];
+                i++;
+            }
+            i++;
+
+            let increment = '';
+            while (i < tokens.length && tokens[i] !== ')') {
+                increment += tokens[i];
+                i++;
+            }
+            i++;
+
+            let body = [];
+            if (tokens[i] === '{') {
+                i++;
+                const bodyTokens = [];
+                let braceCount = 1;
+                while (i < tokens.length && braceCount > 0) {
+                    if (tokens[i] === '{') braceCount++;
+                    else if (tokens[i] === '}') braceCount--;
+                    if (braceCount > 0) bodyTokens.push(tokens[i]);
+                    i++;
+                }
+                body = parse(bodyTokens);
+            }
+
+            return {
+                node: {
+                    type: 'for',
+                    init: init,
+                    condition: condition,
+                    increment: increment,
+                    body
+                },
+                nextIndex: i
+            };
+        }
+
+        function parseIfStatement(tokens, startIdx) {
+            let i = startIdx;
+            i += 2;
+
+            let condition = '';
+            let parenCount = 1;
+
+            while (i < tokens.length && parenCount > 0) {
+                if (tokens[i] === '(') {
+                    parenCount++;
+                    condition += tokens[i];
+                } else if (tokens[i] === ')') {
+                    parenCount--;
+                    if (parenCount > 0) condition += tokens[i];
+                } else {
+                    condition += tokens[i];
+                }
+                i++;
+            }
+
+            let trueBranch = [];
+            if (tokens[i] === '{') {
+                i++;
+                const trueTokens = [];
+                let braceCount = 1;
+                while (i < tokens.length && braceCount > 0) {
+                    if (tokens[i] === '{') braceCount++;
+                    else if (tokens[i] === '}') braceCount--;
+                    if (braceCount > 0) trueTokens.push(tokens[i]);
+                    i++;
+                }
+                trueBranch = parse(trueTokens);
+            }
+
+            let falseBranch = null;
+            if (i < tokens.length && tokens[i] === 'else') {
+                i++;
+                if (tokens[i] === '{') {
+                    i++;
+                    const falseTokens = [];
+                    let braceCount = 1;
+                    while (i < tokens.length && braceCount > 0) {
+                        if (tokens[i] === '{') braceCount++;
+                        else if (tokens[i] === '}') braceCount--;
+                        if (braceCount > 0) falseTokens.push(tokens[i]);
+                        i++;
+                    }
+                    falseBranch = parse(falseTokens);
+                }
+            }
+
+            return {
+                node: {
+                    type: 'if',
+                    condition: condition,
+                    trueBranch,
+                    falseBranch
+                },
+                nextIndex: i
+            };
+        }
+
+        async function runCode() {
+            if (isRunning) {
+                executionAbort = true;
+                return;
+            }
+
+            isRunning = true;
+            executionAbort = false;
+            runBtn.classList.add('running');
+            runBtn.innerHTML = '<span class="spin">↻</span> STOP';
+            codeEditor.disabled = true;
+
+            const level = CODING_LEVELS[currentLevelIdx];
+            robotPos = { ...level.startPos };
+            robotDir = 'RIGHT';
+            updateRobotPosition();
+            clearConsole();
+
+            await sleep(500);
+
+            try {
+                const code = codeEditor.value;
+                const cleanCode = code.replace(/\/\/.*/g, '');
+                const tokens = tokenize(cleanCode);
+                log(`Parsing ${tokens.length} tokens...`);
+
+                const ast = parse(tokens);
+                log(`Executing ${ast.length} statements...`);
+
+                await executeStatements(ast);
+
+                if (!executionAbort) {
+                    if (robotPos.x === level.endPos.x && robotPos.y === level.endPos.y) {
+                        log('✅ TARGET REACHED! Level complete!');
+                        await sleep(500);
+
+                        // Award XP
+                        addXP(level.xpReward);
+                        document.getElementById('completionMessage').textContent =
+                            `Excellent coding! +${level.xpReward} XP earned.`;
+
+                        if (window.SmartEco) {
+                            SmartEco.completeLesson(`coding_${level.id}`);
+                        }
+
+                        levelModal.classList.add('active');
+                    } else {
+                        log('⚠️ Execution finished. Target not reached.', 'warn');
+                    }
+                }
+            } catch (err) {
+                log('❌ ERROR: ' + err.message, 'error');
+            } finally {
+                isRunning = false;
+                runBtn.classList.remove('running');
+                runBtn.innerHTML = '<span>▶</span> RUN CODE';
+                codeEditor.disabled = false;
+                codeEditor.focus();
+            }
+        }
+
+        async function executeStatements(statements) {
+            for (const stmt of statements) {
+                if (executionAbort) break;
+                await executeNode(stmt);
+            }
+        }
+
+        async function executeNode(node) {
+            if (executionAbort) return;
+
+            switch (node.type) {
+                case 'expression':
+                    await executeExpression(node.code);
+                    break;
+                case 'for':
+                    await executeForLoop(node);
+                    break;
+                case 'if':
+                    await executeIfStatement(node);
+                    break;
+                default:
+                    throw new Error(`Unknown node type: ${node.type}`);
+            }
+        }
+
+        async function executeForLoop(node) {
+            const initMatch = node.init.match(/(?:let|var|const)(\w+)=(\d+)/);
+            if (!initMatch) {
+                throw new Error(`Invalid loop initialization: "${node.init}"`);
+            }
+
+            const varName = initMatch[1];
+            let value = parseInt(initMatch[2]);
+
+            const condMatch = node.condition.match(/(\w+)([<>=!]+)(\d+)/);
+            if (!condMatch) {
+                throw new Error(`Invalid loop condition: "${node.condition}"`);
+            }
+
+            const operator = condMatch[2];
+            const limit = parseInt(condMatch[3]);
+            const maxIterations = 100;
+            let iterations = 0;
+
+            while (checkCondition(value, operator, limit)) {
+                if (executionAbort) break;
+                if (iterations++ > maxIterations) {
+                    throw new Error('Loop exceeded maximum iterations (100)');
+                }
+
+                await executeStatements(node.body);
+
+                if (node.increment.includes('++')) {
+                    value++;
+                } else if (node.increment.includes('--')) {
+                    value--;
+                } else {
+                    value++;
+                }
+            }
+        }
+
+        function checkCondition(left, op, right) {
+            switch (op) {
+                case '<': return left < right;
+                case '<=': return left <= right;
+                case '>': return left > right;
+                case '>=': return left >= right;
+                case '==': case '===': return left == right;
+                case '!=': case '!==': return left != right;
+                default: throw new Error(`Unknown operator: ${op}`);
+            }
+        }
+
+        async function executeIfStatement(node) {
+            const result = await evaluateCondition(node.condition);
+
+            if (result) {
+                await executeStatements(node.trueBranch);
+            } else if (node.falseBranch) {
+                await executeStatements(node.falseBranch);
+            }
+        }
+
+        async function executeExpression(code) {
+            const moveMatch = code.match(/robot\.move(Right|Left|Up|Down)\(\)/);
+            if (moveMatch) {
+                const dir = moveMatch[1].toUpperCase();
+                await moveRobot(dir);
+                return;
+            }
+
+            const varMatch = code.match(/(?:let|var|const)(\w+)=/);
+            if (varMatch) {
+                log(`Variable declared: ${varMatch[1]}`);
+                return;
+            }
+
+            if (!code.trim()) return;
+            throw new Error(`Unknown command: "${code}"`);
+        }
+
+        async function evaluateCondition(cond) {
+            const cleanCond = cond.replace(/\s/g, '');
+            let negate = false;
+            let actualCond = cleanCond;
+
+            if (actualCond.startsWith('!')) {
+                negate = true;
+                actualCond = actualCond.substring(1);
+                if (actualCond.startsWith('(') && actualCond.endsWith(')')) {
+                    actualCond = actualCond.slice(1, -1);
+                }
+            }
+
+            const checkMatch = actualCond.match(/robot\.canMove(Right|Left|Up|Down)\(\)/);
+            if (checkMatch) {
+                const dir = checkMatch[1].toUpperCase();
+                const result = canMove(dir);
+                return negate ? !result : result;
+            }
+
+            const compareMatch = actualCond.match(/^(\d+)([<>=!]+)(\d+)$/);
+            if (compareMatch) {
+                const left = parseInt(compareMatch[1]);
+                const op = compareMatch[2];
+                const right = parseInt(compareMatch[3]);
+                return checkCondition(left, op, right);
+            }
+
+            throw new Error(`Invalid condition: "${cond}"`);
+        }
+
+        function canMove(dir) {
+            const level = CODING_LEVELS[currentLevelIdx];
+            let nextX = robotPos.x;
+            let nextY = robotPos.y;
+
+            if (dir === 'RIGHT') nextX++;
+            else if (dir === 'LEFT') nextX--;
+            else if (dir === 'UP') nextY--;
+            else if (dir === 'DOWN') nextY++;
+
+            if (nextX < 0 || nextX >= level.gridSize || nextY < 0 || nextY >= level.gridSize) {
+                return false;
+            }
+            return level.grid[nextY][nextX] !== 'WALL';
+        }
+
+        async function moveRobot(dir) {
+            robotDir = dir;
+            updateRobotPosition();
+            await sleep(100);
+
+            if (!canMove(dir)) {
+                throw new Error(`Cannot move ${dir} - obstacle detected`);
+            }
+
+            if (dir === 'RIGHT') robotPos.x++;
+            else if (dir === 'LEFT') robotPos.x--;
+            else if (dir === 'UP') robotPos.y--;
+            else if (dir === 'DOWN') robotPos.y++;
+
+            updateRobotPosition();
+            log(`Moved ${dir} → [${robotPos.x}, ${robotPos.y}]`);
+            await sleep(300);
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+
+</html>

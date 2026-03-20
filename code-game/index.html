@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeQuest - Coding Adventure</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Shared State (from parent directory) -->
+    <script src="../shared-state.js"></script>
+    <script src="../navigation.js"></script>
+    
+    <!-- Game Styles -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <!-- Navigation with Timer -->
+    <nav class="fixed top-0 w-full z-50 glass-panel border-b border-slate-700/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 gradient-bg rounded-lg flex items-center justify-center text-white font-bold text-xl">
+                        SB
+                    </div>
+                    <span class="text-xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">SmartEco</span>
+                </div>
+
+                <!-- Navigation Links -->
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="../dashboard.html" class="nav-link hover:text-indigo-400 transition">Dashboard</a>
+                    <a href="../lessons.html" class="nav-link hover:text-indigo-400 transition">Lessons</a>
+                    <a href="../hardware.html" class="nav-link hover:text-indigo-400 transition">Hardware</a>
+                    <a href="../badges.html" class="nav-link hover:text-indigo-400 transition">Badges</a>
+                    <a href="../profile.html" class="nav-link hover:text-indigo-400 transition">Profile</a>
+
+                    <!-- Timer Display (NEW) -->
+                    <div class="flex items-center gap-2 px-3 py-1 bg-indigo-600/20 rounded-full border border-indigo-500/30">
+                        <span class="text-indigo-400">⏱️</span>
+                        <span id="header-timer" class="font-mono text-sm text-indigo-400">00:00</span>
+                        <div class="w-16 h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                            <div id="header-timer-progress" class="h-full bg-indigo-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- XP Display -->
+                    <div class="flex items-center space-x-3 bg-slate-800/50 px-4 py-2 rounded-full border border-slate-700">
+                        <div class="w-8 h-8 gradient-bg rounded-full flex items-center justify-center text-white font-bold text-sm">
+                            <span class="nav-level">1</span>
+                        </div>
+                        <div class="w-32 h-2 bg-slate-700 rounded-full overflow-hidden">
+                            <div class="nav-xp-bar h-full gradient-bg" style="width: 0%"></div>
+                        </div>
+                        <span class="nav-xp-text text-xs text-slate-400">0/100 XP</span>
+                    </div>
+
+                    <!-- Hardware Status -->
+                    <div class="flex items-center gap-2 px-3 py-1 bg-slate-800/50 rounded-full border border-slate-700">
+                        <span class="hardware-led w-2 h-2 bg-gray-500 rounded-full"></span>
+                        <span class="hardware-status-text text-xs text-gray-400">Disconnected</span>
+                    </div>
+
+                    <!-- Profile Avatar -->
+                    <a href="../profile.html" class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center text-white font-bold cursor-pointer hover:scale-110 transition">
+                        <span class="user-avatar">👤</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- XP Display (for game - kept for backward compatibility) -->
+    <div class="xp-display" id="xpDisplay">
+        <span>⚡</span>
+        <span id="xpValue">0</span> XP
+    </div>
+
+    <!-- Background Particles -->
+    <div class="bg-particles" id="particles"></div>
+
+    <!-- Intro Screen -->
+    <div class="intro-screen" id="introScreen">
+        <div class="logo-container">
+            <div class="robot-logo"></div>
+        </div>
+        <h1 class="intro-title">CODE<span>QUEST</span></h1>
+        <p class="intro-subtitle">
+            The robot needs your commands. Write <strong style="color: var(--accent-blue);">code</strong>, solve
+            <strong style="color: var(--accent-emerald);">puzzles</strong>, and master programming.
+        </p>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">⌨️</div>
+                <div class="feature-title">Real JavaScript</div>
+                <div class="feature-desc">Write actual code syntax</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🤖</div>
+                <div class="feature-title">Robot Control</div>
+                <div class="feature-desc">See your code in action</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🧩</div>
+                <div class="feature-title">5 Challenges</div>
+                <div class="feature-desc">From loops to conditionals</div>
+            </div>
+        </div>
+        <button class="btn-primary" onclick="Game.startGame()">START CODING</button>
+        <button class="btn-secondary" onclick="window.location.href='../dashboard.html'">← Back to Dashboard</button>
+    </div>
+
+    <!-- Game Container -->
+    <div class="game-container" id="gameContainer">
+        <!-- Editor Panel -->
+        <div class="editor-panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <div class="panel-icon">⌨️</div>
+                    <div class="panel-info">
+                        <h3>CODE EDITOR</h3>
+                        <p id="levelSubtitle">Level 1 // Initialization</p>
+                    </div>
+                </div>
+                <div class="panel-actions">
+                    <button class="btn-icon" onclick="Game.showHint()" title="Hint">💡</button>
+                    <button class="btn-icon" onclick="Game.resetLevel()" title="Reset Level">🔄</button>
+                </div>
+            </div>
+
+            <div class="editor-container">
+                <div class="line-numbers" id="lineNumbers">1</div>
+                <div class="code-highlight" id="codeHighlight"></div>
+                <textarea class="code-editor" id="codeEditor" placeholder="// Write your code here..."
+                    spellcheck="false"></textarea>
+            </div>
+
+            <div class="console-panel">
+                <div class="console-header">
+                    <span>CONSOLE OUTPUT</span>
+                    <button onclick="Game.clearConsole()"
+                        style="background: none; border: none; color: inherit; cursor: pointer;">CLEAR</button>
+                </div>
+                <div class="console-output" id="consoleOutput"></div>
+            </div>
+
+            <div class="control-bar">
+                <button class="btn-run" id="runBtn" onclick="Game.runCode()">
+                    <span>▶</span> RUN CODE
+                </button>
+            </div>
+        </div>
+
+        <!-- Game Panel -->
+        <div class="game-panel">
+            <div class="game-info">
+                <div class="level-info">
+                    <h2 id="levelTitle">Initialization</h2>
+                    <p id="levelDesc">Guide the robot to the green portal using direct commands.</p>
+                    <span class="concept-tag" id="conceptTag">⚡ SEQUENCE</span>
+                </div>
+                <div class="level-counter">
+                    <span id="currentLevel">1</span> / <span id="totalLevels">5</span>
+                </div>
+            </div>
+
+            <div class="game-area">
+                <div class="grid-container">
+                    <div class="game-grid" id="gameGrid"></div>
+                    <div class="robot up" id="robot">
+                        <span class="robot-face">🤖</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Level Complete Modal -->
+    <div class="modal-overlay" id="levelModal">
+        <div class="modal">
+            <div class="modal-icon">🏆</div>
+            <h2>LEVEL COMPLETE!</h2>
+            <p id="completionMessage">Excellent coding! +50 XP earned.</p>
+            <button class="btn-primary" onclick="Game.nextLevel()">NEXT LEVEL →</button>
+        </div>
+    </div>
+
+    <!-- Victory Modal -->
+    <div class="modal-overlay victory" id="victoryModal">
+        <div class="modal">
+            <div class="modal-icon">👑</div>
+            <h2>CODING MASTER!</h2>
+            <p>You've completed all coding challenges! +200 XP bonus!</p>
+            <button class="btn-primary" onclick="Game.returnToDashboard()">BACK TO DASHBOARD</button>
+        </div>
+    </div>
+
+    <!-- Game Scripts -->
+    <script src="js/game-data.js"></script>
+    <script src="js/game-engine.js"></script>
+    <script src="js/game-ui.js"></script>
+    <script src="js/game-main.js"></script>
+</body>
+
+</html>

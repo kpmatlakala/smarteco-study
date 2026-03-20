@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NumberQuest - Math Adventure</title>
+    <script src="shared-state.js"></script>
+    <style>
+        /* Same styles as coding-game.html but with different accent colors */
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --accent-orange: #f97316;
+            --accent-emerald: #10b981;
+            --accent-purple: #a855f7;
+            --accent-yellow: #eab308;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-color: #475569;
+        }
+
+        /* Copy all the same CSS from coding-game.html but replace accent colors */
+        /* ... (same CSS structure) ... */
+
+        /* Update robot-logo color for math */
+        .robot-logo {
+            background: var(--accent-orange);
+            box-shadow: 0 0 60px rgba(249, 115, 22, 0.4);
+        }
+
+        .robot-logo::after {
+            content: '🔢';
+            font-size: 60px;
+        }
+
+        .intro-title span {
+            color: var(--accent-orange);
+        }
+
+        .concept-tag {
+            background: rgba(249, 115, 22, 0.15);
+            color: var(--accent-orange);
+        }
+
+        .robot {
+            background: var(--accent-orange);
+            box-shadow: 0 0 30px rgba(249, 115, 22, 0.5);
+        }
+
+        .robot::before {
+            background: var(--accent-orange);
+        }
+
+        /* Update feature icons for math */
+        .feature-card:nth-child(1) .feature-icon { content: '➕'; }
+        .feature-card:nth-child(2) .feature-icon { content: '➖'; }
+        .feature-card:nth-child(3) .feature-icon { content: '✖️'; }
+    </style>
+</head>
+
+<body>
+    <!-- XP Display -->
+    <div class="xp-display" id="xpDisplay">
+        <span>⚡</span>
+        <span id="xpValue">0</span> XP
+    </div>
+
+    <!-- Background Particles -->
+    <div class="bg-particles" id="particles"></div>
+
+    <!-- Intro Screen -->
+    <div class="intro-screen" id="introScreen">
+        <div class="logo-container">
+            <div class="robot-logo"></div>
+        </div>
+        <h1 class="intro-title">NUMBER<span>QUEST</span></h1>
+        <p class="intro-subtitle">
+            Master mathematics through puzzles. Solve equations, beat levels, and become a <strong
+                style="color: var(--accent-orange);">math wizard</strong>.
+        </p>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">➕</div>
+                <div class="feature-title">Addition</div>
+                <div class="feature-desc">Master basic addition</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">➖</div>
+                <div class="feature-title">Subtraction</div>
+                <div class="feature-desc">Learn to subtract</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">✖️</div>
+                <div class="feature-title">Multiplication</div>
+                <div class="feature-desc">Times tables made fun</div>
+            </div>
+        </div>
+        <button class="btn-primary" onclick="startGame()">START MATH ADVENTURE</button>
+        <button class="btn-secondary" onclick="window.location.href='dashboard.html'">← Back to Dashboard</button>
+    </div>
+
+    <!-- Game Container -->
+    <div class="game-container" id="gameContainer">
+        <!-- Editor Panel (for math answers) -->
+        <div class="editor-panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <div class="panel-icon">🔢</div>
+                    <div class="panel-info">
+                        <h3>MATH EDITOR</h3>
+                        <p id="levelSubtitle">Level 1 // Addition</p>
+                    </div>
+                </div>
+                <div class="panel-actions">
+                    <button class="btn-icon" onclick="showHint()" title="Hint">💡</button>
+                    <button class="btn-icon" onclick="resetLevel()" title="Reset Level">🔄</button>
+                </div>
+            </div>
+
+            <div class="editor-container">
+                <div class="line-numbers" id="lineNumbers">1</div>
+                <div class="code-highlight" id="codeHighlight"></div>
+                <textarea class="code-editor" id="codeEditor" placeholder="// Enter your answer here..."
+                    spellcheck="false"></textarea>
+            </div>
+
+            <div class="console-panel">
+                <div class="console-header">
+                    <span>RESULTS</span>
+                    <button onclick="clearConsole()" style="background: none; border: none; color: inherit; cursor: pointer;">CLEAR</button>
+                </div>
+                <div class="console-output" id="consoleOutput"></div>
+            </div>
+
+            <div class="control-bar">
+                <button class="btn-run" id="runBtn" onclick="checkAnswer()">
+                    <span>▶</span> CHECK ANSWER
+                </button>
+            </div>
+        </div>
+
+        <!-- Game Panel -->
+        <div class="game-panel">
+            <div class="game-info">
+                <div class="level-info">
+                    <h2 id="levelTitle">Addition Basics</h2>
+                    <p id="levelDesc">Solve the equation to unlock the next level.</p>
+                    <span class="concept-tag" id="conceptTag">⚡ ADDITION</span>
+                </div>
+                <div class="level-counter">
+                    <span id="currentLevel">1</span> / <span id="totalLevels">5</span>
+                </div>
+            </div>
+
+            <div class="game-area">
+                <div class="grid-container">
+                    <div class="game-grid" id="gameGrid"></div>
+                    <div class="robot up" id="robot">
+                        <span class="robot-face">🔢</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Level Complete Modal -->
+    <div class="modal-overlay" id="levelModal">
+        <div class="modal">
+            <div class="modal-icon">🏆</div>
+            <h2>LEVEL COMPLETE!</h2>
+            <p id="completionMessage">Correct answer! +50 XP earned.</p>
+            <button class="btn-primary" onclick="nextLevel()">NEXT LEVEL →</button>
+        </div>
+    </div>
+
+    <!-- Victory Modal -->
+    <div class="modal-overlay victory" id="victoryModal">
+        <div class="modal">
+            <div class="modal-icon">👑</div>
+            <h2>MATH MASTER!</h2>
+            <p>You've completed all math challenges! +200 XP bonus!</p>
+            <button class="btn-primary" onclick="returnToDashboard()">BACK TO DASHBOARD</button>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // MATH GAME DATA
+        // ==========================================
+        const MATH_LEVELS = [
+            {
+                id: 1,
+                title: "Addition Basics",
+                description: "Solve the addition equation to unlock the path.",
+                concept: "ADDITION",
+                xpReward: 50,
+                question: "5 + 3 = ?",
+                answer: 8,
+                options: [6, 7, 8, 9],
+                hint: "Count 5 steps, then 3 more"
+            },
+            {
+                id: 2,
+                title: "Subtraction",
+                description: "Subtract to find the correct number.",
+                concept: "SUBTRACTION",
+                xpReward: 60,
+                question: "12 - 7 = ?",
+                answer: 5,
+                options: [4, 5, 6, 7],
+                hint: "Take away 7 from 12"
+            },
+            {
+                id: 3,
+                title: "Multiplication",
+                description: "Multiply numbers to find the product.",
+                concept: "MULTIPLICATION",
+                xpReward: 75,
+                question: "6 × 7 = ?",
+                answer: 42,
+                options: [36, 42, 48, 49],
+                hint: "6 groups of 7"
+            },
+            {
+                id: 4,
+                title: "Division",
+                description: "Divide to find the quotient.",
+                concept: "DIVISION",
+                xpReward: 85,
+                question: "56 ÷ 8 = ?",
+                answer: 7,
+                options: [6, 7, 8, 9],
+                hint: "How many 8s make 56?"
+            },
+            {
+                id: 5,
+                title: "Mixed Challenge",
+                description: "Solve the equation: (15 - 3) × 2 = ?",
+                concept: "MIXED",
+                xpReward: 100,
+                question: "(15 - 3) × 2 = ?",
+                answer: 24,
+                options: [20, 22, 24, 26],
+                hint: "Parentheses first: 15-3=12, then ×2"
+            },
+            {
+                id: 6,
+                title: "Fractions",
+                description: "What is 1/2 + 1/4?",
+                concept: "FRACTIONS",
+                xpReward: 120,
+                question: "1/2 + 1/4 = ?",
+                answer: "3/4",
+                options: ["1/6", "2/6", "3/4", "2/4"],
+                hint: "Convert to same denominator: 2/4 + 1/4 = 3/4"
+            }
+        ];
+
+        // Game State
+        let currentLevelIdx = 0;
+        let totalXP = 0;
+
+        // DOM Elements
+        let introScreen, gameContainer, codeEditor, consoleOutput;
+        let levelModal, victoryModal, xpValue;
+        let levelTitle, levelDesc, conceptTag, currentLevelSpan, totalLevelsSpan;
+
+        // ==========================================
+        // INITIALIZATION
+        // ==========================================
+
+        function init() {
+            introScreen = document.getElementById('introScreen');
+            gameContainer = document.getElementById('gameContainer');
+            codeEditor = document.getElementById('codeEditor');
+            consoleOutput = document.getElementById('consoleOutput');
+            levelModal = document.getElementById('levelModal');
+            victoryModal = document.getElementById('victoryModal');
+            xpValue = document.getElementById('xpValue');
+            levelTitle = document.getElementById('levelTitle');
+            levelDesc = document.getElementById('levelDesc');
+            conceptTag = document.getElementById('conceptTag');
+            currentLevelSpan = document.getElementById('currentLevel');
+            totalLevelsSpan = document.getElementById('totalLevels');
+
+            // Load XP from shared state
+            if (window.SmartEco) {
+                totalXP = SmartEco.state.xp;
+                xpValue.textContent = totalXP;
+            }
+
+            createParticles();
+            totalLevelsSpan.textContent = MATH_LEVELS.length;
+            loadLevel(0);
+        }
+
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 5; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.width = Math.random() * 300 + 100 + 'px';
+                p.style.height = p.style.width;
+                p.style.left = Math.random() * 100 + '%';
+                p.style.top = Math.random() * 100 + '%';
+                p.style.animationDelay = Math.random() * 4 + 's';
+                p.style.animationDuration = Math.random() * 4 + 4 + 's';
+                container.appendChild(p);
+            }
+        }
+
+        function startGame() {
+            introScreen.classList.add('hidden');
+            gameContainer.classList.add('active');
+        }
+
+        function resetLevel() {
+            loadLevel(currentLevelIdx);
+            clearConsole();
+        }
+
+        function loadLevel(idx) {
+            currentLevelIdx = idx;
+            const level = MATH_LEVELS[idx];
+
+            levelTitle.textContent = level.title;
+            levelDesc.textContent = level.description;
+            conceptTag.textContent = `⚡ ${level.concept}`;
+            currentLevelSpan.textContent = idx + 1;
+
+            // Display question in editor placeholder
+            codeEditor.placeholder = `Enter answer: ${level.question}`;
+            codeEditor.value = '';
+
+            // Update line numbers
+            document.getElementById('lineNumbers').innerHTML = '1';
+
+            // Update grid with numbers (simplified for math)
+            updateMathGrid(level);
+
+            // Hide modals
+            levelModal.classList.remove('active');
+        }
+
+        function updateMathGrid(level) {
+            const grid = document.getElementById('gameGrid');
+            grid.innerHTML = '';
+            grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
+
+            // Create a simple 3x3 grid showing the equation
+            const equation = level.question.replace(/\?/g, '');
+            
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell cell-empty';
+                    
+                    if (i === 1 && j === 1) {
+                        cell.classList.add('cell-goal');
+                        cell.innerHTML = '<span style="font-size: 1.5rem;">?</span>';
+                    } else if (i === 1 && j === 0) {
+                        cell.innerHTML = '<span style="font-size: 1.2rem;">' + level.question.split('=')[0] + '</span>';
+                    } else if (i === 1 && j === 2) {
+                        cell.innerHTML = '<span style="font-size: 1.2rem;">= ?</span>';
+                    }
+                    
+                    grid.appendChild(cell);
+                }
+            }
+
+            // Position robot
+            const robot = document.getElementById('robot');
+            robot.style.left = '76px'; // Center position
+            robot.style.top = '76px';
+        }
+
+        function addXP(amount) {
+            totalXP += amount;
+            xpValue.textContent = totalXP;
+
+            if (window.SmartEco) {
+                SmartEco.addXP(amount);
+            }
+        }
+
+        function clearConsole() {
+            consoleOutput.innerHTML = '';
+        }
+
+        function log(msg, type = 'info') {
+            const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+            const line = document.createElement('div');
+            line.className = 'console-line';
+
+            let msgClass = 'console-msg';
+            if (type === 'error') msgClass = 'console-error';
+            if (type === 'warn') msgClass = 'console-warn';
+            if (type === 'success') msgClass = 'console-msg';
+
+            line.innerHTML = `
+                <span class="console-time">[${time}]</span>
+                <span class="${msgClass}">${escapeHtml(msg)}</span>
+            `;
+            consoleOutput.appendChild(line);
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function showHint() {
+            const hint = MATH_LEVELS[currentLevelIdx].hint;
+            log('💡 HINT: ' + hint, 'warn');
+        }
+
+        function checkAnswer() {
+            const level = MATH_LEVELS[currentLevelIdx];
+            const userAnswer = codeEditor.value.trim();
+            
+            if (!userAnswer) {
+                log('❌ Please enter an answer', 'error');
+                return;
+            }
+
+            let isCorrect = false;
+            
+            // Handle fraction answers
+            if (typeof level.answer === 'string') {
+                isCorrect = userAnswer === level.answer;
+            } else {
+                // Handle numeric answers
+                const numAnswer = parseInt(userAnswer);
+                isCorrect = !isNaN(numAnswer) && numAnswer === level.answer;
+            }
+
+            if (isCorrect) {
+                log('✅ Correct! Well done!', 'success');
+                addXP(level.xpReward);
+                
+                document.getElementById('completionMessage').textContent = 
+                    `Correct! +${level.xpReward} XP earned.`;
+                
+                if (window.SmartEco) {
+                    SmartEco.completeLesson(`math_${level.id}`);
+                }
+                
+                levelModal.classList.add('active');
+            } else {
+                log('❌ Not correct. Try again!', 'error');
+            }
+        }
+
+        function nextLevel() {
+            if (currentLevelIdx < MATH_LEVELS.length - 1) {
+                loadLevel(currentLevelIdx + 1);
+            } else {
+                victoryModal.classList.add('active');
+                addXP(200);
+            }
+        }
+
+        function returnToDashboard() {
+            window.location.href = 'dashboard.html';
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+
+</html>

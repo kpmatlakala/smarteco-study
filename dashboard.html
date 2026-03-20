@@ -6,10 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - SmartEco Study Buddy</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Fira+Code:wght@400;600&display=swap"
-        rel="stylesheet">
+    <script src="shared-state.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -27,10 +25,6 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .xp-bar-fill {
-            transition: width 0.5s ease-out;
-        }
-
         .stat-card {
             transition: all 0.3s ease;
         }
@@ -38,16 +32,6 @@
         .stat-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 20px 40px rgba(99, 102, 241, 0.3);
-        }
-
-        .lesson-card {
-            transition: all 0.3s ease;
-            margin-bottom: 10px;
-        }
-
-        .lesson-card:hover {
-            transform: translateY(-3px);
-            border-color: #667eea;
         }
 
         .pulse {
@@ -66,17 +50,91 @@
             }
         }
 
-        .confetti {
+        /* Hardware Connection Panel */
+        .hardware-panel {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid #334155;
+            transition: all 0.3s ease;
+        }
+
+        .hardware-panel.connected {
+            border-color: #10b981;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
+        }
+
+        .hardware-panel.scanning {
+            border-color: #f59e0b;
+            animation: scanPulse 1.5s infinite;
+        }
+
+        @keyframes scanPulse {
+
+            0%,
+            100% {
+                border-color: #f59e0b;
+                box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+            }
+
+            50% {
+                border-color: #fbbf24;
+                box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
+            }
+        }
+
+        /* Active Session Bar */
+        .active-session-bar {
+            transition: transform 0.3s ease;
+        }
+
+        /* Toast Notification */
+        .toast {
             position: fixed;
-            pointer-events: none;
-            z-index: 1000;
+            top: 80px;
+            right: 20px;
+            background: rgba(30, 41, 59, 0.95);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            padding: 16px 24px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 200;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        /* Device List */
+        .device-item {
+            transition: all 0.2s ease;
+        }
+
+        .device-item:hover {
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        /* Navigation */
+        .nav-link {
+            transition: color 0.2s;
+        }
+
+        .nav-link:hover {
+            color: #818cf8;
+        }
+
+        .nav-link.active {
+            color: #818cf8;
+            font-weight: 600;
         }
     </style>
 </head>
 
-<body class="min-h-screen">
+<body class="min-h-screen bg-gray-900">
 
-    <!-- Navigation -->
+    <!-- ===== NAVIGATION HEADER (RESTORED) ===== -->
     <nav class="fixed top-0 w-full z-50 glass-panel border-b border-slate-700/50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
@@ -87,21 +145,17 @@
                         SB
                     </div>
                     <span
-                        class="text-xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">SmartEco</span>
+                        class="text-xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+                        SmartEco
+                    </span>
                 </div>
 
                 <!-- Navigation Links -->
                 <div class="hidden md:flex items-center space-x-6">
-                    <a href="dashboard.html" class="nav-link hover:text-indigo-400 transition"
-                        data-page="dashboard">Dashboard</a>
-                    <a href="lessons.html" class="nav-link hover:text-indigo-400 transition"
-                        data-page="lessons">Lessons</a>
-                    <a href="hardware.html" class="nav-link hover:text-indigo-400 transition"
-                        data-page="hardware">Hardware</a>
-                    <a href="badges.html" class="nav-link hover:text-indigo-400 transition"
-                        data-page="badges">Badges</a>
-                    <a href="profile.html" class="nav-link hover:text-indigo-400 transition"
-                        data-page="profile">Profile</a>
+                    <a href="dashboard.html" class="nav-link text-indigo-400 transition">Dashboard</a>
+                    <a href="lessons.html" class="nav-link hover:text-indigo-400 transition">Lessons</a>
+                    <a href="badges.html" class="nav-link hover:text-indigo-400 transition">Badges</a>
+                    <a href="profile.html" class="nav-link hover:text-indigo-400 transition">Profile</a>
 
                     <!-- XP Display -->
                     <div
@@ -116,854 +170,848 @@
                         <span id="nav-xp-text" class="text-xs text-slate-400">0/100 XP</span>
                     </div>
 
+                    <!-- Hardware Status in Nav -->
+                    <div class="flex items-center gap-2 px-3 py-1 bg-slate-800/50 rounded-full border border-slate-700">
+                        <span id="nav-hardware-led" class="w-2 h-2 bg-gray-500 rounded-full"></span>
+                        <span id="nav-hardware-text" class="text-xs">Disconnected</span>
+                    </div>
+
+                    <!-- Notification Bell -->
+                    <button onclick="showNotifications()" class="relative p-2 hover:bg-slate-800 rounded-lg transition">
+                        <span class="text-xl">🔔</span>
+                        <span id="notification-dot"
+                            class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse hidden"></span>
+                    </button>
+
                     <!-- Profile Avatar -->
                     <a href="profile.html"
                         class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center text-white font-bold cursor-pointer hover:scale-110 transition">
                         <span id="user-avatar">👤</span>
                     </a>
                 </div>
-
-                <!-- Mobile Menu Button -->
-                <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linecap="round" stroke-width="2"
-                            d="M4 6h16M4 12h16M4 18h16"></path>
-                    </svg>
-                </button>
-            </div>
-        </div>
-
-        <!-- Mobile Menu Dropdown -->
-        <div id="mobile-menu" class="hidden md:hidden glass-panel border-t border-slate-700/50 p-4">
-            <div class="flex flex-col space-y-3">
-                <a href="dashboard.html"
-                    class="mobile-nav-link px-4 py-2 hover:bg-slate-800 rounded-lg transition">Dashboard</a>
-                <a href="lessons.html"
-                    class="mobile-nav-link px-4 py-2 hover:bg-slate-800 rounded-lg transition">Lessons</a>
-                <a href="hardware.html"
-                    class="mobile-nav-link px-4 py-2 hover:bg-slate-800 rounded-lg transition">Hardware</a>
-                <a href="badges.html"
-                    class="mobile-nav-link px-4 py-2 hover:bg-slate-800 rounded-lg transition">Badges</a>
-                <a href="profile.html"
-                    class="mobile-nav-link px-4 py-2 hover:bg-slate-800 rounded-lg transition">Profile</a>
             </div>
         </div>
     </nav>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <span id="toast-icon" class="text-2xl">🎉</span>
+        <div>
+            <h4 id="toast-title" class="font-bold text-sm">Notification</h4>
+            <p id="toast-message" class="text-xs text-slate-400"></p>
+        </div>
+    </div>
 
     <!-- Main Dashboard -->
     <div class="pt-20 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
 
         <!-- Welcome Section -->
-        <div class="mb-8">
-            <h1 class="text-3xl font-bold mb-2">
-                Welcome back, <span id="user-name"
-                    class="gradient-text bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Learner</span>!
-            </h1>
-            <p id="daily-motto" class="text-slate-400">Ready to continue your coding journey?</p>
+        <div class="mb-8 flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold mb-2">
+                    <span id="greeting">Good morning</span>, <span id="user-name"
+                        class="text-indigo-400">Learner</span>! 👋
+                </h1>
+                <p class="text-slate-400 flex items-center gap-2">
+                    <span id="status-indicator" class="w-2 h-2 bg-gray-500 rounded-full"></span>
+                    <span id="status-message" class="text-sm">Connect your Study Box to begin</span>
+                </p>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="startFocusMode()"
+                    class="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-xl font-semibold transition flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    id="focus-mode-btn" disabled>
+                    <span>🎯</span> Focus Mode
+                </button>
+            </div>
         </div>
 
-        <!-- STATS CARDS (Row 1) -->
+        <!-- TOP STATS ROW -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-
             <!-- Level Card -->
-            <div class="stat-card glass-panel p-6 rounded-2xl relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/20 rounded-full blur-3xl"></div>
-                <div class="relative z-10">
-                    <div class="flex items-center justify-between mb-4">
-                        <p class="text-slate-400 text-sm">Current Level</p>
-                        <div class="text-2xl">📊</div>
-                    </div>
-                    <div class="flex items-end gap-2">
-                        <span id="stat-level" class="text-4xl font-bold text-indigo-400">1</span>
-                        <span class="text-slate-400 mb-1">/ 50</span>
-                    </div>
-                    <div class="mt-4">
-                        <div class="flex justify-between text-xs text-slate-400 mb-1">
-                            <span>XP Progress</span>
-                            <span id="stat-xp-text">0/100</span>
-                        </div>
-                        <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
-                            <div id="stat-xp-bar" class="h-full gradient-bg xp-bar-fill" style="width: 0%"></div>
+            <div class="stat-card glass-panel p-6 rounded-2xl">
+                <div class="flex items-center gap-4">
+                    <div class="relative w-16 h-16">
+                        <svg class="w-full h-full transform -rotate-90">
+                            <circle cx="32" cy="32" r="28" stroke="#1e293b" stroke-width="6" fill="none" />
+                            <circle id="level-circle" cx="32" cy="32" r="28" stroke="url(#gradient)" stroke-width="6"
+                                fill="none" stroke-dasharray="175.9" stroke-dashoffset="88" stroke-linecap="round" />
+                            <defs>
+                                <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stop-color="#667eea" />
+                                    <stop offset="100%" stop-color="#764ba2" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                        <div id="level-number" class="absolute inset-0 flex items-center justify-center font-bold">1
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Lessons Card -->
-            <div class="stat-card glass-panel p-6 rounded-2xl relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-32 h-32 bg-purple-500/20 rounded-full blur-3xl"></div>
-                <div class="relative z-10">
-                    <div class="flex items-center justify-between mb-4">
-                        <p class="text-slate-400 text-sm">Lessons Completed</p>
-                        <div class="text-2xl">📚</div>
-                    </div>
-                    <div class="flex items-end gap-2">
-                        <span id="stat-lessons" class="text-4xl font-bold text-purple-400">0</span>
-                        <span class="text-slate-400 mb-1">total</span>
-                    </div>
-                    <div class="mt-4">
-                        <div class="flex justify-between text-xs text-slate-400 mb-1">
-                            <span>This week</span>
-                            <span id="weekly-goal">0/5</span>
-                        </div>
-                        <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
-                            <div id="weekly-bar" class="h-full bg-purple-500 xp-bar-fill" style="width: 0%"></div>
-                        </div>
+                    <div>
+                        <p class="text-slate-400 text-sm">Level <span id="level-label">1</span></p>
+                        <p class="text-xl font-bold text-indigo-400">
+                            <span id="current-xp">0</span>/<span id="next-level-xp">100</span> XP
+                        </p>
                     </div>
                 </div>
             </div>
 
             <!-- Streak Card -->
-            <div class="stat-card glass-panel p-6 rounded-2xl relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-32 h-32 bg-pink-500/20 rounded-full blur-3xl"></div>
-                <div class="relative z-10">
-                    <div class="flex items-center justify-between mb-4">
+            <div class="stat-card glass-panel p-6 rounded-2xl">
+                <div class="flex items-center justify-between">
+                    <div>
                         <p class="text-slate-400 text-sm">Current Streak</p>
-                        <div class="text-2xl">🔥</div>
+                        <p class="text-3xl font-bold text-orange-400"><span id="current-streak">1</span> days</p>
                     </div>
-                    <div class="flex items-end gap-2">
-                        <span id="stat-streak" class="text-4xl font-bold text-pink-400">1</span>
-                        <span class="text-slate-400 mb-1">days</span>
-                    </div>
-                    <div class="mt-4">
-                        <div class="flex items-center justify-between text-xs">
-                            <span class="text-slate-400">Best: <span id="best-streak">7</span> days</span>
-                            <span id="streak-message" class="text-pink-400">Keep it up!</span>
-                        </div>
-                    </div>
+                    <span class="text-3xl animate-bounce">🔥</span>
                 </div>
+                <p class="text-xs text-orange-400 mt-2">Best: <span id="best-streak">14</span> days</p>
             </div>
 
-            <!-- Time Studied Card -->
-            <div class="stat-card glass-panel p-6 rounded-2xl relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-32 h-32 bg-green-500/20 rounded-full blur-3xl"></div>
-                <div class="relative z-10">
-                    <div class="flex items-center justify-between mb-4">
-                        <p class="text-slate-400 text-sm">Time Studied</p>
-                        <div class="text-2xl">⏱️</div>
+            <!-- Study Time Today -->
+            <div class="stat-card glass-panel p-6 rounded-2xl">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-slate-400 text-sm">Study Time Today</p>
+                        <p class="text-3xl font-bold text-green-400"><span id="today-minutes">0</span> min</p>
                     </div>
-                    <div class="flex items-end gap-2">
-                        <span id="stat-time" class="text-4xl font-bold text-green-400">2.5</span>
-                        <span class="text-slate-400 mb-1">hours</span>
+                    <span class="text-3xl">⏱️</span>
+                </div>
+                <p class="text-xs text-green-400 mt-2" id="yesterday-comparison">Start your first session!</p>
+            </div>
+
+            <!-- Lessons Completed -->
+            <div class="stat-card glass-panel p-6 rounded-2xl">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-slate-400 text-sm">Lessons Completed</p>
+                        <p class="text-3xl font-bold text-purple-400"><span id="lessons-completed">0</span></p>
                     </div>
-                    <div class="mt-4">
-                        <div class="flex justify-between text-xs text-slate-400">
-                            <span>Today: <span id="today-time">25m</span></span>
-                            <span>Average: <span id="avg-time">30m</span></span>
-                        </div>
-                    </div>
+                    <span class="text-3xl">📚</span>
+                </div>
+                <div class="mt-2 h-1 bg-slate-700 rounded-full overflow-hidden">
+                    <div id="weekly-progress" class="h-full bg-purple-500" style="width: 0%"></div>
                 </div>
             </div>
         </div>
 
-        <!-- CONTINUE LEARNING & HARDWARE STATUS (Row 2) -->
-        <div class="grid lg:grid-cols-3 gap-6 mb-8">
-
-            <!-- Continue Learning (2/3 width) -->
-            <div class="lg:col-span-2 glass-panel p-6 rounded-2xl">
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-xl font-bold">Continue Your Journey</h3>
-                    <button onclick="window.location.href='lessons.html'"
-                        class="text-sm text-indigo-400 hover:text-indigo-300 transition">
-                        View all →
-                    </button>
-                </div>
-
-                <a id="current-lesson-card"
-                    class="bg-slate-800/50 p-6 rounded-xl border border-slate-700 hover:border-indigo-500 transition cursor-pointer"
-                    href="/lessonCoding.html">
-                
-                <div class="flex items-center gap-4">
-                    <div class="w-16 h-16 gradient-bg rounded-xl flex items-center justify-center text-3xl">
-                        🤖
+        <!-- ===== HARDWARE CONNECTION PANEL ===== -->
+        <div id="hardware-panel" class="hardware-panel glass-panel p-6 rounded-2xl mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-indigo-600/20 rounded-full flex items-center justify-center text-xl">
+                        🔌
                     </div>
-                    <div class="flex-1">
-                        <div class="flex items-center justify-between mb-2">
-                            <h4 id="current-lesson-title" class="text-xl font-bold">Introduction to Coding</h4>
-                            <span id="current-lesson-badge"
-                                class="px-3 py-1 bg-indigo-500/20 text-indigo-300 rounded-full text-xs">Beginner</span>
-                        </div>
-                        <p id="current-lesson-desc" class="text-slate-400 text-sm mb-3">Learn the basics with your
-                            robot companion</p>
-
-                        <!-- Progress bar -->
-                        <div class="flex items-center gap-3">
-                            <span class="text-xs text-slate-400" id="current-progress-text">70%</span>
-                            <div class="flex-1 h-2 bg-slate-700 rounded-full overflow-hidden">
-                                <div id="current-progress-bar" class="h-full gradient-bg" style="width: 70%"></div>
-                            </div>
-                            <span class="text-xs text-indigo-400 font-semibold">Resume →</span>
-                        </div>
-                    </div>
+                    <h3 class="text-xl font-bold">Study Box Connection</h3>
                 </div>
-            </a>
-
-
-                
+                <div id="connection-status-badge" class="px-3 py-1 bg-gray-600/20 text-gray-400 rounded-full text-sm">
+                    Disconnected
+                </div>
             </div>
 
-            <a id="current-lesson-card"
-                class="bg-slate-800/50 p-6 rounded-xl border border-slate-700 hover:border-indigo-500 transition cursor-pointer"
-               href="/lessonMaths.html">
-
-                <div class="flex items-center gap-4">
-                    <div class="w-16 h-16 gradient-bg rounded-xl flex items-center justify-center text-3xl">
-                        🧮
+            <!-- Disconnected State -->
+            <div id="disconnected-state" class="space-y-4">
+                <div class="flex items-center gap-4 p-4 bg-slate-800/50 rounded-xl">
+                    <div class="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center text-3xl">
+                        🔌
                     </div>
                     <div class="flex-1">
-                        <div class="flex items-center justify-between mb-2">
-                            <h4 id="current-lesson-title" class="text-xl font-bold">Introduction to Mathematics</h4>
-                            <span id="current-lesson-badge"
-                                class="px-3 py-1 bg-indigo-500/20 text-indigo-300 rounded-full text-xs">Beginner</span>
-                        </div>
-                        <p id="current-lesson-desc" class="text-slate-400 text-sm mb-3">Master numbers and operations
-                            with interactive puzzles</p>
-
-                        <!-- Progress bar -->
-                        <div class="flex items-center gap-3">
-                            <span class="text-xs text-slate-400" id="current-progress-text">60%</span>
-                            <div class="flex-1 h-2 bg-slate-700 rounded-full overflow-hidden">
-                                <div id="current-progress-bar" class="h-full gradient-bg" style="width: 60%"></div>
-                            </div>
-                            <span class="text-xs text-indigo-400 font-semibold">Resume →</span>
-                        </div>
+                        <h4 class="font-bold mb-1">No Device Connected</h4>
+                        <p class="text-sm text-slate-400 mb-2">Connect your Study Box to track sessions and earn XP</p>
+                        <button onclick="startBluetoothScan()"
+                            class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-sm font-semibold transition">
+                            🔍 Scan for Device
+                        </button>
                     </div>
                 </div>
-            </a>
 
-
-            <div id="current-lesson-card"
-                class="bg-slate-800/50 p-6 rounded-xl border border-slate-700 hover:border-indigo-500 transition cursor-pointer"
-                onclick="resumeLesson()">
-                <div class="flex items-center gap-4">
-                    <div class="w-16 h-16 gradient-bg rounded-xl flex items-center justify-center text-3xl">
-                        ⚛️
+                <!-- Quick Tips -->
+                <div class="grid grid-cols-3 gap-3 text-xs text-slate-400">
+                    <div class="text-center p-2 bg-slate-800/30 rounded-lg">
+                        <span class="block text-lg mb-1">1️⃣</span>
+                        Power on your Study Box
                     </div>
-                    <div class="flex-1">
-                        <div class="flex items-center justify-between mb-2">
-                            <h4 id="current-lesson-title" class="text-xl font-bold">Introduction to Physicss</h4>
-                            <span id="current-lesson-badge"
-                                class="px-3 py-1 bg-indigo-500/20 text-indigo-300 rounded-full text-xs">Beginner</span>
-                        </div>
-                        <p id="current-lesson-desc" class="text-slate-400 text-sm mb-3">Explore forces, motion, and
-                            energy through simulations</p>
-
-                        <!-- Progress bar -->
-                        <div class="flex items-center gap-3">
-                            <span class="text-xs text-slate-400" id="current-progress-text">70%</span>
-                            <div class="flex-1 h-2 bg-slate-700 rounded-full overflow-hidden">
-                                <div id="current-progress-bar" class="h-full gradient-bg" style="width: 70%"></div>
-                            </div>
-                            <span class="text-xs text-indigo-400 font-semibold">Resume →</span>
-                        </div>
+                    <div class="text-center p-2 bg-slate-800/30 rounded-lg">
+                        <span class="block text-lg mb-1">2️⃣</span>
+                        Click Scan button
+                    </div>
+                    <div class="text-center p-2 bg-slate-800/30 rounded-lg">
+                        <span class="block text-lg mb-1">3️⃣</span>
+                        Select "SmartEco Buddy"
                     </div>
                 </div>
             </div>
 
-            <div id="current-lesson-card"
-                class="bg-slate-800/50 p-6 rounded-xl border border-slate-700 hover:border-indigo-500 transition cursor-pointer"
-                onclick="resumeLesson()">
-                <div class="flex items-center gap-4">
-                    <div class="w-16 h-16 gradient-bg rounded-xl flex items-center justify-center text-3xl">
-                        🧪
-                    </div>
-                    <div class="flex-1">
-                        <div class="flex items-center justify-between mb-2">
-                            <h4 id="current-lesson-title" class="text-xl font-bold">Introduction to Chemistry</h4>
-                            <span id="current-lesson-badge"
-                                class="px-3 py-1 bg-indigo-500/20 text-indigo-300 rounded-full text-xs">Beginner</span>
-                        </div>
-                        <p id="current-lesson-desc" class="text-slate-400 text-sm mb-3">Discover atoms, molecules, and
-                            reactions in virtual labs</p>
-
-                        <!-- Progress bar -->
-                        <div class="flex items-center gap-3">
-                            <span class="text-xs text-slate-400" id="current-progress-text">80%</span>
-                            <div class="flex-1 h-2 bg-slate-700 rounded-full overflow-hidden">
-                                <div id="current-progress-bar" class="h-full gradient-bg" style="width: 80%"></div>
-                            </div>
-                            <span class="text-xs text-indigo-400 font-semibold">Resume →</span>
-                        </div>
-                    </div>
+            <!-- Scanning State -->
+            <div id="scanning-state" class="hidden text-center py-6">
+                <div
+                    class="w-20 h-20 mx-auto mb-4 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin">
                 </div>
-            </div>
-
-            <div id="current-lesson-card"
-                class="bg-slate-800/50 p-6 rounded-xl border border-slate-700 hover:border-indigo-500 transition cursor-pointer"
-                onclick="resumeLesson()">
-                <div class="flex items-center gap-4">
-                    <div class="w-16 h-16 gradient-bg rounded-xl flex items-center justify-center text-3xl">
-                        📚
-                    </div>
-                    <div class="flex-1">
-                        <div class="flex items-center justify-between mb-2">
-                            <h4 id="current-lesson-title" class="text-xl font-bold">Introduction to English</h4>
-                            <span id="current-lesson-badge"
-                                class="px-3 py-1 bg-indigo-500/20 text-indigo-300 rounded-full text-xs">Beginner</span>
-                        </div>
-                        <p id="current-lesson-desc" class="text-slate-400 text-sm mb-3">Build vocabulary and grammar
-                            skills with AI conversations</p>
-
-                        <!-- Progress bar -->
-                        <div class="flex items-center gap-3">
-                            <span class="text-xs text-slate-400" id="current-progress-text">90%</span>
-                            <div class="flex-1 h-2 bg-slate-700 rounded-full overflow-hidden">
-                                <div id="current-progress-bar" class="h-full gradient-bg" style="width: 90%"></div>
-                            </div>
-                            <span class="text-xs text-indigo-400 font-semibold">Resume →</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-
-            <!-- Quick actions -->
-            <div class="grid grid-cols-3 gap-3 mt-4">
-                <button onclick="startQuickMission()"
-                    class="py-3 bg-slate-800/50 rounded-xl border border-slate-700 hover:border-indigo-500 transition text-center">
-                    <div class="text-xl mb-1">⚡</div>
-                    <span class="text-xs">5-min Mission</span>
-                </button>
-                <button onclick="window.location.href='hardware.html'"
-                    class="py-3 bg-slate-800/50 rounded-xl border border-slate-700 hover:border-indigo-500 transition text-center">
-                    <div class="text-xl mb-1">🔌</div>
-                    <span class="text-xs">Connect Box</span>
-                </button>
-                <button onclick="showChallenges()"
-                    class="py-3 bg-slate-800/50 rounded-xl border border-slate-700 hover:border-indigo-500 transition text-center">
-                    <div class="text-xl mb-1">🏆</div>
-                    <span class="text-xs">Challenges</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- Hardware Status (1/3 width) -->
-        <div class="glass-panel p-6 rounded-2xl">
-            <h3 class="text-xl font-bold mb-4">🔌 Study Box</h3>
-
-            <div id="hardware-disconnected" class="text-center py-6">
-                <div class="w-20 h-20 mx-auto mb-4 bg-slate-800 rounded-full flex items-center justify-center text-3xl">
-                    🔌
-                </div>
-                <h4 class="font-bold mb-2">Not Connected</h4>
-                <p class="text-sm text-slate-400 mb-4">Connect your Study Box for the full experience</p>
-                <button onclick="window.location.href='hardware.html'"
-                    class="w-full py-3 gradient-bg text-white rounded-xl font-semibold hover:shadow-lg transition">
-                    Connect Now
+                <h4 class="font-bold mb-2">Scanning for Devices...</h4>
+                <p class="text-sm text-slate-400 mb-4">Make sure your Study Box is powered on</p>
+                <button onclick="cancelScan()"
+                    class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm transition">
+                    Cancel
                 </button>
             </div>
 
-            <div id="hardware-connected" class="hidden">
-                <div class="flex items-center space-x-3 mb-4">
-                    <div class="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center text-2xl">
+            <!-- Device List State -->
+            <div id="devices-list-state" class="hidden space-y-3">
+                <h4 class="font-semibold mb-2">Available Devices:</h4>
+                <div id="devices-container" class="space-y-2">
+                    <!-- Devices will be listed here -->
+                </div>
+                <button onclick="startBluetoothScan()" class="mt-2 text-sm text-indigo-400 hover:text-indigo-300">
+                    ↻ Scan Again
+                </button>
+            </div>
+
+            <!-- Connected State -->
+            <div id="connected-state" class="hidden">
+                <div class="flex items-center gap-4 p-4 bg-green-600/10 rounded-xl border border-green-500/30">
+                    <div
+                        class="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center text-3xl animate-pulse">
                         ✅
                     </div>
-                    <div>
-                        <h4 class="font-bold">CodeQuest Buddy</h4>
-                        <p class="text-xs text-green-400">● Connected</p>
-                    </div>
-                </div>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between mb-1">
+                            <h4 class="font-bold text-green-400">Connected</h4>
+                            <span id="battery-level" class="text-sm text-green-400">85%</span>
+                        </div>
+                        <p id="connected-device-name" class="text-sm text-slate-300">SmartEco Study Box</p>
 
-                <div class="space-y-3">
-                    <div class="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg">
-                        <span class="text-sm">Battery</span>
-                        <div class="flex items-center gap-2">
-                            <div class="w-16 h-2 bg-slate-700 rounded-full overflow-hidden">
-                                <div id="battery-level" class="h-full bg-green-500" style="width: 95%"></div>
+                        <!-- Battery Bar -->
+                        <div class="mt-2 h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                            <div id="battery-bar" class="h-full bg-green-500" style="width: 85%"></div>
+                        </div>
+
+                        <!-- Touch Stats -->
+                        <div class="flex gap-4 mt-3 text-xs">
+                            <div>
+                                <span class="text-slate-400">Last Touch:</span>
+                                <span id="last-touch" class="ml-1 text-indigo-400">Never</span>
                             </div>
-                            <span id="battery-text" class="text-sm">95%</span>
+                            <div>
+                                <span class="text-slate-400">Touch Count:</span>
+                                <span id="touch-count" class="ml-1 text-indigo-400">0</span>
+                            </div>
                         </div>
-                    </div>
-
-                    <div class="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg">
-                        <span class="text-sm">LED Status</span>
-                        <div class="flex items-center gap-2">
-                            <div id="led-indicator" class="w-4 h-4 bg-green-500 rounded-full pulse"></div>
-                            <span id="led-text" class="text-sm">Ready</span>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg">
-                        <span class="text-sm">Last Session</span>
-                        <span id="last-session" class="text-sm">25 min ago</span>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-2 mt-4">
-                    <button onclick="testLED()"
-                        class="py-2 bg-indigo-600/20 text-indigo-300 rounded-lg text-sm hover:bg-indigo-600/30 transition">
-                        Test LED
+                <div class="flex gap-2 mt-4">
+                    <button onclick="testHardware()"
+                        class="flex-1 py-2 bg-indigo-600/20 text-indigo-400 rounded-lg hover:bg-indigo-600/30 transition flex items-center justify-center gap-2">
+                        <span>💡</span> Test LED
                     </button>
                     <button onclick="testBuzzer()"
-                        class="py-2 bg-purple-600/20 text-purple-300 rounded-lg text-sm hover:bg-purple-600/30 transition">
-                        Test Buzzer
+                        class="flex-1 py-2 bg-purple-600/20 text-purple-400 rounded-lg hover:bg-purple-600/30 transition flex items-center justify-center gap-2">
+                        <span>🔊</span> Test Buzzer
+                    </button>
+                </div>
+
+                <div class="flex gap-2 mt-2">
+                    <button onclick="testHardwareSequence()"
+                        class="flex-1 py-2 bg-green-600/20 text-green-400 rounded-lg hover:bg-green-600/30 transition text-sm">
+                        Run Demo Sequence
+                    </button>
+                    <button onclick="disconnectHardware()"
+                        class="flex-1 py-2 bg-red-600/20 text-red-400 rounded-lg hover:bg-red-600/30 transition">
+                        Disconnect
                     </button>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- LEARNING PATH (Row 3) -->
-    <div class="glass-panel p-6 rounded-2xl mb-8">
-        <div class="flex items-center justify-between mb-6">
-            <h3 class="text-xl font-bold">Your Learning Path</h3>
-            <div class="flex items-center space-x-2">
-                <span class="text-xs text-slate-400">Filter:</span>
-                <button onclick="filterPath('all')"
-                    class="px-3 py-1 bg-indigo-600 text-white rounded-full text-xs">All</button>
-                <button onclick="filterPath('beginner')"
-                    class="px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-full text-xs">Beginner</button>
-                <button onclick="filterPath('intermediate')"
-                    class="px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-full text-xs">Intermediate</button>
-            </div>
-        </div>
-
-        <div class="relative">
-            <!-- Timeline line -->
-            <div class="absolute left-8 top-0 bottom-0 w-0.5 bg-slate-700"></div>
-
-            <!-- Path items -->
-            <div id="learning-path" class="space-y-6">
-                <!-- Populated by JavaScript -->
-            </div>
-        </div>
-    </div>
-
-    <!-- ACHIEVEMENTS & BADGES (Row 4) -->
-    <div class="grid md:grid-cols-2 gap-6">
-
-        <!-- Recent Badges -->
-        <div class="glass-panel p-6 rounded-2xl">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-xl font-bold">🏅 Recent Badges</h3>
-                <button onclick="viewAllBadges()" class="text-sm text-indigo-400 hover:text-indigo-300">View
-                    all</button>
-            </div>
-
-            <div id="badges-container" class="grid grid-cols-4 gap-3">
-                <!-- Populated by JavaScript -->
-            </div>
-
-            <div class="mt-4 p-4 bg-indigo-900/20 rounded-xl border border-indigo-500/30">
-                <div class="flex items-center justify-between">
+        <!-- ===== ACTIVE SESSION BAR ===== -->
+        <div id="active-session-bar"
+            class="fixed bottom-0 left-0 right-0 bg-indigo-600 text-white py-3 px-4 transform translate-y-full transition-transform duration-300 z-40">
+            <div class="max-w-7xl mx-auto flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <span class="text-2xl animate-pulse">⏱️</span>
                     <div>
-                        <span class="text-sm text-indigo-300">Next badge:</span>
-                        <h4 id="next-badge-name" class="font-bold">Loop Master</h4>
-                        <p id="next-badge-progress" class="text-xs text-slate-400">Complete Lesson 3</p>
+                        <span class="font-bold">Active Session</span>
+                        <span id="session-timer-display" class="ml-4 font-mono text-xl">00:00 / 25:00</span>
                     </div>
-                    <div class="text-3xl opacity-50">🔒</div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                        <span class="text-sm">Hardware Connected</span>
+                    </div>
+                    <button onclick="SmartEco.endSession()"
+                        class="px-4 py-1.5 bg-red-500 hover:bg-red-600 rounded-lg text-sm font-semibold transition">
+                        End Session
+                    </button>
                 </div>
             </div>
         </div>
 
-        <!-- Daily Challenge / Goals -->
-        <div class="glass-panel p-6 rounded-2xl">
-            <h3 class="text-xl font-bold mb-4">🎯 Daily Goals</h3>
-
-            <div class="space-y-4">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-3">
+        <!-- ===== GAME LAUNCHER CARDS ===== -->
+        <div class="grid md:grid-cols-2 gap-6 mb-8">
+            <!-- Coding Game Card -->
+            <div id="coding-game-card"
+                class="glass-panel p-6 rounded-2xl transition relative overflow-hidden opacity-50 cursor-not-allowed"
+                onclick="launchGame('coding')">
+                <div class="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-purple-600/20"></div>
+                <div class="relative z-10">
+                    <div class="flex items-center gap-4 mb-4">
                         <div
-                            class="w-8 h-8 bg-indigo-600/20 rounded-full flex items-center justify-center text-indigo-400">
-                            ⏱️
+                            class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-4xl">
+                            🤖
                         </div>
-                        <span>Study 30 minutes</span>
+                        <div>
+                            <h3 class="text-2xl font-bold">CodeQuest</h3>
+                            <p class="text-sm text-slate-400">Learn programming through robot puzzles</p>
+                        </div>
                     </div>
-                    <span id="goal-time" class="font-bold text-indigo-400">25/30m</span>
-                </div>
-                <div class="w-full h-2 bg-slate-700 rounded-full overflow-hidden">
-                    <div id="goal-time-bar" class="h-full gradient-bg" style="width: 83%"></div>
-                </div>
 
-                <div class="flex items-center justify-between mt-4">
-                    <div class="flex items-center gap-3">
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div class="bg-slate-800/50 p-3 rounded-lg text-center">
+                            <span class="text-2xl text-blue-400">🎮</span>
+                            <p class="text-sm">Level <span id="coding-level">1</span>/5</p>
+                        </div>
+                        <div class="bg-slate-800/50 p-3 rounded-lg text-center">
+                            <span class="text-2xl text-green-400">⚡</span>
+                            <p class="text-sm"><span id="coding-xp">50</span>-150 XP</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between">
+                        <div class="flex gap-2">
+                            <span class="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-xs">Loops</span>
+                            <span
+                                class="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-xs">Conditions</span>
+                        </div>
+                        <span id="coding-status"
+                            class="px-3 py-1 bg-yellow-500/20 text-yellow-400 rounded-full text-xs">
+                            ⚠️ Connect Hardware First
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Math Game Card -->         
+            <div id="math-game-card"
+                class="glass-panel p-6 rounded-2xl transition relative overflow-hidden cursor-pointer hover:border-orange-500"
+                onclick="launchGame('math')">
+                <div class="absolute inset-0 bg-gradient-to-br from-orange-600/20 to-red-600/20"></div>
+                <div class="relative z-10">
+                    <div class="flex items-center gap-4 mb-4">
                         <div
-                            class="w-8 h-8 bg-purple-600/20 rounded-full flex items-center justify-center text-purple-400">
-                            📚
+                            class="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center text-4xl">
+                            🔢
                         </div>
-                        <span>Complete 1 lesson</span>
-                    </div>
-                    <span id="goal-lesson" class="font-bold text-purple-400">1/1</span>
-                </div>
-                <div class="w-full h-2 bg-slate-700 rounded-full overflow-hidden">
-                    <div id="goal-lesson-bar" class="h-full bg-purple-500" style="width: 100%"></div>
-                </div>
-
-                <div class="flex items-center justify-between mt-4">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 bg-pink-600/20 rounded-full flex items-center justify-center text-pink-400">
-                            🔥
+                        <div>
+                            <h3 class="text-2xl font-bold">NumberQuest</h3>
+                            <p class="text-sm text-slate-400">Master mathematics through puzzles</p>
                         </div>
-                        <span>Maintain streak</span>
                     </div>
-                    <span id="goal-streak" class="font-bold text-pink-400">7 days</span>
-                </div>
 
-                <button
-                    class="w-full mt-4 py-3 gradient-bg text-white rounded-xl font-semibold hover:shadow-lg transition">
-                    Claim Daily Reward
-                </button>
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div class="bg-slate-800/50 p-3 rounded-lg text-center">
+                            <span class="text-2xl text-orange-400">🎮</span>
+                            <p class="text-sm">Level <span id="math-level">1</span>/6</p>
+                        </div>
+                        <div class="bg-slate-800/50 p-3 rounded-lg text-center">
+                            <span class="text-2xl text-green-400">⚡</span>
+                            <p class="text-sm"><span id="math-xp">50</span>-120 XP</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between">
+                        <div class="flex gap-2">
+                            <span class="px-3 py-1 bg-orange-500/20 text-orange-300 rounded-full text-xs">Algebra</span>
+                            <span class="px-3 py-1 bg-red-500/20 text-red-300 rounded-full text-xs">Geometry</span>
+                        </div>
+                        <span id="math-status" class="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-xs">
+                            ▶️ Play Now
+                        </span>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-    </div>
 
-    <!-- Achievement Popup (Hidden by default) -->
-    <div id="achievement-popup"
-        class="fixed bottom-4 right-4 glass-panel p-4 rounded-xl max-w-sm hidden transform transition-all duration-500">
-        <div class="flex items-center gap-3">
-            <div class="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center text-2xl animate-bounce">
-                🏆
-            </div>
-            <div>
-                <h4 id="achievement-title" class="font-bold">Achievement Unlocked!</h4>
-                <p id="achievement-desc" class="text-sm text-slate-300">First lesson completed</p>
+        <!-- ===== SESSION STATS ===== -->
+        <div class="glass-panel p-6 rounded-2xl mb-8">
+            <h3 class="text-xl font-bold mb-4">📊 Today's Progress</h3>
+            <div class="grid grid-cols-4 gap-4">
+                <div class="text-center">
+                    <span class="text-2xl text-indigo-400">⏱️</span>
+                    <p class="text-sm text-slate-400">Study Time</p>
+                    <p class="text-xl font-bold" id="today-time">0 min</p>
+                </div>
+                <div class="text-center">
+                    <span class="text-2xl text-green-400">⚡</span>
+                    <p class="text-sm text-slate-400">XP Gained</p>
+                    <p class="text-xl font-bold" id="today-xp">0</p>
+                </div>
+                <div class="text-center">
+                    <span class="text-2xl text-purple-400">📚</span>
+                    <p class="text-sm text-slate-400">Lessons</p>
+                    <p class="text-xl font-bold" id="today-lessons">0</p>
+                </div>
+                <div class="text-center">
+                    <span class="text-2xl text-orange-400">🔥</span>
+                    <p class="text-sm text-slate-400">Streak</p>
+                    <p class="text-xl font-bold" id="today-streak">1</p>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // ===== USER STATE =====
-        let userState = {
-            name: 'Learner',
-            xp: 450,
-            level: 4,
-            lessonsCompleted: 12,
-            streak: 7,
-            bestStreak: 14,
-            totalTime: 150, // minutes
-            todayTime: 25,
-            avgTime: 30,
-
-            currentLesson: {
-                id: 1,
-                title: "Introduction to Coding",
-                description: "Learn the basics with your robot companion",
-                difficulty: "beginner",
-                progress: 70,
-                step: 3,
-                totalSteps: 5
-            },
-
-            badges: [
-                { id: 1, name: "First Focus", icon: "🏆", earned: true },
-                { id: 2, name: "Code Novice", icon: "⭐", earned: true },
-                { id: 3, name: "3-Day Streak", icon: "🔥", earned: true },
-                { id: 4, name: "Loop Master", icon: "🔄", earned: false }
-            ],
-
-            learningPath: [
-                { id: 1, title: "Hello, World!", difficulty: "beginner", xp: 50, completed: true },
-                { id: 2, title: "Variables & Data", difficulty: "beginner", xp: 75, completed: true },
-                { id: 3, title: "If/Else Statements", difficulty: "beginner", xp: 100, completed: false, progress: 40 },
-                { id: 4, title: "Loops", difficulty: "intermediate", xp: 150, completed: false, locked: true },
-                { id: 5, title: "Functions", difficulty: "intermediate", xp: 200, completed: false, locked: true }
-            ],
-
-            hardware: {
-                connected: false,
-                battery: 95,
-                led: "green",
-                lastSession: "25 min ago"
-            }
-        };
-
-        // ===== LOAD USER DATA =====
-        function loadUserData() {
-            // Load from localStorage (set during onboarding)
-            const savedName = localStorage.getItem('userName');
-            if (savedName) userState.name = savedName;
-
-            const savedXP = localStorage.getItem('userXP');
-            if (savedXP) userState.xp = parseInt(savedXP);
-
-            const savedLevel = localStorage.getItem('userLevel');
-            if (savedLevel) userState.level = parseInt(savedLevel);
-
-            const savedStreak = localStorage.getItem('userStreak');
-            if (savedStreak) userState.streak = parseInt(savedStreak);
-
-            const savedLessons = localStorage.getItem('userLessons');
-            if (savedLessons) userState.lessonsCompleted = parseInt(savedLessons);
-
-            // Check hardware connection
-            const hardwareConnected = localStorage.getItem('hardwareConnected');
-            if (hardwareConnected === 'true') {
-                userState.hardware.connected = true;
-            }
-
-            updateUI();
-        }
-
-        // ===== UPDATE UI =====
-        function updateUI() {
-            // Update name
-            document.getElementById('user-name').textContent = userState.name;
-
-            // Update level and XP
-            document.getElementById('nav-level').textContent = userState.level;
-            document.getElementById('stat-level').textContent = userState.level;
-
-            const xpForCurrentLevel = (userState.level - 1) * 100;
-            const xpForNextLevel = userState.level * 100;
-            const xpProgress = ((userState.xp - xpForCurrentLevel) / 100) * 100;
-
-            document.getElementById('nav-xp-bar').style.width = `${xpProgress}%`;
-            document.getElementById('stat-xp-bar').style.width = `${xpProgress}%`;
-
-            const xpText = `${userState.xp - xpForCurrentLevel}/100 XP`;
-            document.getElementById('nav-xp-text').textContent = xpText;
-            document.getElementById('stat-xp-text').textContent = xpText;
-
-            // Update lessons
-            document.getElementById('stat-lessons').textContent = userState.lessonsCompleted;
-
-            // Update streak
-            document.getElementById('stat-streak').textContent = userState.streak;
-            document.getElementById('best-streak').textContent = userState.bestStreak;
-
-            // Streak message
-            if (userState.streak >= 30) {
-                document.getElementById('streak-message').textContent = "Legendary! 🔥";
-            } else if (userState.streak >= 7) {
-                document.getElementById('streak-message').textContent = "Weekly Warrior!";
-            } else if (userState.streak >= 3) {
-                document.getElementById('streak-message').textContent = "Getting Started!";
-            } else {
-                document.getElementById('streak-message').textContent = "Start today!";
-            }
-
-            // Update time stats
-            document.getElementById('stat-time').textContent = (userState.totalTime / 60).toFixed(1);
-            document.getElementById('today-time').textContent = userState.todayTime + 'm';
-            document.getElementById('avg-time').textContent = userState.avgTime + 'm';
-
-            // Update current lesson
-            document.getElementById('current-lesson-title').textContent = userState.currentLesson.title;
-            document.getElementById('current-lesson-desc').textContent = userState.currentLesson.description;
-            document.getElementById('current-lesson-badge').textContent =
-                userState.currentLesson.difficulty.charAt(0).toUpperCase() + userState.currentLesson.difficulty.slice(1);
-            document.getElementById('current-progress-text').textContent = userState.currentLesson.progress + '%';
-            document.getElementById('current-progress-bar').style.width = userState.currentLesson.progress + '%';
-
-            // Update weekly goal
-            const weeklyProgress = Math.min((userState.lessonsCompleted % 5) / 5 * 100, 100);
-            document.getElementById('weekly-goal').textContent = (userState.lessonsCompleted % 5) + '/5';
-            document.getElementById('weekly-bar').style.width = weeklyProgress + '%';
-
-            // Update daily goals
-            document.getElementById('goal-time').textContent = userState.todayTime + '/30m';
-            document.getElementById('goal-time-bar').style.width = (userState.todayTime / 30 * 100) + '%';
-
-            document.getElementById('goal-streak').textContent = userState.streak + ' days';
-
-            // Update learning path
-            renderLearningPath();
-
-            // Update badges
-            renderBadges();
-
-            // Update hardware status
-            updateHardwareUI();
-        }
-
-        // ===== RENDER LEARNING PATH =====
-        function renderLearningPath() {
-            const container = document.getElementById('learning-path');
-            container.innerHTML = '';
-
-            userState.learningPath.forEach((lesson, index) => {
-                const div = document.createElement('div');
-                div.className = 'flex items-start gap-4 relative';
-
-                // Status icon
-                let statusIcon = '';
-                if (lesson.completed) {
-                    statusIcon = '<div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center text-2xl z-10 border-4 border-slate-900">✓</div>';
-                } else if (lesson.locked) {
-                    statusIcon = '<div class="w-16 h-16 bg-slate-700 rounded-full flex items-center justify-center text-2xl z-10 border-4 border-slate-900">🔒</div>';
-                } else {
-                    statusIcon = `<div class="w-16 h-16 gradient-bg rounded-full flex items-center justify-center text-2xl z-10 border-4 border-slate-900">${index + 1}</div>`;
-                }
-
-                // Progress bar for in-progress lessons
-                let progressHtml = '';
-                if (!lesson.completed && !lesson.locked && lesson.progress) {
-                    progressHtml = `
-                        <div class="mt-3">
-                            <div class="flex justify-between text-xs text-slate-400 mb-1">
-                                <span>Progress</span>
-                                <span>${lesson.progress}%</span>
-                            </div>
-                            <div class="h-1.5 bg-slate-700 rounded-full overflow-hidden">
-                                <div class="h-full gradient-bg" style="width: ${lesson.progress}%"></div>
-                            </div>
-                        </div>
-                    `;
-                }
-
-                div.innerHTML = `
-                    <div class="relative">
-                        ${statusIcon}
-                    </div>
-                    <div class="flex-1 glass-panel p-4 rounded-xl cursor-pointer hover:border-indigo-500 transition border-2 border-transparent ${lesson.locked ? 'opacity-60' : ''}" 
-                         onclick="${lesson.locked ? '' : `startLesson(${lesson.id})`}">
-                        <div class="flex justify-between items-start mb-2">
-                            <h4 class="font-bold text-lg">${lesson.title}</h4>
-                            <span class="px-2 py-1 bg-slate-700 rounded text-xs capitalize">${lesson.difficulty}</span>
-                        </div>
-                        <p class="text-slate-400 text-sm mb-2">${lesson.xp} XP • ${lesson.completed ? 'Completed' : lesson.locked ? 'Locked' : 'In progress'}</p>
-                        ${progressHtml}
-                    </div>
-                `;
-
-                container.appendChild(div);
-            });
-        }
-
-        // ===== RENDER BADGES =====
-        function renderBadges() {
-            const container = document.getElementById('badges-container');
-            container.innerHTML = '';
-
-            const earnedBadges = userState.badges.filter(b => b.earned);
-            earnedBadges.slice(0, 4).forEach(badge => {
-                const div = document.createElement('div');
-                div.className = 'text-center';
-                div.innerHTML = `
-                    <div class="w-16 h-16 mx-auto mb-2 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-3xl">
-                        ${badge.icon}
-                    </div>
-                    <span class="text-xs text-slate-300">${badge.name}</span>
-                `;
-                container.appendChild(div);
-            });
-
-            // Fill empty slots
-            for (let i = earnedBadges.length; i < 4; i++) {
-                const div = document.createElement('div');
-                div.className = 'text-center opacity-30';
-                div.innerHTML = `
-                    <div class="w-16 h-16 mx-auto mb-2 bg-slate-700 rounded-full flex items-center justify-center text-3xl">
-                        🔒
-                    </div>
-                    <span class="text-xs text-slate-500">Locked</span>
-                `;
-                container.appendChild(div);
-            }
-
-            // Next badge
-            const nextBadge = userState.badges.find(b => !b.earned);
-            if (nextBadge) {
-                document.getElementById('next-badge-name').textContent = nextBadge.name;
-            }
-        }
-
-        // ===== UPDATE HARDWARE UI =====
-        function updateHardwareUI() {
-            if (userState.hardware.connected) {
-                document.getElementById('hardware-disconnected').classList.add('hidden');
-                document.getElementById('hardware-connected').classList.remove('hidden');
-
-                document.getElementById('battery-level').style.width = userState.hardware.battery + '%';
-                document.getElementById('battery-text').textContent = userState.hardware.battery + '%';
-                document.getElementById('last-session').textContent = userState.hardware.lastSession;
-
-                // LED color
-                const ledIndicator = document.getElementById('led-indicator');
-                ledIndicator.className = `w-4 h-4 rounded-full pulse bg-${userState.hardware.led}-500`;
-            } else {
-                document.getElementById('hardware-disconnected').classList.remove('hidden');
-                document.getElementById('hardware-connected').classList.add('hidden');
-            }
-        }
-
-        // ===== ACTIONS =====
-        function resumeLesson() {
-            window.location.href = `lesson.html?id=${userState.currentLesson.id}&step=${userState.currentLesson.step}`;
-        }
-
-        function startLesson(lessonId) {
-            window.location.href = `lesson.html?id=${lessonId}`;
-        }
-
-        function startQuickMission() {
-            // Start a 5-min quick mission
-            showAchievement('Quick Mission!', '+20 XP if you complete in 5 min');
-            setTimeout(() => {
-                window.location.href = 'lesson.html?quick=true';
-            }, 1500);
-        }
-
-        function showChallenges() {
-            window.location.href = 'challenges.html';
-        }
-
-        function viewAllBadges() {
-            window.location.href = 'badges.html';
-        }
-
-        function showProfile() {
-            window.location.href = 'profile.html';
-        }
-
-        function showDashboard() {
-            // Already on dashboard
-        }
-
-        function filterPath(filter) {
-            // Implement filter logic
-            renderLearningPath();
-        }
-
-        // Hardware test functions
-        function testLED() {
-            if (!userState.hardware.connected) {
-                alert('Connect hardware first');
-                return;
-            }
-            showAchievement('LED Test', 'Sending rainbow signal!');
-            // Actual Bluetooth code would go here
-        }
-
-        function testBuzzer() {
-            if (!userState.hardware.connected) {
-                alert('Connect hardware first');
-                return;
-            }
-            showAchievement('Buzzer Test', 'Playing celebration sound!');
-            // Actual Bluetooth code would go here
-        }
-
-        // ===== ACHIEVEMENT POPUP =====
-        function showAchievement(title, desc) {
-            const popup = document.getElementById('achievement-popup');
-            document.getElementById('achievement-title').textContent = title;
-            document.getElementById('achievement-desc').textContent = desc;
-
-            popup.classList.remove('hidden');
-            setTimeout(() => {
-                popup.classList.add('translate-x-0', 'opacity-100');
-            }, 10);
-
-            setTimeout(() => {
-                popup.classList.add('hidden');
-            }, 3000);
-        }
-
-        // ===== INIT =====
-        document.addEventListener('DOMContentLoaded', () => {
+        // ===== BLUETOOTH VARIABLES =====
+        let bluetoothDevice = null;
+        let characteristic = null;
+        let isScanning = false;
+        let bluetoothCharacteristic = null;
+        // ===== INITIALIZATION =====
+        document.addEventListener('DOMContentLoaded', function () {
+            setGreeting();
             loadUserData();
+            updateStats(SmartEco.state);
+            updateNavbar(SmartEco.state);
 
-            // Animate stats on load
-            gsap.from('.stat-card', {
-                y: 20,
-                opacity: 0,
-                duration: 0.5,
-                stagger: 0.1
+            // Check if hardware was previously connected
+            if (SmartEco.state.hardwareConnected) {
+                showConnectedState();
+            }
+
+            // Listen for state changes
+            SmartEco.addListener(function (event, data, state) {
+                console.log('Dashboard update:', event);
+
+                if (event === 'hardwareConnected') {
+                    if (state.hardwareConnected) {
+                        showConnectedState();
+                    } else {
+                        showDisconnectedState();
+                    }
+                    updateNavbar(state);
+                }
+
+                if (event === 'touchDetected') {
+                    document.getElementById('touch-count').textContent = state.touchCount;
+                    document.getElementById('last-touch').textContent =
+                        state.lastTouch ? new Date(state.lastTouch).toLocaleTimeString() : 'Never';
+                    showToast('Touch Detected!', '👆', 'Session toggled');
+                }
+
+                if (event === 'sessionStarted' || event === 'sessionEnded' || event === 'sessionTime') {
+                    updateSessionDisplay(state);
+                }
+
+                updateStats(state);
+                updateNavbar(state);
             });
         });
 
+        // ===== GREETING =====
+        function setGreeting() {
+            const hour = new Date().getHours();
+            const greeting = document.getElementById('greeting');
+            if (hour < 12) greeting.textContent = 'Good morning';
+            else if (hour < 18) greeting.textContent = 'Good afternoon';
+            else greeting.textContent = 'Good evening';
+        }
+
+        // ===== LOAD USER DATA =====
+        function loadUserData() {
+            const state = SmartEco.state;
+            document.getElementById('user-name').textContent = state.userName;
+            document.getElementById('user-avatar').textContent = state.userAvatar;
+        }
+
+        // ===== UPDATE STATS =====
+        function updateStats(state) {
+            // Level and XP
+            document.getElementById('level-number').textContent = state.level;
+            document.getElementById('level-label').textContent = state.level;
+            document.getElementById('current-xp').textContent = state.xp;
+            document.getElementById('next-level-xp').textContent = state.level * 100;
+
+            const xpInLevel = state.xp % 100;
+            const circumference = 175.9;
+            const offset = circumference - (circumference * xpInLevel / 100);
+            document.getElementById('level-circle').style.strokeDashoffset = offset;
+
+            // Streak
+            document.getElementById('current-streak').textContent = state.streak;
+            document.getElementById('best-streak').textContent = state.longestStreak;
+
+            // Today's stats
+            document.getElementById('today-minutes').textContent = state.dailyStudyTime;
+            document.getElementById('today-xp').textContent = state.xp - (Math.floor(state.xp / 100) * 100);
+            document.getElementById('today-lessons').textContent = state.lessonsCompleted;
+            document.getElementById('today-streak').textContent = state.streak;
+
+            // Lessons
+            document.getElementById('lessons-completed').textContent = state.lessonsCompleted;
+
+            // Game levels
+            document.getElementById('coding-level').textContent = state.codingLevels;
+            document.getElementById('math-level').textContent = state.mathLevels;
+        }
+
+        // ===== UPDATE NAVBAR =====
+        function updateNavbar(state) {
+            document.getElementById('nav-level').textContent = state.level;
+            const xpInLevel = state.xp % 100;
+            document.getElementById('nav-xp-bar').style.width = xpInLevel + '%';
+            document.getElementById('nav-xp-text').textContent = xpInLevel + '/100 XP';
+
+            const navLed = document.getElementById('nav-hardware-led');
+            const navText = document.getElementById('nav-hardware-text');
+
+            if (state.hardwareConnected) {
+                navLed.className = 'w-2 h-2 bg-green-500 rounded-full animate-pulse';
+                navText.textContent = 'Connected';
+            } else {
+                navLed.className = 'w-2 h-2 bg-gray-500 rounded-full';
+                navText.textContent = 'Disconnected';
+            }
+        }
+
+        // ===== HARDWARE CONNECTION FUNCTIONS =====
+        async function startBluetoothScan() {
+            try {
+                isScanning = true;
+                document.getElementById('disconnected-state').classList.add('hidden');
+                document.getElementById('scanning-state').classList.remove('hidden');
+                document.getElementById('hardware-panel').classList.add('scanning');
+
+                showToast('Scanning for devices...', '🔍', 'Please wait');
+
+                bluetoothDevice = await navigator.bluetooth.requestDevice({
+                    filters: [{ name: 'SmartEco Buddy' }],
+                    optionalServices: ['4fafc201-1fb5-459e-8fcc-c5c9c331914b']
+                });
+
+                document.getElementById('scanning-state').classList.add('hidden');
+                showDevicesList();
+
+            } catch (error) {
+                console.error('Scan error:', error);
+                cancelScan();
+                showToast('Scan failed: ' + error.message, '❌', 'Error');
+            }
+        }
+
+        function showDevicesList() {
+            const container = document.getElementById('devices-container');
+            container.innerHTML = '';
+
+            const deviceEl = document.createElement('div');
+            deviceEl.className = 'device-item p-3 bg-slate-800/50 rounded-lg flex items-center justify-between cursor-pointer hover:bg-slate-700/50';
+            deviceEl.onclick = () => connectToDevice();
+            deviceEl.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">🔌</span>
+                    <div>
+                        <div class="font-semibold">SmartEco Buddy</div>
+                        <div class="text-xs text-slate-400">Click to connect</div>
+                    </div>
+                </div>
+                <span class="text-indigo-400 text-sm">Connect →</span>
+            `;
+            container.appendChild(deviceEl);
+
+            document.getElementById('devices-list-state').classList.remove('hidden');
+            document.getElementById('hardware-panel').classList.remove('scanning');
+        }
+
+        // In your dashboard.html, modify the connectToDevice function:     
+        async function connectToDevice() {
+            try {
+                document.getElementById('devices-list-state').classList.add('hidden');
+                document.getElementById('scanning-state').classList.remove('hidden');
+                document.getElementById('scanning-state').querySelector('h4').textContent = 'Connecting...';
+
+                if (!bluetoothDevice) {
+                    throw new Error('No device selected');
+                }
+
+                const server = await bluetoothDevice.gatt.connect();
+                const service = await server.getPrimaryService('4fafc201-1fb5-459e-8fcc-c5c9c331914b');
+                bluetoothCharacteristic = await service.getCharacteristic('beb5483e-36e1-4688-b7f5-ea07361b26a8');
+
+                // Store globally for test functions
+                window.bluetoothCharacteristic = bluetoothCharacteristic;
+
+                await bluetoothCharacteristic.startNotifications();
+                bluetoothCharacteristic.addEventListener('characteristicvaluechanged', handleHardwareData);
+
+                // Update state
+                if (window.SmartEco) {
+                    SmartEco.setHardwareConnected(true);
+                }
+
+                showConnectedState();
+                showToast('Connected to Study Box!', '✅', 'Success');
+
+            } catch (error) {
+                console.error('Connection error:', error);
+                cancelScan();
+                showToast('Connection failed: ' + error.message, '❌', 'Error');
+            }
+        }
+
+        function handleHardwareData(event) {
+            const value = new TextDecoder().decode(event.target.value);
+
+            if (value === 'TOUCH_DETECTED') {
+                SmartEco.touchDetected();
+            } else if (value.startsWith('BATTERY:')) {
+                const level = parseInt(value.split(':')[1]);
+                SmartEco.updateHardwareBattery(level);
+                document.getElementById('battery-level').textContent = level + '%';
+                document.getElementById('battery-bar').style.width = level + '%';
+            }
+        }
+
+        function showConnectedState() {
+            document.getElementById('disconnected-state').classList.add('hidden');
+            document.getElementById('scanning-state').classList.add('hidden');
+            document.getElementById('devices-list-state').classList.add('hidden');
+            document.getElementById('connected-state').classList.remove('hidden');
+
+            document.getElementById('connection-status-badge').textContent = '✅ Connected';
+            document.getElementById('connection-status-badge').className = 'px-3 py-1 bg-green-600/20 text-green-400 rounded-full text-sm';
+            document.getElementById('hardware-panel').classList.add('connected');
+
+            document.getElementById('status-indicator').className = 'w-2 h-2 bg-green-500 rounded-full animate-pulse';
+            document.getElementById('status-message').textContent = 'Study Box connected - Ready to learn!';
+
+            // Enable focus mode and game cards
+            document.getElementById('focus-mode-btn').disabled = false;
+            enableGameCards(true);
+
+            // Update device name
+            if (bluetoothDevice) {
+                document.getElementById('connected-device-name').textContent = bluetoothDevice.name;
+            }
+
+            // Update navbar
+            updateNavbar(SmartEco.state);
+        }
+
+        function showDisconnectedState() {
+            document.getElementById('connected-state').classList.add('hidden');
+            document.getElementById('disconnected-state').classList.remove('hidden');
+
+            document.getElementById('connection-status-badge').textContent = 'Disconnected';
+            document.getElementById('connection-status-badge').className = 'px-3 py-1 bg-gray-600/20 text-gray-400 rounded-full text-sm';
+            document.getElementById('hardware-panel').classList.remove('connected', 'scanning');
+
+            document.getElementById('status-indicator').className = 'w-2 h-2 bg-gray-500 rounded-full';
+            document.getElementById('status-message').textContent = 'Connect your Study Box to begin';
+
+            // Disable focus mode and game cards
+            document.getElementById('focus-mode-btn').disabled = true;
+            enableGameCards(false);
+
+            // Update navbar
+            updateNavbar(SmartEco.state);
+        }
+
+        function enableGameCards(enabled) {
+            const codingCard = document.getElementById('coding-game-card');
+            const mathCard = document.getElementById('math-game-card');
+            const codingStatus = document.getElementById('coding-status');
+            const mathStatus = document.getElementById('math-status');
+
+            if (enabled) {
+                codingCard.classList.remove('opacity-50', 'cursor-not-allowed');
+                mathCard.classList.remove('opacity-50', 'cursor-not-allowed');
+                codingStatus.className = 'px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-xs';
+                codingStatus.innerHTML = '▶️ Ready to Play';
+                mathStatus.className = 'px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-xs';
+                mathStatus.innerHTML = '▶️ Ready to Play';
+            } else {
+                codingCard.classList.add('opacity-50', 'cursor-not-allowed');
+                mathCard.classList.add('opacity-50', 'cursor-not-allowed');
+                codingStatus.className = 'px-3 py-1 bg-yellow-500/20 text-yellow-400 rounded-full text-xs';
+                codingStatus.innerHTML = '⚠️ Connect Hardware First';
+                mathStatus.className = 'px-3 py-1 bg-yellow-500/20 text-yellow-400 rounded-full text-xs';
+                mathStatus.innerHTML = '⚠️ Connect Hardware First';
+            }
+        }
+
+        function cancelScan() {
+            isScanning = false;
+            document.getElementById('scanning-state').classList.add('hidden');
+            document.getElementById('disconnected-state').classList.remove('hidden');
+            document.getElementById('hardware-panel').classList.remove('scanning');
+        }
+
+        function disconnectHardware() {
+            if (bluetoothDevice && bluetoothDevice.gatt.connected) {
+                bluetoothDevice.gatt.disconnect();
+            }
+            SmartEco.setHardwareConnected(false);
+            showDisconnectedState();
+            showToast('Hardware disconnected', '🔌', 'Disconnected');
+        }
+
+
+        async function testHardware() {
+            if (!window.SmartEco) {
+                showToast('SmartEco not initialized', '❌', 'Error');
+                return;
+            }
+
+            if (!SmartEco.state.hardwareConnected) {
+                showToast('Please connect hardware first!', '🔌', 'Hardware Required');
+                return;
+            }
+
+            // Try both methods
+            if (typeof SmartEco.testLED === 'function') {
+                SmartEco.testLED();
+                showToast('Testing LED...', '✨', 'Hardware Test');
+            } else {
+                // Fallback direct Bluetooth
+                if (window.bluetoothCharacteristic) {
+                    try {
+                        const encoder = new TextEncoder();
+                        await window.bluetoothCharacteristic.writeValue(encoder.encode('LED_RAINBOW'));
+                        showToast('LED test sent!', '✨', 'Hardware Test');
+                    } catch (error) {
+                        showToast('Test failed: ' + error.message, '❌', 'Error');
+                    }
+                } else {
+                    showToast('Bluetooth not connected', '🔌', 'Error');
+                }
+            }
+        }
+
+        async function testBuzzer() {
+            if (!window.SmartEco) {
+                showToast('SmartEco not initialized', '❌', 'Error');
+                return;
+            }
+
+            if (!SmartEco.state.hardwareConnected) {
+                showToast('Please connect hardware first!', '🔌', 'Hardware Required');
+                return;
+            }
+
+            if (typeof SmartEco.testBuzzer === 'function') {
+                SmartEco.testBuzzer();
+                showToast('Testing buzzer...', '🔊', 'Hardware Test');
+            } else {
+                if (window.bluetoothCharacteristic) {
+                    try {
+                        const encoder = new TextEncoder();
+                        await window.bluetoothCharacteristic.writeValue(encoder.encode('PLAY_CELEBRATION'));
+                        showToast('Buzzer test sent!', '🔊', 'Hardware Test');
+                    } catch (error) {
+                        showToast('Test failed: ' + error.message, '❌', 'Error');
+                    }
+                }
+            }
+        }
+
+        // Add these test functions
+        async function testHardwareSequence() {
+            if (!window.SmartEco || !SmartEco.state.hardwareConnected) {
+                showToast('Connect hardware first!', '⚠️', 'Error');
+                return;
+            }
+
+            showToast('Running demo sequence...', '🎮', 'Hardware Demo');
+
+            // Sequence: Red → Green → Blue → Rainbow → Celebration
+            const sequence = ['LED_RED', 'LED_GREEN', 'LED_BLUE', 'LED_RAINBOW', 'PLAY_CELEBRATION'];
+
+            for (const cmd of sequence) {
+                if (window.bluetoothCharacteristic) {
+                    const encoder = new TextEncoder();
+                    await window.bluetoothCharacteristic.writeValue(encoder.encode(cmd));
+                    await new Promise(r => setTimeout(r, 500));
+                }
+            }
+
+            showToast('Demo complete!', '✨', 'Success');
+        }
+
+
+        // ===== SESSION FUNCTIONS =====
+        function updateSessionDisplay(state) {
+            const sessionBar = document.getElementById('active-session-bar');
+
+            if (state.sessionActive && !state.sessionPaused) {
+                sessionBar.classList.remove('translate-y-full');
+
+                const mins = Math.floor(state.sessionTime / 60);
+                const secs = state.sessionTime % 60;
+                const totalMins = Math.floor(state.sessionDuration / 60);
+                document.getElementById('session-timer-display').textContent =
+                    `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')} / ${totalMins}:00`;
+            } else {
+                sessionBar.classList.add('translate-y-full');
+            }
+        }
+
+        function startFocusMode() {
+            if (!SmartEco.state.hardwareConnected) {
+                showToast('Connect hardware first!', '⚠️', 'Cannot start');
+                return;
+            }
+
+            SmartEco.startSession();
+            showToast('Focus mode activated!', '🎯', 'Session started');
+        }
+
+        // ===== GAME LAUNCHER =====
+        function launchGame(gameType) {
+            if (!SmartEco.state.hardwareConnected) {
+                showToast('Please connect your Study Box first!', '🔌', 'Hardware Required');
+                return;
+            }
+
+            SmartEco.startSession();
+
+            if (gameType === 'coding') {
+                window.location.href = 'code-game/index.html';
+            } else if (gameType === 'math') {
+                window.location.href = 'math-game/index.html';
+            }
+        }
+
+        // ===== NOTIFICATIONS =====
+        function showNotifications() {
+            const unread = SmartEco.state.notifications.filter(n => !n.read).length;
+            showToast(`${unread} unread notifications`, '🔔', 'Notifications');
+            SmartEco.markNotificationsRead();
+            document.getElementById('notification-dot').classList.add('hidden');
+        }
+
+        // ===== TOAST NOTIFICATION =====
+        function showToast(message, icon = '🎉', title = 'Notification') {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-icon').textContent = icon;
+            document.getElementById('toast-title').textContent = title;
+            document.getElementById('toast-message').textContent = message;
+
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // ===== UTILITY FUNCTIONS =====
+        function refreshRecommendations() {
+            showToast('Recommendations updated', '🔄', 'AI');
+        }
+
+        // Export functions for HTML onclick
+        window.startFocusMode = startFocusMode;
+        window.launchGame = launchGame;
+        window.startBluetoothScan = startBluetoothScan;
+        window.cancelScan = cancelScan;
+        window.disconnectHardware = disconnectHardware;
+        window.testHardware = testHardware;
+        window.refreshRecommendations = refreshRecommendations;
+        window.showNotifications = showNotifications;
     </script>
 </body>
 
